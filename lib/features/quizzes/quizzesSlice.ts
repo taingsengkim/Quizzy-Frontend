@@ -15,8 +15,15 @@ import CategoryReponse, { QuizResponse } from "@/lib/types/quiz";
                     body:newQuiz
                 }),
                 invalidatesTags:['quiz']
+            }),
+            deleteQuiz:builder.mutation({
+                query:(id)=>({
+                    url:`/quiz/${id}`,
+                    method:"DELETE",
+                }),
+                invalidatesTags:['quiz']
             })
         })
     })
 
-    export const {useGetQuizzesQuery, useAddQuizMutation} = quizzyApi
+    export const {useGetQuizzesQuery, useAddQuizMutation, useDeleteQuizMutation} = quizzyApi

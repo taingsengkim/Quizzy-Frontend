@@ -31,6 +31,7 @@ import {
   FileIcon,
   CommandIcon,
 } from "lucide-react";
+import Link from "next/link";
 
 const data = {
   user: {
@@ -41,7 +42,7 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/admin/dashboard",
       icon: <LayoutDashboardIcon />,
     },
     {
@@ -159,10 +160,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="#">
+              <Link href="/admin/dashboard">
                 <CommandIcon className="size-5!" />
                 <span className="text-base font-semibold">Quizzy</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
