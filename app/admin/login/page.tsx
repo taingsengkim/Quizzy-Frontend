@@ -20,6 +20,7 @@ import Image from "next/image";
 import { useLoginMutation } from "@/lib/auth/api-auth/authSlice";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/auth-client";
+import loginAdmin from "@/lib/auth/admin-auth";
 
 const loginSchema = z.object({
   email: z.email("Invalid admin email address"),
@@ -44,7 +45,6 @@ export default function AdminLogin() {
     },
   });
   const router = useRouter();
-  const [login, { isLoading: loginLoading }] = useLoginMutation();
   // Helper to set cookie (Since we aren't using a library like js-cookie)
   const setCookie = (name: string, value: string, days: number) => {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
@@ -54,12 +54,10 @@ export default function AdminLogin() {
     setIsLoading(true);
     try {
       // 2. Talk to SPRING BOOT (localhost:8090)
-      const result = await login(data).unwrap();
-
+      const result = await loginAdmin(data);
       // 3. Manually set the cookie that your Dashboard is looking for
       // Use the exact name your Server Component uses: "better-auth.session_data"
-      setCookie("better-auth.session_data", result.token, 1);
-
+      console.log(result);
       router.push("/admin/dashboard");
     } catch (err: any) {
       console.error("Spring Boot Login failed:", err);

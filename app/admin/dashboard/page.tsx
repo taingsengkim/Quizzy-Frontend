@@ -8,8 +8,11 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import data from "./data.json";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QuizAdminTable } from "@/components/dashboard/quiz-card";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { getAdminData } from "@/lib/auth/admin-data";
 
-export default function DsahboardPage() {
+export default async function DsahboardPage() {
   return (
     <div>
       <SectionCards />

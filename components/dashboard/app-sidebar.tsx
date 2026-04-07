@@ -32,6 +32,7 @@ import {
   CommandIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { useGetProfileQuery } from "@/lib/auth/api-auth/authSlice";
 
 const data = {
   user: {
@@ -151,6 +152,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: user, isLoading, isError } = useGetProfileQuery();
+  console.log(user);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -174,7 +177,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   );

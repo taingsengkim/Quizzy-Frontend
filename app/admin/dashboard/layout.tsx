@@ -6,9 +6,20 @@ import { SectionCards } from "@/components/dashboard/section-cards";
 import { SiteHeader } from "@/components/dashboard/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
-export default function DashboardLayout({
+import { getAdminData } from "@/lib/auth/admin-data";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+export default async function DashboardLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("better-auth.session_data");
+
+  console.log("auth token", authToken);
+  if (!authToken) {
+    redirect("/admin/login");
+  }
+
   return (
     <TooltipProvider>
       <SidebarProvider
