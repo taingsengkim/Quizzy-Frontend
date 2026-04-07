@@ -12,7 +12,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getAdminData } from "@/lib/auth/admin-data";
 
-export default async function DsahboardPage() {
+export default async function DashboardPage() {
   return (
     <div>
       <SectionCards />

@@ -6,9 +6,19 @@ import { quizzy } from "@/lib/features/api/api";
         endpoints:(builder)=>({
             login:builder.mutation({
                 query:(requestBody)=>({
-                    url:'/auth/login',
+                    url:'/login',
                     method:"POST",
-                    body:requestBody
+                    body:requestBody,
+                    credentials: 'include',
+                }), 
+                invalidatesTags:['auth']
+            }),
+            register:builder.mutation({
+                query:(requestBody)=>({
+                    url:'/register',
+                    method:"POST",
+                    body:requestBody,
+                    credentials: 'include',
                 }), 
                 invalidatesTags:['auth']
             }),
@@ -23,4 +33,4 @@ import { quizzy } from "@/lib/features/api/api";
         })
     })
 
-    export const {useLoginMutation,useGetProfileQuery} = quizzyApi
+    export const {useLoginMutation,useRegisterMutation,useGetProfileQuery} = quizzyApi

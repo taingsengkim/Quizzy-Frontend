@@ -45,7 +45,6 @@ export default function AdminLogin() {
     },
   });
   const router = useRouter();
-  // Helper to set cookie (Since we aren't using a library like js-cookie)
   const setCookie = (name: string, value: string, days: number) => {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
@@ -53,10 +52,7 @@ export default function AdminLogin() {
   const onFormSubmit = async (data: LoginFormValue) => {
     setIsLoading(true);
     try {
-      // 2. Talk to SPRING BOOT (localhost:8090)
       const result = await loginAdmin(data);
-      // 3. Manually set the cookie that your Dashboard is looking for
-      // Use the exact name your Server Component uses: "better-auth.session_data"
       console.log(result);
       router.push("/admin/dashboard");
     } catch (err: any) {

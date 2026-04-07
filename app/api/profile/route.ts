@@ -1,4 +1,3 @@
-// app/api/profile/route.ts
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -10,10 +9,10 @@ export async function GET() {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
-  const res = await fetch("http://localhost:8090/api/v1/auth/profile", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
     method: "GET",
     headers: {
-      Authorization: `Bearer ${token}`, // <--- Spring needs this
+      Authorization: `Bearer ${token}`, 
     },
   });
 
