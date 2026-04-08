@@ -53,7 +53,7 @@ export const quizzyApi = quizzy.injectEndpoints({
     }),
     getQuizResultById: builder.query({
       query: (resultId: number | string) =>
-        `http://localhost:8090/api/v1/quizzes/result/${resultId}`,
+        `/quizzes/result/${resultId}`,
       providesTags: ["quizResults"],
     }),
     getQuizHistory: builder.query({

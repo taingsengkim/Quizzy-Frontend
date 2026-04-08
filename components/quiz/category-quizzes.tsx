@@ -33,8 +33,23 @@ export default function CategoryQuizzesClient({ categoryId }: Props) {
     );
   }
 
+  const handleClick = async (quizId: number) => {
+    try {
+      const res = await fetch("/api/auth/check");
+      if (!res.ok) throw new Error("Not logged in");
+
+      const data = await res.json();
+      if (data.loggedIn) {
+        router.push(`/quizzes/play/${quizId}`);
+      } else {
+        router.push("/login");
+      }
+    } catch {
+      router.push("/login");
+    }
+  };
   return (
-    <div className="max-w-6xl mx-auto px-6 py-16">
+    <div className="max-w-6xl mx-auto px-6 py-20">
       <div className="mb-10">
         <h1 className="text-3xl font-bold text-white">Available Quizzes</h1>
         <p className="text-slate-500 text-sm mt-2">
@@ -43,13 +58,27 @@ export default function CategoryQuizzesClient({ categoryId }: Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {quizzes.map((quiz: any) => (
+        {quizzes?.map((quiz: any) => (
           <Card
             key={quiz.id}
-            className="group cursor-pointer bg-[#0f172a] border-slate-800 hover:border-sky-500/50 transition-all duration-300 hover:shadow-[0_0_20px_rgba(56,189,248,0.1)] overflow-hidden"
-            onClick={() => router.push(`/quizzes/play/${quiz.id}`)}
+            className={`group border-slate-800 transition-all duration-300 overflow-hidden
+  ${
+    quiz.questions?.length === 0
+      ? "bg-red-900 cursor-not-allowed opacity-70"
+      : "bg-[#0f172a] cursor-pointer hover:bg-[#111827] hover:border-sky-500/50 hover:shadow-[0_0_20px_rgba(56,189,248,0.1)]"
+  }`}
+            onClick={() => {
+              if (quiz.questions?.length === 0) return;
+              handleClick(quiz?.id);
+            }}
           >
-            <CardContent className="p-6">
+            <CardContent
+              className={`p-6 transition-colors ${
+                quiz.questions?.length === 0
+                  ? "bg-red-900"
+                  : "bg-[#0f172a] group-hover:bg-[#111827]"
+              }`}
+            >
               <div className="flex justify-between items-start mb-4">
                 <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 font-mono uppercase">
                   {quiz.duration} Mins

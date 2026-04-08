@@ -1,7 +1,9 @@
 export default interface CategoryReponse{
     id:number,
     name:String,
-    totalQuiz:number
+    totalQuiz:number,
+    description:string,
+    imageUrl:string
 }
 export interface AnswerResponse  {
   id: number;
