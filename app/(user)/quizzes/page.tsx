@@ -14,7 +14,7 @@ export default function QuizPage() {
             System / Categories
           </span>
         </div>
-        <h1 className="text-3xl md:text-4xl font-black text-white uppercase italic">
+        <h1 className=" p-4 text-3xl md:text-4xl font-black text-white uppercase italic">
           Neural <span className="text-sky-400">Sectors</span>
         </h1>
       </div>

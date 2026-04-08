@@ -10,6 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Loader2, Plus, Trash2 } from "lucide-react";
 import QuestionCard from "@/components/dashboard/add-quizzes/QuestionCard";
+import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const answerSchema = z.object({
   text: z.string().min(1, "Answer text is required"),
@@ -93,6 +102,8 @@ export default function CreateQuizPage() {
     (sum, q) => sum + (Number(q?.points) || 0),
     0,
   );
+
+  const { data: category } = useGetCategoriesQuery();
 
   const onSubmit = async (values: QuizFormValues) => {
     try {
@@ -220,13 +231,44 @@ export default function CreateQuizPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
                     Category ID
                   </label>
-                  <Controller
+                  {/* <Controller
                     control={control}
                     name="categoryId"
                     render={({ field }) => (
                       <Input type="number" min={1} {...field} />
                     )}
+                  /> */}
+                  <Controller
+                    control={control}
+                    name={`categoryId`}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SINGLE_CHOICE">
+                            Single Choice
+                          </SelectItem>
+                          <SelectItem value="MULTIPLE_CHOICE">
+                            Multiple Choice
+                          </SelectItem>
+                          <SelectItem value="TRUE_FALSE">
+                            True / False
+                          </SelectItem>
+                          {category?.map((c) => (
+                            <SelectItem value={String(c.id)}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   />
+
                   <FieldError message={errors.categoryId?.message} />
                 </div>
               </div>

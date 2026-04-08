@@ -64,7 +64,9 @@ export function QuizAdminTable() {
     <div className="w-full space-y-4 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Quiz Management</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-black">
+            Quiz Management
+          </h2>
           <p className="text-muted-foreground text-sm">
             Manage your curriculum, track points, and update quiz content.
           </p>

@@ -32,7 +32,7 @@ export default function RootLayout({
     "===",
   ];
   return (
-    <div className="z-1">
+    <div className="z-1 text-slate-200">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
         .font-mono-custom { font-family: 'JetBrains Mono', monospace; }

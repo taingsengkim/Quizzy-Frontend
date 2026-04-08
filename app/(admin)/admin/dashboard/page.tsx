@@ -14,7 +14,7 @@ import { getAdminData } from "@/lib/auth/admin-data";
 
 export default async function DashboardPage() {
   return (
-    <div>
+    <div className="text-black">
       <SectionCards />
       <div className="flex flex-col">
         <QuizAdminTable />

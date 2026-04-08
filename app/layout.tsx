@@ -30,7 +30,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className=" flex flex-col font-mono-custom relative bg-[#080b14] text-slate-200 overflow-x-hidden">
+      <body className=" flex flex-col font-mono-custom relative bg-[#080b14]  overflow-x-hidden">
         <StoreProvider>
           <Toaster
             theme="dark"
