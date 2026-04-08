@@ -16,10 +16,16 @@ export default async function DashboardLayout({
   const authToken = cookieStore.get("better-auth.session_data");
 
   console.log("auth token", authToken);
+
   if (!authToken) {
     redirect("/admin/login");
   }
-
+  const token = authToken?.value;
+  const repsonse = await getAdminData(token);
+  console.log("Response", repsonse.role[0]);
+  if (repsonse.role[0].name != "ADMIN") {
+    redirect("/");
+  }
   return (
     <TooltipProvider>
       <SidebarProvider

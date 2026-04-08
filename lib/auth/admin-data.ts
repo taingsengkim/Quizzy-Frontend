@@ -1,7 +1,7 @@
 
 // Get Admin Data
 export async function getAdminData(token: string){
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/profile`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
