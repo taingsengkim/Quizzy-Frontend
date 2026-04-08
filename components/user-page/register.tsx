@@ -50,7 +50,12 @@ export default function RegisterComponent() {
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { username: "", email: "", password: "", role: "STUDENT" },
+    defaultValues: {
+      username: "kim12333",
+      email: "kim040322@gmail.com",
+      password: "Kim123!@#",
+      role: "STUDENT",
+    },
   });
 
   const router = useRouter();
