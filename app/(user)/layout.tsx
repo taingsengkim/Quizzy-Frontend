@@ -32,7 +32,7 @@ export default function RootLayout({
     "===",
   ];
   return (
-    <div className="z-1 text-slate-200">
+    <div className=" text-slate-200">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@700;800&display=swap');
         .font-mono-custom { font-family: 'JetBrains Mono', monospace; }
@@ -70,11 +70,11 @@ export default function RootLayout({
         {FLOATING_SYMBOLS.map((s, i) => (
           <span
             key={i}
-            className="float-sym font-mono text-xs text-sky-400/10"
+            className="float-sym font-mono text-xs text-green-700"
             style={{
               left: `${(i * 5.3) % 95}%`,
-              animationDuration: `${10 + ((i * 3.7) % 14)}s`,
-              animationDelay: `${(i * 1.9) % 8}s`,
+              animationDuration: `${2 + ((i * 3.7) % 14)}s`,
+              animationDelay: `${(i * 1.9) % 1}s`,
             }}
           >
             {s}
