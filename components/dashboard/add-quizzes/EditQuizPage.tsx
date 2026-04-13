@@ -156,7 +156,11 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
 
   const onAddQuestion = async (values: QuestionFormValues) => {
     try {
-      await addQuestion({ quizId: Number(quizId), ...values }).unwrap();
+      await addQuestion({
+        quizId: quizId,
+        ...values,
+      }).unwrap();
+      console.log("Values QUESTIONS ADD", values, quizId);
       setIsDialogOpen(false);
       resetQuestion();
     } catch (err) {

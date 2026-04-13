@@ -43,7 +43,7 @@ export const quizzyApi = quizzy.injectEndpoints({
     addQuestionToQuiz: builder.mutation<
       unknown,
       {
-        quizId: number;
+        quizId: string;
         text: string;
         questionType: "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "TRUE_FALSE";
         points: number;
