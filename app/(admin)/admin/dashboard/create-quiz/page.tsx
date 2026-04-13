@@ -24,12 +24,15 @@ const answerSchema = z.object({
   text: z.string().min(1, "Answer text is required"),
   correct: z.boolean(),
 });
+// In CreateQuizPage.tsx — update questionSchema to include optional code:
+
 const questionSchema = z
   .object({
     text: z.string().min(1, "Question text is required"),
     questionType: z.enum(["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE"]),
     points: z.coerce.number().min(1, "Points must be at least 1"),
     difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+    code: z.string().nullable().optional(), // ← ADD THIS
     answers: z.array(answerSchema).min(2, "At least 2 answers are required"),
   })
   .superRefine((data, ctx) => {
@@ -54,6 +57,7 @@ const questionSchema = z
       });
     }
   });
+
 const quizSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -229,7 +233,7 @@ export default function CreateQuizPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    Category ID
+                    Category
                   </label>
                   {/* <Controller
                     control={control}
@@ -250,7 +254,7 @@ export default function CreateQuizPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="SINGLE_CHOICE">
+                          {/* <SelectItem value="SINGLE_CHOICE">
                             Single Choice
                           </SelectItem>
                           <SelectItem value="MULTIPLE_CHOICE">
@@ -258,7 +262,7 @@ export default function CreateQuizPage() {
                           </SelectItem>
                           <SelectItem value="TRUE_FALSE">
                             True / False
-                          </SelectItem>
+                          </SelectItem> */}
                           {category?.map((c) => (
                             <SelectItem value={String(c.id)}>
                               {c.name}
@@ -292,6 +296,7 @@ export default function CreateQuizPage() {
                   questionType: "SINGLE_CHOICE",
                   points: 5,
                   difficulty: "EASY",
+                  code: null,
                   answers: [],
                 })
               }

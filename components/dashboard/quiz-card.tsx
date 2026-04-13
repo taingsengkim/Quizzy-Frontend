@@ -34,22 +34,14 @@ import {
 import Link from "next/link";
 import DeleteModal from "../PopUp";
 import { QuizResponse } from "@/lib/types/quiz";
-import { auth } from "@/lib/auth/auth";
-import { redirect } from "next/navigation";
 
 export function QuizAdminTable() {
   const { data: quizzes, isLoading, isError } = useGetQuizzesQuery();
   const [selectedQuiz, setSelectedQuiz] = useState<QuizResponse | null>(null);
+  const [deleteQuiz] = useDeleteQuizMutation();
 
-  const [deleteQuiz, { isLoading: quizDeleteLoading }] =
-    useDeleteQuizMutation();
   const handleConfirmDelete = () => {
-    console.log("Deleted quiz:", selectedQuiz);
     deleteQuiz(selectedQuiz?.id);
-    setSelectedQuiz(null);
-  };
-
-  const handleCancelDelete = () => {
     setSelectedQuiz(null);
   };
 
@@ -71,7 +63,7 @@ export function QuizAdminTable() {
             Manage your curriculum, track points, and update quiz content.
           </p>
         </div>
-        <Link href={"/admin/dashboard/create-quiz"}>
+        <Link href="/admin/dashboard/create-quiz">
           <Button className="flex gap-2">
             <Plus className="w-4 h-4" /> Create New Quiz
           </Button>
@@ -96,7 +88,6 @@ export function QuizAdminTable() {
                 (sum, q) => sum + q.points,
                 0,
               );
-
               return (
                 <TableRow
                   key={quiz.id}
@@ -143,9 +134,12 @@ export function QuizAdminTable() {
                         <DropdownMenuItem className="cursor-pointer">
                           <Eye className="mr-2 h-4 w-4" /> View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
-                          <Edit className="mr-2 h-4 w-4" /> Edit Quiz
-                        </DropdownMenuItem>
+                        {/* ── Edit now navigates to the edit page ── */}
+                        <Link href={`/admin/dashboard/edit-quiz/${quiz.id}`}>
+                          <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
+                            <Edit className="mr-2 h-4 w-4" /> Edit Quiz
+                          </DropdownMenuItem>
+                        </Link>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => setSelectedQuiz(quiz)}
@@ -162,11 +156,12 @@ export function QuizAdminTable() {
           </TableBody>
         </Table>
       </div>
+
       {selectedQuiz && (
         <DeleteModal
           quiz={selectedQuiz}
           onConfirm={handleConfirmDelete}
-          onCancel={handleCancelDelete}
+          onCancel={() => setSelectedQuiz(null)}
         />
       )}
     </div>

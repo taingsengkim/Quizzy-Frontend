@@ -257,24 +257,24 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 room.finished
                   ? "bg-green-100 text-green-700"
                   : room.started
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-yellow-100 text-yellow-700"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-yellow-100 text-yellow-700"
               }`}
             >
               {room.finished
                 ? "Finished"
                 : room.started
-                  ? "Playing"
-                  : "Waiting"}
+                ? "Playing"
+                : "Waiting"}
             </span>
           </div>
 
           {/* Players */}
-          <div className="border rounded-xl p-4 bg-gray-50">
-            <p className="text-sm font-semibold text-gray-700 mb-2">
+          <div className="border rounded-xl p-4 ">
+            <p className="text-sm font-semibold text-gray-100 mb-2">
               Players ({totalPlayers})
               {room.started && (
-                <span className="ml-2 text-xs text-gray-400 font-normal">
+                <span className="ml-2 text-xs text-gray-100 font-normal">
                   {finishedCount}/{totalPlayers} completed
                 </span>
               )}
@@ -288,8 +288,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     key={p}
                     className={`px-3 py-1 rounded-full text-sm border flex items-center gap-1 ${
                       pFinished
-                        ? "bg-green-100 border-green-300 text-green-800"
-                        : "bg-gray-100 border-gray-300 text-gray-700"
+                        ? " border-green-300 text-green-800"
+                        : " border-gray-300 text-gray-100"
                     }`}
                   >
                     {p}
@@ -377,14 +377,14 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
             </div>
           )}
           {room.started && !room.finished && !iFinished && myQuestion && (
-            <div className="border rounded-xl p-4 bg-white space-y-3">
+            <div className="border rounded-xl p-4 space-y-3">
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <span>
                   Question {myIndex + 1}
                   {totalQuestions > 0 ? ` / ${totalQuestions}` : ""}
                 </span>
               </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-2 bg rounded-full overflow-hidden">
                 <div
                   className="h-2 bg-blue-500 rounded-full transition-all duration-500"
                   style={{ width: `${progress}%` }}
@@ -397,10 +397,10 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     key={a.id}
                     disabled={hasAnswered}
                     onClick={() => handleAnswer(a.id, a.text)}
-                    className={`p-3 border rounded-lg text-left transition ${
+                    className={`p-2 border rounded-lg text-left transition ${
                       hasAnswered
-                        ? "opacity-50 cursor-not-allowed bg-gray-50"
-                        : "hover:bg-gray-50 bg-white"
+                        ? "opacity-50 cursor-not-allowed "
+                        : "hover:bg-gray-700"
                     }`}
                   >
                     {a.text}
@@ -426,7 +426,9 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 {leaderboard?.map((p, i) => (
                   <li
                     key={p.username}
-                    className={`flex justify-between items-center py-2 border-b last:border-0 ${p.username === normalizedUsername ? "font-semibold" : ""}`}
+                    className={`flex justify-between items-center py-2 border-b last:border-0 ${
+                      p.username === normalizedUsername ? "font-semibold" : ""
+                    }`}
                   >
                     <span className="flex items-center gap-2">
                       <span className="text-gray-400 text-sm w-6">

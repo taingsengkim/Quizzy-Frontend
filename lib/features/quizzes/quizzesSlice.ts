@@ -4,33 +4,70 @@ import CategoryReponse, { QuizResponse } from "@/lib/types/quiz";
 export const quizzyApi = quizzy.injectEndpoints({
   endpoints: (builder) => ({
     getQuizzes: builder.query<QuizResponse[], void>({
-      query: () => '/quizzes',
-      providesTags: ['quizzes'],
+      query: () => "/quizzes",
+      providesTags: ["quizzes"],
     }),
     getQuizById: builder.query({
-      query: (id: number) => ({
+      query: (id: string) => ({
         url: `/quizzes/${id}`,
         method: "GET",
       }),
+      providesTags: (_result, _err, id) => [{ type: "quizzes", id }],
     }),
     getQuizzesByCategory: builder.query({
       query: (categoryId) => `/quizzes/categories/${categoryId}`,
-      providesTags: ['quizzes'],
+      providesTags: ["quizzes"],
     }),
     addQuiz: builder.mutation({
       query: (newQuiz) => ({
-        url: '/quizzes',
+        url: "/quizzes",
         method: "POST",
         body: newQuiz,
       }),
-      invalidatesTags: ['quizzes'],
+      invalidatesTags: ["quizzes"],
+    }),
+    updateQuiz: builder.mutation<
+      QuizResponse,
+      { id: number; body: Partial<Omit<QuizResponse, "id" | "questions">> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/quizzes/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_result, _err, { id }) => [
+        "quizzes",
+        { type: "quizzes", id },
+      ],
+    }),
+    addQuestionToQuiz: builder.mutation<
+      unknown,
+      {
+        quizId: number;
+        text: string;
+        questionType: "SINGLE_CHOICE" | "MULTIPLE_CHOICE" | "TRUE_FALSE";
+        points: number;
+        difficulty: "EASY" | "MEDIUM" | "HARD";
+        code?: string | null;
+        answers: { text: string; correct: boolean }[];
+      }
+    >({
+      query: ({ quizId, ...body }) => ({
+        url: `/quizzes/${quizId}/questions`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: (_result, _err, { quizId }) => [
+        "quizzes",
+        { type: "quizzes", id: quizId },
+      ],
     }),
     deleteQuiz: builder.mutation({
       query: (id) => ({
         url: `/quizzes/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ['quizzes'],
+      invalidatesTags: ["quizzes"],
     }),
     getQuizToPlay: builder.query({
       query: (id: number | string) =>
@@ -40,10 +77,7 @@ export const quizzyApi = quizzy.injectEndpoints({
       query: (payload: {
         quizId: number;
         duration: number;
-        answers: {
-          questionId: number;
-          answerId: number[];
-        }[];
+        answers: { questionId: number; answerId: number[] }[];
       }) => ({
         url: "/quizzes/submit-quiz",
         method: "POST",
@@ -52,8 +86,7 @@ export const quizzyApi = quizzy.injectEndpoints({
       invalidatesTags: ["quizResults"],
     }),
     getQuizResultById: builder.query({
-      query: (resultId: number | string) =>
-        `/quizzes/result/${resultId}`,
+      query: (resultId: number | string) => `/quizzes/result/${resultId}`,
       providesTags: ["quizResults"],
     }),
     getQuizHistory: builder.query({
@@ -68,6 +101,8 @@ export const {
   useGetQuizByIdQuery,
   useGetQuizzesByCategoryQuery,
   useAddQuizMutation,
+  useUpdateQuizMutation,           
+  useAddQuestionToQuizMutation,    
   useDeleteQuizMutation,
   useGetQuizToPlayQuery,
   useSubmitQuizResultMutation,
