@@ -4,13 +4,20 @@ import { useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useGetQuizByIdQuery } from "@/lib/features/quizzes/quizzesSlice";
-import { Check } from "lucide-react";
+import { Check, CheckCheck, Copy, Terminal } from "lucide-react";
+import RacingLeaderboard from "../user-page/racing-leaderboard";
+import CodeBlock from "./code-display";
+import { toast } from "sonner";
 
 type CurrentQuestion = {
   id: number;
   text: string;
   answers: { id: number; text: string }[];
   questionIndex: number;
+  code?: string | null;
+  questionType?: string;
+  points?: number;
+  difficulty?: string;
 };
 
 type RoomState = {
@@ -68,7 +75,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   };
 
   const connectAndCreate = () => {
-    if (!username) return alert("Enter username");
+    if (!username) return toast.warning("Enter username");
     if (stompClient?.connected) {
       stompClient.publish({
         destination: "/app/create-room",
@@ -119,7 +126,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   };
 
   const connectAndJoin = () => {
-    if (!username || !roomCode) return alert("Enter username and room code");
+    if (!username || !roomCode)
+      return toast.warning("Enter username and room code");
     if (stompClient?.connected) {
       subscribeToRoomTopic(stompClient, roomCode);
       stompClient.publish({
@@ -175,8 +183,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const myIndex = room?.playerQuestionIndex?.[normalizedUsername] ?? 0;
   const iFinished =
     room?.finishedPlayers?.includes(normalizedUsername) ?? false;
-  const progress = totalQuestions > 0 ? (myIndex / totalQuestions) * 100 : 0;
-
   const leaderboard = room?.participants
     ?.map((p) => ({ username: p, score: room.scores?.[p] ?? 0 }))
     ?.sort((a, b) => b.score - a.score);
@@ -184,60 +190,66 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const finishedCount = room?.finishedPlayers?.length ?? 0;
   const totalPlayers = room?.participants?.length ?? 0;
 
+  console.log("my question", myQuestion);
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Multiplayer Quiz</h1>
       {!room && (
-        <div className="min-h-screen flex items-center justify-center bg-gray-900 p-6">
-          <div className="w-full max-w-md bg-gray-850 rounded-xl shadow-xl p-8 space-y-6 font-mono text-gray-100">
-            <h2 className="text-2xl font-bold text-green-400 text-center mb-4">
-              🖥️ CodeRoom
-            </h2>
+        <div className="min-h-screen flex  justify-center ">
+          <div className="relative group w-full max-w-md">
+            <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-10 rounded-[2rem] shadow-2xl space-y-6 font-mono text-white">
+              <div className="absolute top-0 right-0 p-6 pointer-events-none">
+                <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-3xl font-bold text-white tracking-tight">
+                  🖥️ CodeRoom
+                </h2>
+                <p className="text-slate-400 text-sm">
+                  Join or create a multiplayer quiz room
+                </p>
+              </div>
 
-            {/* Username */}
-            <div className="flex flex-col">
-              <label className="text-gray-400 mb-1">Username</label>
-              <input
-                type="text"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="bg-gray-800 border border-gray-700 p-5 rounded text-green-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            {/* Join Room */}
-            <div className="flex flex-col">
-              <label className="text-gray-400 mb-1">Room Code</label>
-              <div className="flex gap-2">
+              <div className="space-y-2">
+                <label className="text-slate-400 text-sm">Username</label>
                 <input
                   type="text"
-                  placeholder="Room code to join"
-                  value={roomCode}
-                  onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                  className="flex-grow bg-gray-800 border border-gray-700 p-5 rounded text-green-400 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  placeholder="Enter your username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-slate-900/40 border border-slate-800 p-4 rounded-xl text-sky-300 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
                 />
-                <button
-                  onClick={connectAndJoin}
-                  className="bg-green-600 hover:bg-green-700 px-4 rounded font-semibold transition-colors"
-                >
-                  Join
-                </button>
               </div>
+              <div className="space-y-2">
+                <label className="text-slate-400 text-sm">Room Code</label>
+
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Enter room code"
+                    value={roomCode}
+                    onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+                    className="flex-1 bg-slate-900/40 border border-slate-800 p-4 rounded-xl text-sky-300 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
+                  />
+
+                  <button
+                    onClick={connectAndJoin}
+                    className="px-5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-semibold hover:bg-sky-500/20 transition"
+                  >
+                    Join
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={connectAndCreate}
+                className="w-full p-4 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-400 text-black font-bold hover:opacity-90 transition shadow-lg"
+              >
+                Create Room
+              </button>
+              <p className="text-center text-xs text-slate-500 italic">
+                Enter your username and join or create a room
+              </p>
             </div>
-
-            {/* Create Room */}
-            <button
-              onClick={connectAndCreate}
-              className="bg-blue-600 hover:bg-blue-700 w-full p-3 rounded font-semibold transition-colors"
-            >
-              Create Room
-            </button>
-
-            {/* Footer */}
-            <p className="text-gray-500 text-sm text-center italic">
-              Enter your username and join an existing room or create a new one.
-            </p>
           </div>
         </div>
       )}
@@ -326,9 +338,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
             </p>
           )}
 
-          {/* I finished — show leaderboard preview, others still playing */}
           {room.started && !room.finished && iFinished && (
-            <div className="border rounded-xl p-5 bg-green-50 space-y-4">
+            <div className="border rounded-xl p-5  space-y-4">
               <div className="text-center">
                 <p className="text-lg font-semibold text-green-800">
                   You finished all questions!
@@ -377,41 +388,85 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
             </div>
           )}
           {room.started && !room.finished && !iFinished && myQuestion && (
-            <div className="border rounded-xl p-4 space-y-3">
-              <div className="flex justify-between items-center text-sm text-gray-500">
-                <span>
-                  Question {myIndex + 1}
-                  {totalQuestions > 0 ? ` / ${totalQuestions}` : ""}
-                </span>
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
+              <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
+                <div className="absolute top-0 right-0 p-6 pointer-events-none">
+                  <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
+                </div>
+                <div className="flex flex-wrap justify-between items-center mb-6 gap-3 text-sm">
+                  <span className="text-slate-400">
+                    Question {myIndex + 1}
+                    {totalQuestions ? ` / ${totalQuestions}` : ""}
+                  </span>
+
+                  <div className="flex gap-2 items-center flex-wrap">
+                    {myQuestion.questionType && (
+                      <span className="text-xs px-3 py-1 rounded-full border border-slate-700 text-slate-400">
+                        {myQuestion.questionType === "MULTIPLE_CHOICE"
+                          ? "Multi Select"
+                          : "Single Choice"}
+                      </span>
+                    )}
+
+                    {myQuestion.points && (
+                      <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                        +{myQuestion.points} pts
+                      </span>
+                    )}
+
+                    {myQuestion.difficulty && (
+                      <span className="text-xs px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                        {myQuestion.difficulty}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
+                  {myQuestion.text}
+                </h3>
+                {myQuestion.code && (
+                  <div className="mb-6">
+                    <CodeBlock code={myQuestion.code} />
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 gap-4 mt-6">
+                  {myQuestion.answers.map((a) => (
+                    <button
+                      key={a.id}
+                      disabled={hasAnswered}
+                      onClick={() => handleAnswer(a.id, a.text)}
+                      className={`group/btn relative w-full text-left p-5 rounded-2xl border transition-all duration-300 ${
+                        hasAnswered
+                          ? "opacity-50 cursor-not-allowed bg-slate-900/40 border-slate-800"
+                          : "bg-slate-900/40 border-slate-800 text-slate-300 hover:border-sky-500 hover:bg-slate-900/60 hover:text-white"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold tracking-wide">
+                          {a.text}
+                        </span>
+
+                        <div
+                          className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
+                            hasAnswered
+                              ? "border-slate-700"
+                              : "border-slate-700 group-hover/btn:border-sky-500"
+                          }`}
+                        />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {hasAnswered && (
+                  <p className="text-center text-sm text-slate-400 mt-6 italic">
+                    Loading next question...
+                  </p>
+                )}
               </div>
-              <div className="h-2 bg rounded-full overflow-hidden">
-                <div
-                  className="h-2 bg-blue-500 rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-              <h2 className="text-xl font-semibold">{myQuestion.text}</h2>
-              <div className="grid gap-2">
-                {myQuestion.answers.map((a) => (
-                  <button
-                    key={a.id}
-                    disabled={hasAnswered}
-                    onClick={() => handleAnswer(a.id, a.text)}
-                    className={`p-2 border rounded-lg text-left transition ${
-                      hasAnswered
-                        ? "opacity-50 cursor-not-allowed "
-                        : "hover:bg-gray-700"
-                    }`}
-                  >
-                    {a.text}
-                  </button>
-                ))}
-              </div>
-              {hasAnswered && (
-                <p className="text-center text-sm text-gray-400 italic">
-                  Loading next question...
-                </p>
-              )}
             </div>
           )}
           {room.started && !room.finished && !iFinished && !myQuestion && (
@@ -420,7 +475,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
             </p>
           )}
           {room.finished && (
-            <div className="border rounded-xl p-4 bg-yellow-50 space-y-3">
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-6 space-y-5 shadow-xl">
+              {" "}
               <h2 className="text-xl font-bold">🏆 Final Leaderboard</h2>
               <ul className="space-y-1">
                 {leaderboard?.map((p, i) => (
@@ -447,11 +503,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
           )}
         </div>
       )}
-      <div className="text-xs text-gray-400 max-h-28 overflow-y-auto space-y-0.5">
-        {logs.map((l, i) => (
-          <p key={i}>{l}</p>
-        ))}
-      </div>
     </div>
   );
 }
