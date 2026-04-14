@@ -82,7 +82,7 @@ export default function RootLayout({
         ))}
       </div>
       <Navbar />
-      <main className="pt-25">
+      <main>
         {children}
         <Footer />
       </main>
