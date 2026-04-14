@@ -159,9 +159,10 @@ export function QuizAdminTable() {
 
       {selectedQuiz && (
         <DeleteModal
-          quiz={selectedQuiz}
+          item={selectedQuiz}
           onConfirm={handleConfirmDelete}
           onCancel={() => setSelectedQuiz(null)}
+          type="quiz"
         />
       )}
     </div>

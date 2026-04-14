@@ -1,149 +1,164 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
+  FileText,
+  Plus,
+} from "lucide-react";
+import Link from "next/link";
+import CategoryReponse, { QuizResponse } from "@/lib/types/quiz";
+import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import DeleteModal from "@/components/PopUp";
 
-import { CheckCircle2, Loader2 } from "lucide-react";
-import { useAddCategoryMutation } from "@/lib/features/categories/categoriesSlice";
+export default function CategoryTable() {
+  const { data: categories, isLoading, isError } = useGetCategoriesQuery();
+  const [selectedCategory, setSelectedCategory] =
+    useState<CategoryReponse | null>(null);
 
-// --- Zod schema ---
-const categorySchema = z.object({
-  name: z.string().min(1, "Name is required").max(255, "Name too long"),
-  description: z.string().max(1000, "Description too long").optional(),
-  imageUrl: z.string().url("Must be a valid URL").optional(),
-});
-
-type CategoryFormValues = z.infer<typeof categorySchema>;
-
-// --- Field error component ---
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return <p className="text-sm text-red-500 mt-1">{message}</p>;
-}
-
-export default function CategoryPage() {
-  const [submitted, setSubmitted] = useState(false);
-  const [addCategory, { isLoading }] = useAddCategoryMutation();
-
-  const {
-    control,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CategoryFormValues>({
-    resolver: zodResolver(categorySchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      imageUrl: "",
-    },
-  });
-
-  const onSubmit = async (values: CategoryFormValues) => {
-    try {
-      await addCategory(values).unwrap();
-      setSubmitted(true);
-    } catch (err) {
-      console.error(err);
-    }
+  const handleConfirmDelete = () => {
+    // deleteQuiz(selectedCategory?.id);
+    setSelectedCategory(null);
   };
 
-  if (submitted) {
+  if (isLoading)
+    return <div className="p-8 text-center">Loading categories...</div>;
+  if (isError)
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center max-w-md w-full">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-8 h-8 text-green-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Category Created!
-          </h2>
-          <p className="text-gray-500 mb-6">
-            "{control._formValues.name}" has been added successfully.
-          </p>
-          <Button
-            onClick={() => {
-              setSubmitted(false);
-              reset();
-            }}
-          >
-            Add Another Category
-          </Button>
-        </div>
-      </div>
+      <div className="p-8 text-center text-red-500">Error loading data.</div>
     );
-  }
 
   return (
-    <div className="min-h-screen text-black bg-gray-50 p-6">
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-        <h1 className="text-xl font-bold mb-4 text-black">Create Category</h1>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Name
-            </label>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <Input placeholder="Category name" {...field} />
-              )}
-            />
-            <FieldError message={errors.name?.message} />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Description
-            </label>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Textarea
-                  placeholder="Description (optional)"
-                  rows={3}
-                  {...field}
-                />
-              )}
-            />
-            <FieldError message={errors.description?.message} />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Image URL
-            </label>
-            <Controller
-              control={control}
-              name="imageUrl"
-              render={({ field }) => (
-                <Input placeholder="https://example.com/image.png" {...field} />
-              )}
-            />
-            <FieldError message={errors.imageUrl?.message} />
-          </div>
-
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Category"
-            )}
+    <div className="w-full space-y-4 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight text-black">
+            Quiz Management
+          </h2>
+          <p className="text-muted-foreground text-sm">
+            Manage your curriculum, track points, and update quiz content.
+          </p>
+        </div>
+        <Link href="/admin/dashboard/category/create">
+          <Button className="flex gap-2">
+            <Plus className="w-4 h-4" /> Create New Category
           </Button>
-        </form>
+        </Link>
       </div>
+
+      <div className="rounded-md border bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
+              <TableHead className="w-[80px]">ID</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Total Quizzes</TableHead>
+              <TableHead>Image Url</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {categories?.map((cate) => {
+              return (
+                <TableRow
+                  key={cate.id}
+                  className="hover:bg-muted/30 transition-colors"
+                >
+                  <TableCell className="font-mono text-xs text-muted-foreground">
+                    #{cate.id}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">{cate.name}</span>
+                      <span className="text-xs text-muted-foreground line-clamp-1 max-w-[300px]">
+                        {cate.description}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">
+                        {cate.totalQuiz}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium text-sm">
+                        <Image
+                          src={cate.imageUrl}
+                          width={50}
+                          height={50}
+                          alt="cate.name"
+                        />
+                      </span>
+                    </div>
+                  </TableCell>
+
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-[160px]">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="cursor-pointer">
+                          <Eye className="mr-2 h-4 w-4" /> View Details
+                        </DropdownMenuItem>
+                        <Link href={`/admin/dashboard/category/edit${cate.id}`}>
+                          <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
+                            <Edit className="mr-2 h-4 w-4" /> Edit Cateogry
+                          </DropdownMenuItem>
+                        </Link>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setSelectedCategory(cate)}
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" /> Delete Category
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+
+      {selectedCategory && (
+        <DeleteModal
+          item={selectedCategory}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setSelectedCategory(null)}
+          type="category"
+        />
+      )}
     </div>
   );
 }
