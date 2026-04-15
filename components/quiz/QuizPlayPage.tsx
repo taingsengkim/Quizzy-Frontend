@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   useGetQuizToPlayQuery,
   useSubmitQuizResultMutation,
@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import CodeBlock from "./code-display";
+import { toast } from "sonner";
 
 interface PlayQuizProps {
   quizId: string;
@@ -41,6 +42,85 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<
     Record<number, number[]>
   >({});
+
+  const [hint, setHint] = useState<string | null>(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  // Tracks how many hints were used per question (max 1 per question)
+  const [hintUsedMap, setHintUsedMap] = useState<Record<number, number>>({});
+  // Tracks total hints used across the entire quiz (max 2)
+  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+  const attemptStartedRef = React.useRef(false);
+  useEffect(() => {
+    if (attemptStartedRef.current) return;
+
+    const startNewAttempt = async () => {
+      try {
+        const res = await fetch(`/api/quizzes/${quizId}/start-attempt`, {
+          method: "POST",
+        });
+
+        const data = await res.json();
+        setAttemptId(data.attemptId);
+
+        attemptStartedRef.current = true;
+      } catch (err) {
+        console.error("Failed to start attempt", err);
+      }
+    };
+
+    startNewAttempt();
+  }, [quizId]);
+
+  const hintRequestingRef = React.useRef(false);
+  const handleGetHint = async () => {
+    if (!quiz || !question) return;
+
+    if (!attemptId) {
+      toast.error("Attempt not ready yet!");
+      return;
+    }
+
+    if (hintRequestingRef.current) return;
+
+    // Block if already used a hint on this specific question
+    const usedOnThisQuestion = hintUsedMap[question.id] || 0;
+    if (usedOnThisQuestion >= 1) {
+      toast.warning("You've already used your hint for this question.");
+      return;
+    }
+    // Block if 2 total hints have been used across the quiz
+    if (totalHintsUsed >= 2) {
+      toast.warning("You've used all 2 hints allowed for this quiz.");
+      return;
+    }
+    try {
+      hintRequestingRef.current = true;
+      setHintLoading(true);
+      const res = await fetch(
+        `/api/quizzes/${quizId}/questions/${question.id}/hint?attemptId=${attemptId}`,
+      );
+
+      const msg = await res.text();
+
+      if (!res.ok) {
+        toast.warning(msg);
+        return;
+      }
+
+      setHint(msg);
+      // Mark this question as having used its hint
+      setHintUsedMap((prev) => ({
+        ...prev,
+        [question.id]: usedOnThisQuestion + 1,
+      }));
+      setTotalHintsUsed((prev) => prev + 1);
+    } finally {
+      setHintLoading(false);
+      hintRequestingRef.current = false;
+    }
+  };
 
   const renderTypeBadge = (type: string) => {
     const types: Record<string, { label: string; icon: any; color: string }> = {
@@ -126,6 +206,10 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   };
 
   const handleNext = async () => {
+    // Only clear the displayed hint — do NOT reset hintUsedMap or totalHintsUsed
+    setHint(null);
+    setHintLoading(false);
+
     if (currentIdx < quiz.questions.length - 1) {
       setCurrentIdx((prev) => prev + 1);
     } else {
@@ -259,7 +343,9 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
       </div>
     );
   }
-
+  const usedOnCurrentQuestion = hintUsedMap[question.id] || 0;
+  const hintDisabled =
+    hintLoading || usedOnCurrentQuestion >= 1 || totalHintsUsed >= 2;
   return (
     <div className="min-h-screen bg-[#05080f] flex items-center justify-center py-20 px-6">
       <div className="max-w-3xl w-full">
@@ -321,7 +407,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
             </div>
           </div>
         </div>
-
         {/* question card */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition-opacity" />
@@ -337,7 +422,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
             {question.code != null && question.code !== "" && (
               <CodeBlock code={question.code} />
             )}
-
             {/* answers */}
             <div className="grid grid-cols-1 gap-4 mt-8">
               {question.answers.map((answer: any) => {
@@ -376,7 +460,32 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
             </div>
           </div>
         </div>
-        <div className="mt-12 flex justify-end">
+
+        <div className="mt-12 flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            {hint && (
+              <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300">
+                💡 {hint}
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleGetHint}
+                disabled={hintDisabled}
+                className="bg-amber-500 hover:bg-amber-400 text-black font-bold disabled:opacity-30"
+              >
+                {hintLoading ? "Loading..." : "💡 Show Hint"}
+              </Button>
+              <span className="text-xs text-slate-500 font-mono">
+                {totalHintsUsed}/2 quiz hints used
+                {usedOnCurrentQuestion >= 1 && (
+                  <span className="ml-2 text-amber-500/70">
+                    · used on this question
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
           <Button
             onClick={handleNext}
             disabled={!selectedAnswers[question.id]?.length}
