@@ -23,6 +23,9 @@ import { Label } from "@/components/ui/label";
 import { useRegisterMutation } from "@/lib/auth/api-auth/authSlice";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { signInSocial } from "@/lib/auth/action/auth-action";
+import { auth } from "@/lib/auth/auth";
+import SocialAuthButtons from "./social-login-button";
 
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters."),
@@ -42,6 +45,14 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function RegisterComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [registerUser, { isLoading }] = useRegisterMutation();
+  const [socialPending, setSocialPending] = useState<{
+    email: string;
+    username: string;
+  } | null>(null);
+  const [socialRole, setSocialRole] = useState<"STUDENT" | "INSTRUCTOR">(
+    "STUDENT",
+  );
+  const [isSocialLoading, setIsSocialLoading] = useState(false);
 
   const {
     control,
@@ -51,14 +62,48 @@ export default function RegisterComponent() {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      username: "kim12333",
-      email: "kim040322@gmail.com",
-      password: "Kim123!@#",
+      username: "",
+      email: "",
+      password: "",
       role: "STUDENT",
     },
   });
 
   const router = useRouter();
+
+  const handleSocialRegister = async () => {
+    if (!socialPending) return;
+    setIsSocialLoading(true);
+
+    const toastId = toast.loading("Syncing social identity...", {
+      className: "font-mono text-[11px] uppercase tracking-wider",
+    });
+
+    try {
+      await registerUser({
+        username: socialPending.username,
+        email: socialPending.email,
+        password: crypto.randomUUID(),
+        role: socialRole,
+      }).unwrap();
+
+      toast.success("Account Linked", {
+        id: toastId,
+        description: "Social identity synced. Redirecting...",
+        className: "bg-slate-900 border-sky-500/50 text-white font-mono",
+      });
+
+      setTimeout(() => router.push("/dashboard"), 1500);
+    } catch (err: any) {
+      toast.error("Sync Failed", {
+        id: toastId,
+        description: err?.data?.message || "Could not register social account.",
+        className: "bg-slate-950 border-red-500/50 text-white font-mono",
+      });
+    } finally {
+      setIsSocialLoading(false);
+    }
+  };
 
   const onSubmit = async (values: RegisterFormValues) => {
     const toastId = toast.loading("Initializing Account...", {
@@ -91,6 +136,77 @@ export default function RegisterComponent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#02040a] text-slate-200 px-6 relative overflow-hidden">
+      <AnimatePresence>
+        {socialPending && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-6"
+            >
+              <div className="space-y-1 text-center">
+                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                  Identity Detected
+                </p>
+                <h2 className="text-white font-bold text-lg">
+                  {socialPending.email}
+                </h2>
+                <p className="text-[10px] text-slate-500 font-mono">
+                  Select your role to complete registration
+                </p>
+              </div>
+
+              <div className="p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex gap-1">
+                {(["STUDENT", "INSTRUCTOR"] as const).map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setSocialRole(role)}
+                    className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${
+                      socialRole === role
+                        ? "bg-slate-800 text-sky-400 shadow-inner"
+                        : "text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSocialPending(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-800 text-slate-400 text-xs font-mono hover:border-red-500/40 hover:text-red-400 transition-all"
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSocialRegister}
+                  disabled={isSocialLoading}
+                  className="flex-1 py-2.5 rounded-xl bg-white text-black text-xs font-bold hover:bg-sky-400 transition-all flex items-center justify-center gap-2"
+                >
+                  {isSocialLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <>
+                      CONFIRM <Zap className="w-3 h-3 fill-current" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[120px] rounded-full" />
@@ -107,7 +223,7 @@ export default function RegisterComponent() {
           <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-sky-400 to-violet-500" />
           <CardContent className="p-8 space-y-8">
             <header className="space-y-2 text-center">
-              <h1 className="text-4xl font-black tracking-tighter italic text-white italic">
+              <h1 className="text-4xl font-black tracking-tighter italic text-white">
                 QUIZ
                 <span className="text-sky-500 underline decoration-violet-500">
                   ZY
@@ -117,6 +233,7 @@ export default function RegisterComponent() {
                 System.Initialize(Account_Creation)
               </p>
             </header>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex gap-1">
                 <Controller
@@ -142,6 +259,7 @@ export default function RegisterComponent() {
                   )}
                 />
               </div>
+
               {[
                 {
                   name: "username",
@@ -171,7 +289,7 @@ export default function RegisterComponent() {
                         <Input
                           {...field}
                           placeholder={input.placeholder}
-                          className="text-white  pl-10 bg-slate-900/50 border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 placeholder:text-slate-700 transition-all"
+                          className="text-white pl-10 bg-slate-900/50 border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 placeholder:text-slate-700 transition-all"
                         />
                       )}
                     />
@@ -183,7 +301,7 @@ export default function RegisterComponent() {
                   />
                 </div>
               ))}
-              {/* PASSWORD */}
+
               <div className="space-y-1.5 group">
                 <Label className="text-[10px] font-mono text-slate-500 ml-1 group-focus-within:text-violet-400 uppercase">
                   Access Key
@@ -211,7 +329,6 @@ export default function RegisterComponent() {
                   </button>
                 </div>
 
-                {/* ⚡ Dynamic Strength Meter */}
                 <div className="flex gap-1.5 mt-2 px-1">
                   {[
                     { label: "Length", test: passwordValue.length >= 8 },
@@ -230,7 +347,6 @@ export default function RegisterComponent() {
                             : "bg-slate-800"
                         }`}
                       />
-                      {/* Optional: Tiny label for each bar */}
                       <p
                         className={`text-[7px] uppercase font-bold text-center ${
                           req.test ? "text-violet-400" : "text-slate-700"
@@ -262,69 +378,17 @@ export default function RegisterComponent() {
                   </>
                 )}
               </Button>
-              <div className="flex flex-col gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => {}}
-                  className="flex items-center justify-center gap-2.5 w-full py-2.5 bg-slate-900/50 border border-slate-800 hover:border-sky-500/40 rounded-xl text-slate-200 text-sm font-medium transition-all active:scale-[0.98]"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      fill="#4285F4"
-                    />
-                    <path
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      fill="#34A853"
-                    />
-                    <path
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
-                      fill="#FBBC05"
-                    />
-                    <path
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      fill="#EA4335"
-                    />
-                  </svg>
-                  Continue with Google
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => {}}
-                  className="flex items-center justify-center gap-2.5 w-full py-2.5 bg-slate-900/50 border border-slate-800 hover:border-violet-500/40 rounded-xl text-slate-200 text-sm font-medium transition-all active:scale-[0.98]"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
-                  </svg>
-                  Continue with GitHub
-                </button>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-slate-800" />
-                <span className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">
-                  or use credentials
-                </span>
-                <div className="flex-1 h-px bg-slate-800" />
-              </div>
+              <SocialAuthButtons />
             </form>
 
             <footer className="text-center">
               <p className="text-[10px] text-slate-600 font-mono italic">
                 Existing_Node?{" "}
-                <span className="text-sky-500 hover:text-sky-300 underline cursor-pointer">
+                <span
+                  onClick={() => router.push("/login")}
+                  className="text-sky-500 hover:text-sky-300 underline cursor-pointer"
+                >
                   Re-route to Login
                 </span>
               </p>
@@ -335,6 +399,7 @@ export default function RegisterComponent() {
     </div>
   );
 }
+
 function ErrorMessage({ message }: { message?: string }) {
   return (
     <AnimatePresence mode="wait">

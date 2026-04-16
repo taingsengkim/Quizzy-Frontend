@@ -62,9 +62,9 @@ export default function Navbar() {
             <DropdownMenu modal={false}>
               <DropdownMenuTrigger className="focus:outline-none">
                 <Avatar className="h-8 w-8 border border-sky-500/40">
-                  <AvatarImage src={user.avatar} />
+                  <AvatarImage src={user?.avatar} />
                   <AvatarFallback className="bg-slate-900 text-sky-400 text-xs">
-                    {user.username.substring(0, 2).toUpperCase()}
+                    {user?.username?.substring(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
               </DropdownMenuTrigger>
