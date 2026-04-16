@@ -162,6 +162,17 @@ export default function QuestionCard({
             <Input placeholder="Enter your question..." {...field} />
           )}
         />
+        <Controller
+          control={control}
+          name={`questions.${qIndex}.hint`}
+          render={({ field }) => (
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              placeholder="Hint (optional)"
+            />
+          )}
+        />
 
         {/* Type / Difficulty / Points */}
         <div className="grid grid-cols-3 gap-4">

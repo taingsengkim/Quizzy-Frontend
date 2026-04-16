@@ -6,10 +6,7 @@ import { toast } from "sonner";
 export default function SocialAuthButtons() {
   const handleSocialAuth = async (provider: "google" | "github") => {
     try {
-      const url = await signInSocial(provider);
-      if (url) {
-        window.location.href = url;
-      }
+      await signInSocial(provider);
     } catch (err) {
       toast.error("OAuth failed");
     }

@@ -29,6 +29,7 @@ const answerSchema = z.object({
 const questionSchema = z
   .object({
     text: z.string().min(1, "Question text is required"),
+    hint: z.string().nullable().optional(),
     questionType: z.enum(["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE"]),
     points: z.coerce.number().min(1, "Points must be at least 1"),
     difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
@@ -293,6 +294,7 @@ export default function CreateQuizPage() {
               onClick={() =>
                 appendQuestion({
                   text: "",
+                  hint: "",
                   questionType: "SINGLE_CHOICE",
                   points: 5,
                   difficulty: "EASY",
