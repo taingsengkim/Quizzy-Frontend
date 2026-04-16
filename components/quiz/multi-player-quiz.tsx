@@ -40,6 +40,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const [room, setRoom] = useState<RoomState | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [hasAnswered, setHasAnswered] = useState(false);
+  const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const subscriptionRef = useRef<any>(null);
 
   const { data: quiz } = useGetQuizByIdQuery(room?.quizId?.toString() ?? "", {
@@ -61,9 +62,9 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
       setRoom((prev) => {
         const prevQ = prev?.playerCurrentQuestion?.[normalizedUsername];
         const nextQ = roomUpdate.playerCurrentQuestion?.[normalizedUsername];
-        // New question arrived for me  - > reset hasAnswered
         if (prevQ?.questionIndex !== nextQ?.questionIndex) {
           setHasAnswered(false);
+          setSelectedAnswers([]);
         }
         return roomUpdate;
       });
@@ -165,19 +166,42 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     });
   };
 
-  const handleAnswer = (answerId: number, answerText: string) => {
+  const toggleAnswer = (answerId: number, questionType?: string) => {
+    if (hasAnswered) return;
+
+    const isMultiple = questionType === "MULTIPLE_CHOICE";
+
+    if (isMultiple) {
+      setSelectedAnswers((prev) =>
+        prev.includes(answerId)
+          ? prev.filter((id) => id !== answerId)
+          : [...prev, answerId],
+      );
+    } else {
+      setSelectedAnswers((prev) => (prev.includes(answerId) ? [] : [answerId]));
+    }
+  };
+
+  const handleSubmit = () => {
     if (hasAnswered || !stompClient?.connected || !room) return;
+    if (selectedAnswers.length === 0)
+      return toast.warning("Select an answer first");
+
     setHasAnswered(true);
+
+    const answerPayload = selectedAnswers.join(",");
+
     stompClient.publish({
       destination: "/app/answer-question",
       body: JSON.stringify({
         roomCode: room.roomCode,
         username: normalizedUsername,
-        answer: String(answerId),
+        answer: answerPayload,
       }),
     });
-    addLog(`Answered: ${answerText}`);
+    addLog(`Answered: ${selectedAnswers.join(", ")}`);
   };
+
   const isOwner = room?.owner?.trim().toLowerCase() === normalizedUsername;
   const myQuestion = room?.playerCurrentQuestion?.[normalizedUsername] ?? null;
   const myIndex = room?.playerQuestionIndex?.[normalizedUsername] ?? 0;
@@ -189,6 +213,147 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
   const finishedCount = room?.finishedPlayers?.length ?? 0;
   const totalPlayers = room?.participants?.length ?? 0;
+  const renderAnswers = (question: CurrentQuestion) => {
+    const { answers, questionType } = question;
+    const isMultiple = questionType === "MULTIPLE_CHOICE";
+    const isTrueFalse = questionType === "TRUE_FALSE";
+
+    if (isTrueFalse) {
+      // Large toggle-style True / False buttons
+      return (
+        <div className="grid grid-cols-2 gap-4 mt-6">
+          {answers.map((a) => {
+            const selected = selectedAnswers.includes(a.id);
+            const isTrue = a.text.toLowerCase() === "true";
+            return (
+              <button
+                key={a.id}
+                disabled={hasAnswered}
+                onClick={() => toggleAnswer(a.id, questionType)}
+                className={`relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 font-bold text-xl transition-all duration-200
+                  ${
+                    hasAnswered
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }
+                  ${
+                    selected
+                      ? isTrue
+                        ? "border-emerald-500 bg-emerald-500/15 text-emerald-300"
+                        : "border-rose-500 bg-rose-500/15 text-rose-300"
+                      : "border-slate-700 bg-slate-900/40 text-slate-400 hover:border-slate-500 hover:text-white"
+                  }`}
+              >
+                <span className="text-4xl">{isTrue ? "✓" : "✗"}</span>
+                <span>{a.text}</span>
+                {selected && (
+                  <span className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center bg-current">
+                    <Check className="w-3 h-3 text-[#0d121f]" />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (isMultiple) {
+      // Checkbox-style — multiple can be selected
+      return (
+        <div className="grid grid-cols-1 gap-3 mt-6">
+          {answers.map((a) => {
+            const selected = selectedAnswers.includes(a.id);
+            return (
+              <button
+                key={a.id}
+                disabled={hasAnswered}
+                onClick={() => toggleAnswer(a.id, questionType)}
+                className={`group/btn flex items-center gap-4 w-full text-left p-5 rounded-2xl border-2 transition-all duration-200
+                  ${
+                    hasAnswered
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }
+                  ${
+                    selected
+                      ? "border-sky-500 bg-sky-500/10 text-white"
+                      : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-white"
+                  }`}
+              >
+                <div
+                  className={`w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all
+                    ${
+                      selected
+                        ? "border-sky-500 bg-sky-500"
+                        : "border-slate-600 group-hover/btn:border-slate-400"
+                    }`}
+                >
+                  {selected && <Check className="w-3 h-3 text-white" />}
+                </div>
+                <span className="font-medium tracking-wide">{a.text}</span>
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid grid-cols-1 gap-3 mt-6">
+        {answers.map((a, idx) => {
+          const selected = selectedAnswers.includes(a.id);
+          const labels = ["A", "B", "C", "D", "E"];
+          return (
+            <button
+              key={a.id}
+              disabled={hasAnswered}
+              onClick={() => toggleAnswer(a.id, questionType)}
+              className={`group/btn flex items-center gap-4 w-full text-left p-5 rounded-2xl border-2 transition-all duration-200
+                ${
+                  hasAnswered
+                    ? "opacity-50 cursor-not-allowed"
+                    : "cursor-pointer"
+                }
+                ${
+                  selected
+                    ? "border-amber-500 bg-amber-500/10 text-white"
+                    : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-white"
+                }`}
+            >
+              {/* Letter badge */}
+              <div
+                className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold transition-all
+                  ${
+                    selected
+                      ? "bg-amber-500 text-black"
+                      : "bg-slate-800 text-slate-400 group-hover/btn:bg-slate-700"
+                  }`}
+              >
+                {labels[idx] ?? idx + 1}
+              </div>
+              <span className="font-medium tracking-wide">{a.text}</span>
+              {/* Radio dot */}
+              <div className="ml-auto">
+                <div
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+                    ${
+                      selected
+                        ? "border-amber-500"
+                        : "border-slate-600 group-hover/btn:border-slate-400"
+                    }`}
+                >
+                  {selected && (
+                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
 
   console.log("my question", myQuestion);
   return (
@@ -387,6 +552,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               </div>
             </div>
           )}
+
           {room.started && !room.finished && !iFinished && myQuestion && (
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
@@ -405,6 +571,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                       <span className="text-xs px-3 py-1 rounded-full border border-slate-700 text-slate-400">
                         {myQuestion.questionType === "MULTIPLE_CHOICE"
                           ? "Multi Select"
+                          : myQuestion.questionType === "TRUE_FALSE"
+                          ? "True / False"
                           : "Single Choice"}
                       </span>
                     )}
@@ -432,34 +600,34 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 gap-4 mt-6">
-                  {myQuestion.answers.map((a) => (
-                    <button
-                      key={a.id}
-                      disabled={hasAnswered}
-                      onClick={() => handleAnswer(a.id, a.text)}
-                      className={`group/btn relative w-full text-left p-5 rounded-2xl border transition-all duration-300 ${
-                        hasAnswered
-                          ? "opacity-50 cursor-not-allowed bg-slate-900/40 border-slate-800"
-                          : "bg-slate-900/40 border-slate-800 text-slate-300 hover:border-sky-500 hover:bg-slate-900/60 hover:text-white"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-semibold tracking-wide">
-                          {a.text}
-                        </span>
+                {/* Type-aware answer rendering */}
+                {renderAnswers(myQuestion)}
 
-                        <div
-                          className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${
-                            hasAnswered
-                              ? "border-slate-700"
-                              : "border-slate-700 group-hover/btn:border-sky-500"
-                          }`}
-                        />
-                      </div>
-                    </button>
-                  ))}
-                </div>
+                {/* Submit button */}
+                {!hasAnswered && (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={selectedAnswers.length === 0}
+                    className={`mt-6 w-full p-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200
+                      ${
+                        selectedAnswers.length === 0
+                          ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                          : myQuestion.questionType === "TRUE_FALSE"
+                          ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-black hover:opacity-90 shadow-lg"
+                          : myQuestion.questionType === "MULTIPLE_CHOICE"
+                          ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-black hover:opacity-90 shadow-lg"
+                          : "bg-gradient-to-r from-amber-500 to-orange-400 text-black hover:opacity-90 shadow-lg"
+                      }`}
+                  >
+                    {selectedAnswers.length === 0
+                      ? "Select an answer"
+                      : `Submit Answer${
+                          selectedAnswers.length > 1
+                            ? `s (${selectedAnswers.length})`
+                            : ""
+                        }`}
+                  </button>
+                )}
 
                 {hasAnswered && (
                   <p className="text-center text-sm text-slate-400 mt-6 italic">
