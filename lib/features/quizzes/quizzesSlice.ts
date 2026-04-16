@@ -40,6 +40,16 @@ export const quizzyApi = quizzy.injectEndpoints({
         { type: "quizzes", id },
       ],
     }),
+    updateQuestion: builder.mutation<
+      QuizResponse,
+      { id: number; body: Partial<Omit<any, "id" | "questions">> }
+    >({
+      query: ({ id, body }) => ({
+        url: `/questions/${id}`,
+        method: "PUT",
+        body,
+      }),
+    }),
     addQuestionToQuiz: builder.mutation<
       unknown,
       {
@@ -61,6 +71,13 @@ export const quizzyApi = quizzy.injectEndpoints({
         "quizzes",
         { type: "quizzes", id: quizId },
       ],
+    }),
+    deleteQuestion: builder.mutation({
+      query: (id) => ({
+        url: `/questions/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["quizzes"],
     }),
     deleteQuiz: builder.mutation({
       query: (id) => ({
@@ -101,8 +118,10 @@ export const {
   useGetQuizByIdQuery,
   useGetQuizzesByCategoryQuery,
   useAddQuizMutation,
-  useUpdateQuizMutation,           
-  useAddQuestionToQuizMutation,    
+  useUpdateQuizMutation,    
+  useUpdateQuestionMutation,       
+  useAddQuestionToQuizMutation,
+  useDeleteQuestionMutation,    
   useDeleteQuizMutation,
   useGetQuizToPlayQuery,
   useSubmitQuizResultMutation,

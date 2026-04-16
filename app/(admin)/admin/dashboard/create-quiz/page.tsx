@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Loader2, Plus, Trash2 } from "lucide-react";
-import QuestionCard from "@/components/dashboard/add-quizzes/QuestionCard";
 import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
 
 import {
@@ -19,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { QuestionCard } from "@/components/dashboard/add-quizzes/QuestionCard";
 
 const answerSchema = z.object({
   text: z.string().min(1, "Answer text is required"),
