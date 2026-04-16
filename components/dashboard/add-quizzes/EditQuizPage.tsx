@@ -44,6 +44,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import CodeBlock from "@/components/quiz/code-display";
 
 // --- SCHEMAS ---
 
@@ -56,6 +57,7 @@ const quizSettingsSchema = z.object({
 
 const questionSchema = z.object({
   text: z.string().min(1, "Question text is required"),
+  hint: z.string().optional().nullable(),
   questionType: z.enum(["SINGLE_CHOICE", "MULTIPLE_CHOICE", "TRUE_FALSE"]),
   points: z.coerce.number().min(1),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
@@ -67,7 +69,10 @@ const questionSchema = z.object({
         correct: z.boolean(),
       }),
     )
-    .min(2, "At least 2 answers required"),
+    .min(2, "At least 2 answers required")
+    .refine((answers) => answers.some((a) => a.correct), {
+      message: "At least 1 correct answer is required",
+    }),
 });
 
 type QuizSettingsValues = z.infer<typeof quizSettingsSchema>;
@@ -95,7 +100,6 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
     defaultValues: { title: "", description: "", duration: 1, categoryId: 1 },
   });
 
-  // 2. Add Question Form
   const {
     control: qControl,
     handleSubmit: handleQuestionSubmit,
@@ -106,6 +110,7 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
     resolver: zodResolver(questionSchema),
     defaultValues: {
       text: "",
+      hint: "",
       questionType: "SINGLE_CHOICE",
       points: 5,
       difficulty: "EASY",
@@ -123,7 +128,12 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
   });
 
   const selectedType = watchQuestion("questionType");
+  const watchedAnswers = watchQuestion("answers");
 
+  const correctCount =
+    watchedAnswers?.filter((a: any) => a.correct).length ?? 0;
+
+  const canSubmit = correctCount >= 1;
   // Sync Quiz data to form
   useEffect(() => {
     if (quiz) {
@@ -362,7 +372,24 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
                       )}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <HelpCircle className="h-4 w-4" />
+                      Hint (Optional)
+                    </Label>
 
+                    <Controller
+                      name="hint"
+                      control={qControl}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          placeholder="Write a hint for this question..."
+                        />
+                      )}
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2">
                       <Code2 className="h-4 w-4" /> Code Snippet (Optional)
@@ -465,13 +492,18 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
                             )}
                         </div>
                       ))}
+                      {correctCount === 0 && (
+                        <p className="text-red-500 text-sm">
+                          Please select at least 1 correct answer
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <Button
                     type="submit"
                     className="w-full"
-                    disabled={isAddingQuestion}
+                    disabled={isAddingQuestion || !canSubmit}
                   >
                     {isAddingQuestion && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -498,10 +530,24 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
                     <p className="text-lg font-semibold leading-tight">
                       {q.text}
                     </p>
+                    {q.hint && (
+                      <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+                        <HelpCircle className="h-3 w-3" />
+                        {q.hint}
+                      </p>
+                    )}
                     {q.code && (
-                      <pre className="mt-2 p-3 bg-slate-100 dark:bg-slate-900 rounded-md text-xs font-mono overflow-x-auto border">
-                        <code>{q.code}</code>
-                      </pre>
+                      <div className="mt-2">
+                        <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                          <Code2 className="h-3 w-3" />
+                          Code snippet
+                        </div>
+
+                        <pre className="p-3 bg-slate-100 dark:bg-slate-900 rounded-md text-xs font-mono overflow-x-auto border">
+                          {/* <code>{q.code}</code> */}
+                          <CodeBlock code={q.code} />
+                        </pre>
+                      </div>
                     )}
                   </div>
                   <div className="flex flex-col items-end gap-2 shrink-0">
