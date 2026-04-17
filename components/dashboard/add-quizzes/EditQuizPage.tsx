@@ -120,7 +120,6 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 pb-20">
-      {/* Top Navigation Bar */}
       <div className="sticky top-0 z-30 w-full border-b bg-background/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">

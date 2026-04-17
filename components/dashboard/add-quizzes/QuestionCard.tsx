@@ -82,34 +82,34 @@ export function QuestionCard({
             {question?.text}
           </p>
 
-          {question.hint && (
+          {question?.hint && (
             <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
               <HelpCircle className="h-3 w-3 shrink-0" />
-              {question.hint}
+              {question?.hint}
             </p>
           )}
 
-          {question.code && (
+          {question?.code && (
             <div className="mt-2">
               <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                 <Code2 className="h-3 w-3" />
                 Code snippet
               </div>
               <pre className="p-3 bg-slate-100 dark:bg-slate-900 rounded-md text-xs font-mono overflow-x-auto border">
-                <CodeBlock code={question.code} />
+                <CodeBlock code={question?.code} />
               </pre>
             </div>
           )}
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
           <Badge
-            className={difficultyColors[question.difficulty]}
+            className={difficultyColors[question?.difficulty]}
             variant="outline"
           >
-            {question.difficulty}
+            {question?.difficulty}
           </Badge>
           <span className="text-xs text-muted-foreground">
-            {question.points} pts
+            {question?.points} pts
           </span>
           <div className="flex items-center gap-1 mt-1">
             <Button
@@ -126,7 +126,7 @@ export function QuestionCard({
                 <DialogHeader>
                   <DialogTitle>Delete this question?</DialogTitle>
                   <DialogDescription>
-                    This will permanently remove "{question.text}". This action
+                    This will permanently remove "{question?.text}". This action
                     cannot be undone.
                   </DialogDescription>
                 </DialogHeader>
@@ -156,7 +156,7 @@ export function QuestionCard({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-        {question.answers.map((ans) => (
+        {question?.answers.map((ans) => (
           <div
             key={ans.id}
             className={`flex items-center p-3 rounded-lg border text-sm transition-all ${

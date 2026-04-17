@@ -8,6 +8,7 @@ import { Check, CheckCheck, Copy, Terminal } from "lucide-react";
 import RacingLeaderboard from "../user-page/racing-leaderboard";
 import CodeBlock from "./code-display";
 import { toast } from "sonner";
+import NotFoundQuiz from "../share-component/not-found-quiz";
 
 type CurrentQuestion = {
   id: number;
@@ -43,10 +44,13 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const subscriptionRef = useRef<any>(null);
 
-  const { data: quiz } = useGetQuizByIdQuery(room?.quizId?.toString() ?? "", {
-    skip: !room?.quizId,
-  });
+  const { data: quiz, isLoading, error } = useGetQuizByIdQuery(quizId);
 
+  if (isLoading) return <p>Loading quiz...</p>;
+
+  if (error || !quiz) {
+    return <NotFoundQuiz />;
+  }
   const normalizedUsername = username.trim().toLowerCase();
   const totalQuestions = quiz?.questions?.length ?? 0;
 

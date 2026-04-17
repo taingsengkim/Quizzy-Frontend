@@ -18,8 +18,6 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Loader2, HelpCircle, Code2, Trash2 } from "lucide-react";
-
-// ---------------- Schema ----------------
 export const questionSchema = z.object({
   text: z.string().min(1),
   hint: z.string().optional().nullable(),
@@ -119,56 +117,50 @@ export default function QuestionForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label>Type</Label>
-          <div className="rounded-lg border-2 border-gray-300">
-            <Controller
-              name="questionType"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  key={`type-${field.value}`}
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SINGLE_CHOICE">Single</SelectItem>
-                    <SelectItem value="MULTIPLE_CHOICE">Multiple</SelectItem>
-                    <SelectItem value="TRUE_FALSE">True/False</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
+          <Controller
+            name="questionType"
+            control={control}
+            render={({ field }) => (
+              <Select
+                key={`type-${field.value}`}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="SINGLE_CHOICE">Single</SelectItem>
+                  <SelectItem value="MULTIPLE_CHOICE">Multiple</SelectItem>
+                  <SelectItem value="TRUE_FALSE">True/False</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
 
         <div>
-          <Label>Difficulty</Label>
-
-          <div className="rounded-lg border-2 border-gray-300">
-            {" "}
-            <Controller
-              name="difficulty"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  key={`type-${field.value}`}
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="EASY">Easy</SelectItem>
-                    <SelectItem value="MEDIUM">Medium</SelectItem>
-                    <SelectItem value="HARD">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
+          <Label>Difficulty</Label>{" "}
+          <Controller
+            name="difficulty"
+            control={control}
+            render={({ field }) => (
+              <Select
+                key={`type-${field.value}`}
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EASY">Easy</SelectItem>
+                  <SelectItem value="MEDIUM">Medium</SelectItem>
+                  <SelectItem value="HARD">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       </div>
 
@@ -191,7 +183,13 @@ export default function QuestionForm({
         <Controller
           name="hint"
           control={control}
-          render={({ field }) => <Input {...field} value={field.value ?? ""} />}
+          render={({ field }) => (
+            <Input
+              {...field}
+              value={field.value ?? ""}
+              placeholder="Hint for question..."
+            />
+          )}
         />
       </div>
       <div>
@@ -202,7 +200,11 @@ export default function QuestionForm({
           name="code"
           control={control}
           render={({ field }) => (
-            <Textarea {...field} value={field.value ?? ""} />
+            <Textarea
+              {...field}
+              value={field.value ?? ""}
+              placeholder="Code example... ( Optional )"
+            />
           )}
         />
       </div>
@@ -211,7 +213,13 @@ export default function QuestionForm({
         <Controller
           name="points"
           control={control}
-          render={({ field }) => <Input type="number" {...field} />}
+          render={({ field }) => (
+            <Input
+              type="number"
+              {...field}
+              placeholder="Point for question..."
+            />
+          )}
         />
       </div>
       <Separator />
@@ -240,6 +248,7 @@ export default function QuestionForm({
                 <input
                   type={type === "MULTIPLE_CHOICE" ? "checkbox" : "radio"}
                   checked={field.value}
+                  placeholder="Answers..."
                   onChange={(e) => {
                     if (type !== "MULTIPLE_CHOICE") {
                       fields.forEach((_, idx) =>
@@ -256,7 +265,11 @@ export default function QuestionForm({
               name={`answers.${i}.text`}
               control={control}
               render={({ field }) => (
-                <Input {...field} readOnly={type === "TRUE_FALSE"} />
+                <Input
+                  {...field}
+                  readOnly={type === "TRUE_FALSE"}
+                  placeholder="Answers..."
+                />
               )}
             />
 
