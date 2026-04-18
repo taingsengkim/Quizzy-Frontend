@@ -24,7 +24,7 @@ import { quizzy } from "@/lib/features/api/api";
             }),
             getProfile: builder.query<any, void>({
                 query: () => ({
-                    url: 'http://localhost:3000/api/profile',
+                    url: '/api/profile',
                     method: 'GET',
                      credentials: 'include',
                 }),
