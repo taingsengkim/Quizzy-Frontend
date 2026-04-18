@@ -71,7 +71,7 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
     reset,
     formState: { errors, isDirty },
   } = useForm<QuizSettingsValues>({
-    resolver: zodResolver(quizSettingsSchema),
+    resolver: zodResolver(quizSettingsSchema) as any,
     defaultValues: { title: "", description: "", duration: 1, categoryId: 1 },
   });
 

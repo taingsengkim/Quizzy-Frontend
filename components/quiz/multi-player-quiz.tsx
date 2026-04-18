@@ -5,7 +5,6 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useGetQuizByIdQuery } from "@/lib/features/quizzes/quizzesSlice";
 import { Check, CheckCheck, Copy, Terminal } from "lucide-react";
-import RacingLeaderboard from "../user-page/racing-leaderboard";
 import CodeBlock from "./code-display";
 import { toast } from "sonner";
 import NotFoundQuiz from "../share-component/not-found-quiz";

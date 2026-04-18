@@ -37,11 +37,11 @@ export default function CreateQuizPage() {
     handleSubmit,
     formState: { errors },
   } = useForm<QuizFormValues>({
-    resolver: zodResolver(quizSchema),
+    resolver: zodResolver(quizSchema) as any,
     defaultValues: {
       title: "",
       description: "",
-      duration: 30,
+      duration: 1,
       categoryId: 1,
       questions: [],
     },
@@ -103,7 +103,14 @@ export default function CreateQuizPage() {
           <Controller
             name="duration"
             control={control}
-            render={({ field }) => <Input type="number" min={1} {...field} />}
+            render={({ field }) => (
+              <Input
+                type="number"
+                min={1}
+                value={field.value}
+                onChange={(e) => field.onChange(Number(e.target.value))}
+              />
+            )}
           />
           {errors.duration && (
             <p className="text-red-500 text-sm mt-1">

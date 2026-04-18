@@ -14,7 +14,7 @@ export default function QuizPage({ params }: Props) {
   const resolvedParams = use(params);
   const quizId = resolvedParams.quizId;
 
-  const { data: quiz, isLoading, error } = useGetQuizByIdQuery(Number(quizId));
+  const { data: quiz, isLoading, error } = useGetQuizByIdQuery(quizId);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Record<number, number[]>

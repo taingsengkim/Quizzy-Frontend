@@ -53,7 +53,7 @@ export default function QuestionForm({
 }: Props) {
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<QuestionFormValues>({
-      resolver: zodResolver(questionSchema),
+      resolver: zodResolver(questionSchema) as any,
       defaultValues: {
         text: "",
         hint: "",
@@ -80,7 +80,7 @@ export default function QuestionForm({
         difficulty: defaultValues.difficulty ?? "EASY",
         code: defaultValues.code ?? "",
         answers:
-          defaultValues?.answers?.length > 0
+          (defaultValues.answers?.length ?? 0) > 0
             ? defaultValues.answers
             : [
                 { text: "", correct: false },

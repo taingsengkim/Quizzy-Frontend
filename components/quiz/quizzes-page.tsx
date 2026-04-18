@@ -38,7 +38,7 @@ export default function QuizzesPage() {
                   <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl group-hover:border-sky-500 transition-colors">
                     <img
                       src={cat.imageUrl}
-                      alt={cat?.name}
+                      alt={"img of " + cat.name}
                       className="w-16 h-16 object-contain"
                     />
                   </div>
