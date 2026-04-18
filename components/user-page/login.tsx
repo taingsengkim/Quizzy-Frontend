@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { useLoginMutation } from "@/lib/auth/api-auth/authSlice";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import Link from "next/link";
+import SocialAuthButtons from "./social-login-button";
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
   password: z.string().min(8, "Password must be at least 8 characters."),
@@ -170,14 +172,18 @@ export default function LoginComponent() {
                   </>
                 )}
               </Button>
+              <SocialAuthButtons />
             </form>
 
             <footer className="text-center">
               <p className="text-[10px] text-slate-600 font-mono italic">
                 Unauthorized_Node?{" "}
-                <span className="text-sky-500 hover:text-sky-300 underline underline-offset-4 cursor-pointer transition-colors">
+                <Link
+                  href="/register"
+                  className="text-sky-500 hover:text-sky-300 underline underline-offset-4 cursor-pointer transition-colors"
+                >
                   Create Account
-                </span>
+                </Link>
               </p>
             </footer>
           </CardContent>

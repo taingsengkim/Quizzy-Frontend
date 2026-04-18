@@ -23,6 +23,9 @@ import { Label } from "@/components/ui/label";
 import { useRegisterMutation } from "@/lib/auth/api-auth/authSlice";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { signInSocial } from "@/lib/auth/action/auth-action";
+import { auth } from "@/lib/auth/auth";
+import SocialAuthButtons from "./social-login-button";
 
 const registerSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters."),
@@ -42,6 +45,14 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function RegisterComponent() {
   const [showPassword, setShowPassword] = useState(false);
   const [registerUser, { isLoading }] = useRegisterMutation();
+  const [socialPending, setSocialPending] = useState<{
+    email: string;
+    username: string;
+  } | null>(null);
+  const [socialRole, setSocialRole] = useState<"STUDENT" | "INSTRUCTOR">(
+    "STUDENT",
+  );
+  const [isSocialLoading, setIsSocialLoading] = useState(false);
 
   const {
     control,
@@ -51,14 +62,48 @@ export default function RegisterComponent() {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      username: "kim12333",
-      email: "kim040322@gmail.com",
-      password: "Kim123!@#",
+      username: "",
+      email: "",
+      password: "",
       role: "STUDENT",
     },
   });
 
   const router = useRouter();
+
+  const handleSocialRegister = async () => {
+    if (!socialPending) return;
+    setIsSocialLoading(true);
+
+    const toastId = toast.loading("Syncing social identity...", {
+      className: "font-mono text-[11px] uppercase tracking-wider",
+    });
+
+    try {
+      await registerUser({
+        username: socialPending.username,
+        email: socialPending.email,
+        password: crypto.randomUUID(),
+        role: socialRole,
+      }).unwrap();
+
+      toast.success("Account Linked", {
+        id: toastId,
+        description: "Social identity synced. Redirecting...",
+        className: "bg-slate-900 border-sky-500/50 text-white font-mono",
+      });
+
+      setTimeout(() => router.push("/dashboard"), 1500);
+    } catch (err: any) {
+      toast.error("Sync Failed", {
+        id: toastId,
+        description: err?.data?.message || "Could not register social account.",
+        className: "bg-slate-950 border-red-500/50 text-white font-mono",
+      });
+    } finally {
+      setIsSocialLoading(false);
+    }
+  };
 
   const onSubmit = async (values: RegisterFormValues) => {
     const toastId = toast.loading("Initializing Account...", {
@@ -91,6 +136,77 @@ export default function RegisterComponent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#02040a] text-slate-200 px-6 relative overflow-hidden">
+      <AnimatePresence>
+        {socialPending && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-6"
+            >
+              <div className="space-y-1 text-center">
+                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                  Identity Detected
+                </p>
+                <h2 className="text-white font-bold text-lg">
+                  {socialPending.email}
+                </h2>
+                <p className="text-[10px] text-slate-500 font-mono">
+                  Select your role to complete registration
+                </p>
+              </div>
+
+              <div className="p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex gap-1">
+                {(["STUDENT", "INSTRUCTOR"] as const).map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setSocialRole(role)}
+                    className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${
+                      socialRole === role
+                        ? "bg-slate-800 text-sky-400 shadow-inner"
+                        : "text-slate-500 hover:text-slate-300"
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSocialPending(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-800 text-slate-400 text-xs font-mono hover:border-red-500/40 hover:text-red-400 transition-all"
+                >
+                  CANCEL
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSocialRegister}
+                  disabled={isSocialLoading}
+                  className="flex-1 py-2.5 rounded-xl bg-white text-black text-xs font-bold hover:bg-sky-400 transition-all flex items-center justify-center gap-2"
+                >
+                  {isSocialLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <>
+                      CONFIRM <Zap className="w-3 h-3 fill-current" />
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[120px] rounded-full" />
@@ -107,7 +223,7 @@ export default function RegisterComponent() {
           <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-sky-400 to-violet-500" />
           <CardContent className="p-8 space-y-8">
             <header className="space-y-2 text-center">
-              <h1 className="text-4xl font-black tracking-tighter italic text-white italic">
+              <h1 className="text-4xl font-black tracking-tighter italic text-white">
                 QUIZ
                 <span className="text-sky-500 underline decoration-violet-500">
                   ZY
@@ -117,6 +233,7 @@ export default function RegisterComponent() {
                 System.Initialize(Account_Creation)
               </p>
             </header>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div className="p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex gap-1">
                 <Controller
@@ -142,6 +259,7 @@ export default function RegisterComponent() {
                   )}
                 />
               </div>
+
               {[
                 {
                   name: "username",
@@ -171,7 +289,7 @@ export default function RegisterComponent() {
                         <Input
                           {...field}
                           placeholder={input.placeholder}
-                          className="text-white  pl-10 bg-slate-900/50 border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 placeholder:text-slate-700 transition-all"
+                          className="text-white pl-10 bg-slate-900/50 border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 placeholder:text-slate-700 transition-all"
                         />
                       )}
                     />
@@ -183,7 +301,7 @@ export default function RegisterComponent() {
                   />
                 </div>
               ))}
-              {/* PASSWORD */}
+
               <div className="space-y-1.5 group">
                 <Label className="text-[10px] font-mono text-slate-500 ml-1 group-focus-within:text-violet-400 uppercase">
                   Access Key
@@ -211,7 +329,6 @@ export default function RegisterComponent() {
                   </button>
                 </div>
 
-                {/* ⚡ Dynamic Strength Meter */}
                 <div className="flex gap-1.5 mt-2 px-1">
                   {[
                     { label: "Length", test: passwordValue.length >= 8 },
@@ -230,9 +347,10 @@ export default function RegisterComponent() {
                             : "bg-slate-800"
                         }`}
                       />
-                      {/* Optional: Tiny label for each bar */}
                       <p
-                        className={`text-[7px] uppercase font-bold text-center ${req.test ? "text-violet-400" : "text-slate-700"}`}
+                        className={`text-[7px] uppercase font-bold text-center ${
+                          req.test ? "text-violet-400" : "text-slate-700"
+                        }`}
                       >
                         {req.label}
                       </p>
@@ -260,12 +378,17 @@ export default function RegisterComponent() {
                   </>
                 )}
               </Button>
+
+              <SocialAuthButtons />
             </form>
 
             <footer className="text-center">
               <p className="text-[10px] text-slate-600 font-mono italic">
                 Existing_Node?{" "}
-                <span className="text-sky-500 hover:text-sky-300 underline cursor-pointer">
+                <span
+                  onClick={() => router.push("/login")}
+                  className="text-sky-500 hover:text-sky-300 underline cursor-pointer"
+                >
                   Re-route to Login
                 </span>
               </p>
@@ -276,6 +399,7 @@ export default function RegisterComponent() {
     </div>
   );
 }
+
 function ErrorMessage({ message }: { message?: string }) {
   return (
     <AnimatePresence mode="wait">

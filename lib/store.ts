@@ -4,7 +4,7 @@ import { quizzy } from './features/api/api'
 export const makeStore = () => {
   return configureStore({
     reducer: {
-            [quizzy.reducerPath]:quizzy.reducer 
+            [quizzy.reducerPath]:quizzy.reducer   
 
     },
      middleware: (getDefaultMiddleware) =>

@@ -1,4 +1,3 @@
-// app/quizzes/[categoryId]/page.tsx
 
 import CategoryQuizzesClient from "@/components/quiz/category-quizzes";
 import { ca } from "zod/v4/locales";

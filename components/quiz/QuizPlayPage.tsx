@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   useGetQuizToPlayQuery,
   useSubmitQuizResultMutation,
@@ -17,85 +17,17 @@ import {
   ListChecks,
   Target,
   Layers,
-  Copy,
-  CheckCheck,
-  Terminal,
+  Clock,
+  ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import CodeBlock from "./code-display";
+import { toast } from "sonner";
 
 interface PlayQuizProps {
   quizId: string;
 }
 
-// ─── Generic CodeBlock ────────────────────────────────────────────────────────
-function CodeBlock({ code }: { code: string }) {
-  const [copied, setCopied] = useState(false);
-  const lines = code.split("\n");
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
-
-  return (
-    <div className="my-8 rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl shadow-black/40 bg-[#080b14]">
-      {/* title bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#0f1420] border-b border-slate-700/50">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/70" />
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" />
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-            <Terminal className="w-3 h-3" />
-            code snippet
-          </div>
-        </div>
-
-        <button
-          onClick={handleCopy}
-          className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest text-slate-500 hover:text-sky-400 transition-colors px-2 py-1 rounded-md hover:bg-sky-500/10"
-        >
-          {copied ? (
-            <>
-              <CheckCheck className="w-3 h-3 text-emerald-400" />
-              <span className="text-emerald-400">copied</span>
-            </>
-          ) : (
-            <>
-              <Copy className="w-3 h-3" />
-              copy
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* code body */}
-      <div className="flex overflow-x-auto">
-        {/* line numbers */}
-        <div className="select-none py-5 px-3 text-right border-r border-slate-800/80 bg-[#080b14] min-w-[3rem] shrink-0">
-          {lines.map((_, i) => (
-            <div key={i} className="font-mono text-xs text-slate-700 leading-6">
-              {i + 1}
-            </div>
-          ))}
-        </div>
-
-        {/* code */}
-        <pre className="flex-1 py-5 px-5 overflow-x-auto m-0">
-          <code className="font-mono text-sm leading-6 text-slate-300 block whitespace-pre">
-            {code}
-          </code>
-        </pre>
-      </div>
-    </div>
-  );
-}
-
-// ─── Main component ───────────────────────────────────────────────────────────
 export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   const { data: quiz, isLoading, error } = useGetQuizToPlayQuery(quizId);
   const [submitQuizResult] = useSubmitQuizResultMutation();
@@ -108,6 +40,106 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   const [selectedAnswers, setSelectedAnswers] = useState<
     Record<number, number[]>
   >({});
+
+  const [hint, setHint] = useState<string | null>(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  const [hintUsedMap, setHintUsedMap] = useState<Record<number, number>>({});
+  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const quizStartedRef = useRef(false);
+  useEffect(() => {
+    if (!quiz || quizStartedRef.current) return;
+    quizStartedRef.current = true;
+
+    timerRef.current = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1);
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [quiz]);
+
+  // Stop timer when quiz is submitted (quizResultId set)
+  useEffect(() => {
+    if (quizResultId !== null && timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [quizResultId]);
+
+  // Stop timer if quiz has a time limit and it runs out
+  const timeLimitSeconds = quiz ? quiz.duration * 60 : null;
+  const timeIsUp =
+    timeLimitSeconds !== null && elapsedSeconds >= timeLimitSeconds;
+  const timeRemaining =
+    timeLimitSeconds !== null
+      ? Math.max(0, timeLimitSeconds - elapsedSeconds)
+      : null;
+
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (!timeIsUp || quizResultId !== null || !quiz) return;
+    handleSubmitQuiz();
+  }, [timeIsUp]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+  const attemptStartedRef = React.useRef(false);
+  useEffect(() => {
+    if (attemptStartedRef.current) return;
+    const startNewAttempt = async () => {
+      try {
+        const res = await fetch(`/api/quizzes/${quizId}/start-attempt`, {
+          method: "POST",
+        });
+        const data = await res.json();
+        setAttemptId(data.attemptId);
+        attemptStartedRef.current = true;
+      } catch (err) {
+        console.error("Failed to start attempt", err);
+      }
+    };
+    startNewAttempt();
+  }, [quizId]);
+  const hintRequestingRef = React.useRef(false);
+  const handleGetHint = async () => {
+    if (!quiz || !question) return;
+    if (!attemptId) return toast.error("Attempt not ready yet!");
+    if (hintRequestingRef.current) return;
+    const usedOnThisQuestion = hintUsedMap[question.id] || 0;
+    if (usedOnThisQuestion >= 1)
+      return toast.warning("You've already used your hint for this question.");
+    if (totalHintsUsed >= 2)
+      return toast.warning("You've used all 2 hints allowed for this quiz.");
+    try {
+      hintRequestingRef.current = true;
+      setHintLoading(true);
+      const res = await fetch(
+        `/api/quizzes/${quizId}/questions/${question.id}/hint?attemptId=${attemptId}`,
+      );
+      const msg = await res.text();
+      if (!res.ok) return toast.warning(msg);
+      setHint(msg);
+      setHintUsedMap((prev) => ({
+        ...prev,
+        [question.id]: usedOnThisQuestion + 1,
+      }));
+      setTotalHintsUsed((prev) => prev + 1);
+    } finally {
+      setHintLoading(false);
+      hintRequestingRef.current = false;
+    }
+  };
 
   const renderTypeBadge = (type: string) => {
     const types: Record<string, { label: string; icon: any; color: string }> = {
@@ -191,29 +223,37 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
       setSelectedAnswers({ ...selectedAnswers, [question.id]: updated });
     }
   };
-
-  const handleNext = async () => {
-    if (currentIdx < quiz.questions.length - 1) {
-      setCurrentIdx((prev) => prev + 1);
-    } else {
-      const payload = {
-        quizId: Number(quizId),
-        duration: 0,
-        answers: Object.entries(selectedAnswers).map(([qId, aIds]) => ({
-          questionId: Number(qId),
-          answerId: aIds,
-        })),
-      };
-      try {
-        const result = await submitQuizResult(payload).unwrap();
-        setQuizResultId(result.resultId);
-      } catch (err) {
-        console.error(err);
-      }
+  const handleSubmitQuiz = async (
+    overrideAnswers?: Record<number, number[]>,
+  ) => {
+    const answers = overrideAnswers ?? selectedAnswers;
+    const payload = {
+      quizId: Number(quizId),
+      duration: elapsedSeconds, //  actual elapsed time in seconds
+      answers: Object.entries(answers).map(([qId, aIds]) => ({
+        questionId: Number(qId),
+        answerId: aIds,
+      })),
+    };
+    try {
+      const result = await submitQuizResult(payload).unwrap();
+      setQuizResultId(result.resultId);
+    } catch (err) {
+      console.error(err);
     }
   };
 
-  // ── Results screen ──────────────────────────────────────────────────────────
+  const handleNext = async () => {
+    setHint(null);
+    setHintLoading(false);
+
+    if (currentIdx < quiz.questions.length - 1) {
+      setCurrentIdx((prev) => prev + 1);
+    } else {
+      await handleSubmitQuiz();
+    }
+  };
+
   if (quizResultId !== null) {
     if (isResultLoading)
       return (
@@ -235,7 +275,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
               Final Accuracy Assessment
             </p>
           </div>
-
           <div className="flex justify-center gap-6 mb-20">
             <div className="bg-[#0d121f] border border-emerald-500/20 p-8 rounded-3xl min-w-[200px] text-center shadow-2xl shadow-emerald-500/5">
               <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-2">
@@ -244,7 +283,15 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
               <p className="text-5xl font-black text-white">
                 {quizResult?.score}
                 <span className="text-emerald-500">/</span>
-                {quizResult?.total}
+                {quiz?.questions?.length}
+              </p>
+            </div>
+            <div className="bg-[#0d121f] border border-sky-500/20 p-8 rounded-3xl min-w-[200px] text-center shadow-2xl shadow-sky-500/5">
+              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-2">
+                Time Taken
+              </p>
+              <p className="text-5xl font-black text-white font-mono">
+                {formatTime(quizResult?.duration ?? elapsedSeconds)}
               </p>
             </div>
           </div>
@@ -281,7 +328,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                     )}
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 gap-3">
                   {q.correctAnswers.map((correct: string) => {
                     const isSelected = q.userAnswers.includes(correct);
@@ -328,11 +374,15 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
     );
   }
 
-  // ── Quiz play screen ────────────────────────────────────────────────────────
+  const usedOnCurrentQuestion = hintUsedMap[question.id] || 0;
+  const hintDisabled =
+    hintLoading || usedOnCurrentQuestion >= 1 || totalHintsUsed >= 2;
+  const isWarning = timeRemaining !== null && timeRemaining <= 60;
+  const isDanger = timeRemaining !== null && timeRemaining <= 30;
+
   return (
     <div className="min-h-screen bg-[#05080f] flex items-center justify-center py-20 px-6">
       <div className="max-w-3xl w-full">
-        {/* header */}
         <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3 items-center">
@@ -343,22 +393,22 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
               {question.difficulty && (
                 <div
                   className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider
-                    ${
-                      question.difficulty === "EASY"
-                        ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
-                        : ""
-                    }
-                    ${
-                      question.difficulty === "MEDIUM"
-                        ? "text-amber-400 border-amber-400/20 bg-amber-400/5"
-                        : ""
-                    }
-                    ${
-                      question.difficulty === "HARD"
-                        ? "text-rose-400 border-rose-400/20 bg-rose-400/5"
-                        : ""
-                    }
-                  `}
+                  ${
+                    question.difficulty === "EASY"
+                      ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
+                      : ""
+                  }
+                  ${
+                    question.difficulty === "MEDIUM"
+                      ? "text-amber-400 border-amber-400/20 bg-amber-400/5"
+                      : ""
+                  }
+                  ${
+                    question.difficulty === "HARD"
+                      ? "text-rose-400 border-rose-400/20 bg-rose-400/5"
+                      : ""
+                  }
+                `}
                 >
                   {question.difficulty}
                 </div>
@@ -377,38 +427,59 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
             </h2>
           </div>
 
-          <div className="w-full md:w-48 space-y-2">
-            <div className="flex justify-between font-mono text-[10px] text-slate-500 uppercase tracking-widest">
-              <span>Sync Progress</span>
-              <span>{Math.round(progress)}%</span>
-            </div>
-            <div className="h-1.5 bg-slate-900 rounded-full border border-slate-800 overflow-hidden">
+          <div className="flex flex-col items-end gap-3">
+            {timeRemaining !== null && (
               <div
-                className="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-700"
-                style={{ width: `${progress}%` }}
-              />
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-sm font-bold transition-all duration-300
+                ${
+                  isDanger
+                    ? "border-rose-500/50 bg-rose-500/10 text-rose-400 animate-pulse"
+                    : isWarning
+                    ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
+                    : "border-slate-700 bg-slate-900/40 text-slate-300"
+                }`}
+              >
+                <Clock className="w-4 h-4" />
+                {formatTime(timeRemaining)}
+              </div>
+            )}
+            {timeRemaining === null && (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-700 bg-slate-900/40 font-mono text-sm text-slate-400">
+                <Clock className="w-4 h-4" />
+                {formatTime(elapsedSeconds)}
+              </div>
+            )}
+            <div className="w-full md:w-48 space-y-2">
+              <div className="flex justify-between font-mono text-[10px] text-slate-500 uppercase tracking-widest">
+                <span>Sync Progress</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+              <div className="h-1.5 bg-slate-900 rounded-full border border-slate-800 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-700"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
             </div>
           </div>
         </div>
-
-        {/* question card */}
+        {timeIsUp && (
+          <div className="mb-6 p-4 rounded-2xl border border-rose-500/40 bg-rose-500/10 text-rose-300 text-center font-bold tracking-wide">
+            ⏰ Time's up! Submitting your answers...
+          </div>
+        )}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition-opacity" />
           <div className="relative bg-[#0d121f] border border-slate-800 p-10 md:p-16 rounded-[2rem] shadow-2xl">
             <div className="absolute top-0 right-0 p-8 pointer-events-none">
               <div className="w-16 h-16 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
             </div>
-
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
               {question.text}
             </h3>
-
-            {/* ── Code block: only renders when code is not null/empty ── */}
             {question.code != null && question.code !== "" && (
               <CodeBlock code={question.code} />
             )}
-
-            {/* answers */}
             <div className="grid grid-cols-1 gap-4 mt-8">
               {question.answers.map((answer: any) => {
                 const isSelected = selectedAnswers[question.id]?.includes(
@@ -418,11 +489,12 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                   <button
                     key={answer.id}
                     onClick={() => handleSelection(answer.id)}
+                    disabled={timeIsUp}
                     className={`group/btn relative w-full text-left p-6 rounded-2xl border transition-all duration-300 ${
                       isSelected
                         ? "bg-sky-500/10 border-sky-500 text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.1)]"
                         : "bg-slate-900/40 border-slate-800 text-slate-400 hover:border-slate-600 hover:bg-slate-900/60"
-                    }`}
+                    } ${timeIsUp ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex items-center justify-between relative z-10">
                       <span className="text-base font-semibold tracking-wide">
@@ -447,39 +519,42 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
           </div>
         </div>
 
-        {/* next / submit */}
-        <div className="mt-12 flex justify-end">
+        <div className="mt-12 flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            {hint && (
+              <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300">
+                💡 {hint}
+              </div>
+            )}
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleGetHint}
+                disabled={hintDisabled || timeIsUp}
+                className="bg-amber-500 hover:bg-amber-400 text-black font-bold disabled:opacity-30"
+              >
+                {hintLoading ? "Loading..." : "💡 Show Hint"}
+              </Button>
+              <span className="text-xs text-slate-500 font-mono">
+                {totalHintsUsed}/2 quiz hints used
+                {usedOnCurrentQuestion >= 1 && (
+                  <span className="ml-2 text-amber-500/70">
+                    · used on this question
+                  </span>
+                )}
+              </span>
+            </div>
+          </div>
           <Button
             onClick={handleNext}
-            disabled={!selectedAnswers[question.id]?.length}
+            disabled={!selectedAnswers[question.id]?.length || timeIsUp}
             className="group min-w-[220px] h-16 bg-sky-600 hover:bg-sky-500 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-sky-900/20 transition-all disabled:opacity-20 active:scale-95"
           >
             {currentIdx === quiz.questions.length - 1
               ? "Finalize Sequence"
               : "Commit & Next"}
-            <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
       </div>
     </div>
-  );
-}
-
-function ChevronRight(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 18 6-6-6-6" />
-    </svg>
   );
 }

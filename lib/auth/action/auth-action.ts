@@ -3,17 +3,18 @@ import { headers } from "next/headers";
 import { auth } from "../auth";
 import { redirect } from "next/navigation";
 
-export const signInSocial = async (provider: "github" | "google" | "facebook") => {
+export const signInSocial = async (provider: "github" | "google" ) => {
   const { url } = await auth.api.signInSocial({
     body: {
       provider,
-      callbackURL: "/admin/dashboard",
+      callbackURL: "/auth/callback",
     },
   });
 
   if (url) {
     redirect(url);
   }
+  return null
 };
 
 export const signOut = async () => {

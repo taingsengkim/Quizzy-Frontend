@@ -1,3 +1,5 @@
-export default function CategoryPage() {
-  return <p>category page.</p>;
+import React from "react";
+
+export default function page() {
+  return <div>page</div>;
 }
