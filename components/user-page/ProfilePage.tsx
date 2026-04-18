@@ -56,7 +56,6 @@ export default function ProfileComponent2() {
 
   return (
     <>
-      {/* ── Edit Profile Modal ── */}
       <EditProfileModal
         open={editOpen}
         onClose={() => setEditOpen(false)}
@@ -69,7 +68,6 @@ export default function ProfileComponent2() {
         <br />
         <br />
         <div className="border border-slate-900/10 rounded-xl overflow-hidden bg-slate-900/40 backdrop-blur-md shadow-2xl">
-          {/* ── title bar ── */}
           <div className="flex items-center justify-between px-4 py-3 bg-slate-800/50 border-b border-slate-700/50">
             <div className="flex items-center gap-2">
               <div className="flex gap-1.5">
@@ -82,7 +80,6 @@ export default function ProfileComponent2() {
               </span>
             </div>
 
-            {/* ── Edit button ── */}
             <Button
               size="sm"
               variant="ghost"
@@ -199,9 +196,17 @@ export default function ProfileComponent2() {
                               </span>
                               {q.quizTitle}
                             </span>
-                            <span style={{ color: col }} className="font-bold">
-                              {pct}%
-                            </span>
+                            <div className="flex gap-5">
+                              <span
+                                style={{ color: col }}
+                                className="font-bold"
+                              >
+                                {pct}%
+                              </span>
+                              <span className="font-bold text-green-500">
+                                Spent Time : {q.duration}s
+                              </span>
+                            </div>
                           </div>
                           <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
                             <div
