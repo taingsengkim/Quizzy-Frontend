@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useGetQuizByIdQuery } from "@/lib/features/quizzes/quizzesSlice";
@@ -44,13 +44,38 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const subscriptionRef = useRef<any>(null);
 
+  const [hint, setHint] = useState<string | null>(null);
+  const [hintLoading, setHintLoading] = useState(false);
+  const [hintUsedMap, setHintUsedMap] = useState<Record<number, number>>({});
+  const [totalHintsUsed, setTotalHintsUsed] = useState(0);
+  const [attemptId, setAttemptId] = useState<string | null>(null);
+  const attemptStartedRef = useRef(false);
+  const hintRequestingRef = useRef(false);
   const { data: quiz, isLoading, error } = useGetQuizByIdQuery(quizId);
+
+  useEffect(() => {
+    if (attemptStartedRef.current) return;
+    const startNewAttempt = async () => {
+      try {
+        const res = await fetch(`/api/quizzes/${quizId}/start-attempt`, {
+          method: "POST",
+        });
+        const data = await res.json();
+        setAttemptId(data.attemptId);
+        attemptStartedRef.current = true;
+      } catch (err) {
+        console.error("Failed to start attempt", err);
+      }
+    };
+    startNewAttempt();
+  }, [quizId]);
 
   if (isLoading) return <p>Loading quiz...</p>;
 
   if (error || !quiz) {
     return <NotFoundQuiz />;
   }
+
   const normalizedUsername = username.trim().toLowerCase();
   const totalQuestions = quiz?.questions?.length ?? 0;
 
@@ -69,6 +94,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
         if (prevQ?.questionIndex !== nextQ?.questionIndex) {
           setHasAnswered(false);
           setSelectedAnswers([]);
+          setHint(null); // clear hint on question change
         }
         return roomUpdate;
       });
@@ -170,11 +196,39 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     });
   };
 
+  const handleGetHint = async (question: CurrentQuestion) => {
+    if (!attemptId) return toast.error("Attempt not ready yet!");
+    if (hintRequestingRef.current) return;
+
+    const usedOnThisQuestion = hintUsedMap[question.id] || 0;
+    if (usedOnThisQuestion >= 1)
+      return toast.warning("You've already used your hint for this question.");
+    if (totalHintsUsed >= 2)
+      return toast.warning("You've used all 2 hints allowed for this quiz.");
+
+    try {
+      hintRequestingRef.current = true;
+      setHintLoading(true);
+      const res = await fetch(
+        `/api/quizzes/${quizId}/questions/${question.id}/hint?attemptId=${attemptId}`,
+      );
+      const msg = await res.text();
+      if (!res.ok) return toast.warning(msg);
+      setHint(msg);
+      setHintUsedMap((prev) => ({
+        ...prev,
+        [question.id]: usedOnThisQuestion + 1,
+      }));
+      setTotalHintsUsed((prev) => prev + 1);
+    } finally {
+      setHintLoading(false);
+      hintRequestingRef.current = false;
+    }
+  };
+
   const toggleAnswer = (answerId: number, questionType?: string) => {
     if (hasAnswered) return;
-
     const isMultiple = questionType === "MULTIPLE_CHOICE";
-
     if (isMultiple) {
       setSelectedAnswers((prev) =>
         prev.includes(answerId)
@@ -190,17 +244,13 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     if (hasAnswered || !stompClient?.connected || !room) return;
     if (selectedAnswers.length === 0)
       return toast.warning("Select an answer first");
-
     setHasAnswered(true);
-
-    const answerPayload = selectedAnswers.join(",");
-
     stompClient.publish({
       destination: "/app/answer-question",
       body: JSON.stringify({
         roomCode: room.roomCode,
         username: normalizedUsername,
-        answer: answerPayload,
+        answer: selectedAnswers.join(","),
       }),
     });
     addLog(`Answered: ${selectedAnswers.join(", ")}`);
@@ -214,16 +264,15 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const leaderboard = room?.participants
     ?.map((p) => ({ username: p, score: room.scores?.[p] ?? 0 }))
     ?.sort((a, b) => b.score - a.score);
-
   const finishedCount = room?.finishedPlayers?.length ?? 0;
   const totalPlayers = room?.participants?.length ?? 0;
+
   const renderAnswers = (question: CurrentQuestion) => {
     const { answers, questionType } = question;
     const isMultiple = questionType === "MULTIPLE_CHOICE";
     const isTrueFalse = questionType === "TRUE_FALSE";
 
     if (isTrueFalse) {
-      // Large toggle-style True / False buttons
       return (
         <div className="grid grid-cols-2 gap-4 mt-6">
           {answers.map((a) => {
@@ -263,7 +312,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     }
 
     if (isMultiple) {
-      // Checkbox-style — multiple can be selected
       return (
         <div className="grid grid-cols-1 gap-3 mt-6">
           {answers.map((a) => {
@@ -287,11 +335,11 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               >
                 <div
                   className={`w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all
-                    ${
-                      selected
-                        ? "border-sky-500 bg-sky-500"
-                        : "border-slate-600 group-hover/btn:border-slate-400"
-                    }`}
+                  ${
+                    selected
+                      ? "border-sky-500 bg-sky-500"
+                      : "border-slate-600 group-hover/btn:border-slate-400"
+                  }`}
                 >
                   {selected && <Check className="w-3 h-3 text-white" />}
                 </div>
@@ -325,27 +373,25 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-white"
                 }`}
             >
-              {/* Letter badge */}
               <div
                 className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold transition-all
-                  ${
-                    selected
-                      ? "bg-amber-500 text-black"
-                      : "bg-slate-800 text-slate-400 group-hover/btn:bg-slate-700"
-                  }`}
+                ${
+                  selected
+                    ? "bg-amber-500 text-black"
+                    : "bg-slate-800 text-slate-400 group-hover/btn:bg-slate-700"
+                }`}
               >
                 {labels[idx] ?? idx + 1}
               </div>
               <span className="font-medium tracking-wide">{a.text}</span>
-              {/* Radio dot */}
               <div className="ml-auto">
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-                    ${
-                      selected
-                        ? "border-amber-500"
-                        : "border-slate-600 group-hover/btn:border-slate-400"
-                    }`}
+                  ${
+                    selected
+                      ? "border-amber-500"
+                      : "border-slate-600 group-hover/btn:border-slate-400"
+                  }`}
                 >
                   {selected && (
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
@@ -359,12 +405,12 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     );
   };
 
-  console.log("my question", myQuestion);
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold text-gray-800">Multiplayer Quiz</h1>
+
       {!room && (
-        <div className="min-h-screen flex  justify-center ">
+        <div className="min-h-screen flex justify-center">
           <div className="relative group w-full max-w-md">
             <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-10 rounded-[2rem] shadow-2xl space-y-6 font-mono text-white">
               <div className="absolute top-0 right-0 p-6 pointer-events-none">
@@ -378,7 +424,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                   Join or create a multiplayer quiz room
                 </p>
               </div>
-
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Username</label>
                 <input
@@ -391,7 +436,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               </div>
               <div className="space-y-2">
                 <label className="text-slate-400 text-sm">Room Code</label>
-
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -400,7 +444,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
                     className="flex-1 bg-slate-900/40 border border-slate-800 p-4 rounded-xl text-sky-300 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
                   />
-
                   <button
                     onClick={connectAndJoin}
                     className="px-5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-semibold hover:bg-sky-500/20 transition"
@@ -422,6 +465,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
           </div>
         </div>
       )}
+
       {room && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -449,9 +493,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 : "Waiting"}
             </span>
           </div>
-
-          {/* Players */}
-          <div className="border rounded-xl p-4 ">
+          <div className="border rounded-xl p-4">
             <p className="text-sm font-semibold text-gray-100 mb-2">
               Players ({totalPlayers})
               {room.started && (
@@ -469,8 +511,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     key={p}
                     className={`px-3 py-1 rounded-full text-sm border flex items-center gap-1 ${
                       pFinished
-                        ? " border-green-300 text-green-800"
-                        : " border-gray-300 text-gray-100"
+                        ? "border-green-300 text-green-800"
+                        : "border-gray-300 text-gray-100"
                     }`}
                   >
                     {p}
@@ -491,8 +533,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               })}
             </div>
           </div>
-
-          {/* Lobby */}
           {!room.started && isOwner && (
             <button
               onClick={handleStartRoom}
@@ -506,9 +546,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               Waiting for host to start...
             </p>
           )}
-
           {room.started && !room.finished && iFinished && (
-            <div className="border rounded-xl p-5  space-y-4">
+            <div className="border rounded-xl p-5 space-y-4">
               <div className="text-center">
                 <p className="text-lg font-semibold text-green-800">
                   You finished all questions!
@@ -556,91 +595,121 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               </div>
             </div>
           )}
+          {room.started &&
+            !room.finished &&
+            !iFinished &&
+            myQuestion &&
+            (() => {
+              const usedOnThisQuestion = hintUsedMap[myQuestion.id] || 0;
+              const hintDisabled =
+                hintLoading || usedOnThisQuestion >= 1 || totalHintsUsed >= 2;
+              return (
+                <div className="relative group">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
+                  <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
+                    <div className="absolute top-0 right-0 p-6 pointer-events-none">
+                      <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
+                    </div>
 
-          {room.started && !room.finished && !iFinished && myQuestion && (
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
-              <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
-                <div className="absolute top-0 right-0 p-6 pointer-events-none">
-                  <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
-                </div>
-                <div className="flex flex-wrap justify-between items-center mb-6 gap-3 text-sm">
-                  <span className="text-slate-400">
-                    Question {myIndex + 1}
-                    {totalQuestions ? ` / ${totalQuestions}` : ""}
-                  </span>
-
-                  <div className="flex gap-2 items-center flex-wrap">
-                    {myQuestion.questionType && (
-                      <span className="text-xs px-3 py-1 rounded-full border border-slate-700 text-slate-400">
-                        {myQuestion.questionType === "MULTIPLE_CHOICE"
-                          ? "Multi Select"
-                          : myQuestion.questionType === "TRUE_FALSE"
-                          ? "True / False"
-                          : "Single Choice"}
+                    <div className="flex flex-wrap justify-between items-center mb-6 gap-3 text-sm">
+                      <span className="text-slate-400">
+                        Question {myIndex + 1}
+                        {totalQuestions ? ` / ${totalQuestions}` : ""}
                       </span>
+                      <div className="flex gap-2 items-center flex-wrap">
+                        {myQuestion.questionType && (
+                          <span className="text-xs px-3 py-1 rounded-full border border-slate-700 text-slate-400">
+                            {myQuestion.questionType === "MULTIPLE_CHOICE"
+                              ? "Multi Select"
+                              : myQuestion.questionType === "TRUE_FALSE"
+                              ? "True / False"
+                              : "Single Choice"}
+                          </span>
+                        )}
+                        {myQuestion.points && (
+                          <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                            +{myQuestion.points} pts
+                          </span>
+                        )}
+                        {myQuestion.difficulty && (
+                          <span className="text-xs px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                            {myQuestion.difficulty}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
+                      {myQuestion.text}
+                    </h3>
+
+                    {myQuestion.code && (
+                      <div className="mb-6">
+                        <CodeBlock code={myQuestion.code} />
+                      </div>
                     )}
 
-                    {myQuestion.points && (
-                      <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                        +{myQuestion.points} pts
-                      </span>
+                    {renderAnswers(myQuestion)}
+                    {!hasAnswered && (
+                      <div className="mt-6 space-y-3">
+                        {hint && (
+                          <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm">
+                            💡 {hint}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => handleGetHint(myQuestion)}
+                            disabled={hintDisabled}
+                            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-black font-bold text-sm transition-all"
+                          >
+                            {hintLoading ? "Loading..." : "💡 Show Hint"}
+                          </button>
+                          <span className="text-xs text-slate-500 font-mono">
+                            {totalHintsUsed}/2 hints used
+                            {usedOnThisQuestion >= 1 && (
+                              <span className="ml-2 text-amber-500/70">
+                                · used on this question
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      </div>
                     )}
-
-                    {myQuestion.difficulty && (
-                      <span className="text-xs px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
-                        {myQuestion.difficulty}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
-                  {myQuestion.text}
-                </h3>
-                {myQuestion.code && (
-                  <div className="mb-6">
-                    <CodeBlock code={myQuestion.code} />
-                  </div>
-                )}
-
-                {/* Type-aware answer rendering */}
-                {renderAnswers(myQuestion)}
-
-                {/* Submit button */}
-                {!hasAnswered && (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={selectedAnswers.length === 0}
-                    className={`mt-6 w-full p-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200
-                      ${
-                        selectedAnswers.length === 0
-                          ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                          : myQuestion.questionType === "TRUE_FALSE"
-                          ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-black hover:opacity-90 shadow-lg"
-                          : myQuestion.questionType === "MULTIPLE_CHOICE"
-                          ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-black hover:opacity-90 shadow-lg"
-                          : "bg-gradient-to-r from-amber-500 to-orange-400 text-black hover:opacity-90 shadow-lg"
-                      }`}
-                  >
-                    {selectedAnswers.length === 0
-                      ? "Select an answer"
-                      : `Submit Answer${
-                          selectedAnswers.length > 1
-                            ? `s (${selectedAnswers.length})`
-                            : ""
+                    {!hasAnswered && (
+                      <button
+                        onClick={handleSubmit}
+                        disabled={selectedAnswers.length === 0}
+                        className={`mt-4 w-full p-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200
+                        ${
+                          selectedAnswers.length === 0
+                            ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                            : myQuestion.questionType === "TRUE_FALSE"
+                            ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-black hover:opacity-90 shadow-lg"
+                            : myQuestion.questionType === "MULTIPLE_CHOICE"
+                            ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-black hover:opacity-90 shadow-lg"
+                            : "bg-gradient-to-r from-amber-500 to-orange-400 text-black hover:opacity-90 shadow-lg"
                         }`}
-                  </button>
-                )}
+                      >
+                        {selectedAnswers.length === 0
+                          ? "Select an answer"
+                          : `Submit Answer${
+                              selectedAnswers.length > 1
+                                ? `s (${selectedAnswers.length})`
+                                : ""
+                            }`}
+                      </button>
+                    )}
 
-                {hasAnswered && (
-                  <p className="text-center text-sm text-slate-400 mt-6 italic">
-                    Loading next question...
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
+                    {hasAnswered && (
+                      <p className="text-center text-sm text-slate-400 mt-6 italic">
+                        Loading next question...
+                      </p>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           {room.started && !room.finished && !iFinished && !myQuestion && (
             <p className="text-center text-sm text-gray-400 italic py-6">
               Loading question...
@@ -648,7 +717,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
           )}
           {room.finished && (
             <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-6 space-y-5 shadow-xl">
-              {" "}
               <h2 className="text-xl font-bold">🏆 Final Leaderboard</h2>
               <ul className="space-y-1">
                 {leaderboard?.map((p, i) => (

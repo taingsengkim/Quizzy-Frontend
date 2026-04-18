@@ -206,7 +206,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   };
 
   const handleNext = async () => {
-    // Only clear the displayed hint — do NOT reset hintUsedMap or totalHintsUsed
     setHint(null);
     setHintLoading(false);
 
@@ -349,7 +348,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   return (
     <div className="min-h-screen bg-[#05080f] flex items-center justify-center py-20 px-6">
       <div className="max-w-3xl w-full">
-        {/* header */}
         <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
             <div className="flex flex-wrap gap-3 items-center">
@@ -407,7 +405,6 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
             </div>
           </div>
         </div>
-        {/* question card */}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition-opacity" />
           <div className="relative bg-[#0d121f] border border-slate-800 p-10 md:p-16 rounded-[2rem] shadow-2xl">
