@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
 import Navbar from "../share-component/navbar";
+import CategoriesSection from "./category-home";
 
 const QUESTION = {
   lang: "JavaScript",
@@ -201,45 +202,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+        <CategoriesSection categories={categories} />
 
-        {/* ── CATEGORIES ── */}
-        <section
-          ref={catRef}
-          className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 py-16"
-        >
-          <div className="mb-10">
-            <p className="text-[11px] text-sky-400 tracking-[0.22em] uppercase mb-2">
-              // explore topics
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-extrabold text-white">
-              Pick your battleground
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories?.map((cat, i) => (
-              <Card
-                key={i}
-                className={`group bg-slate-900/60 border border-white/5 transition-all duration-300 hover:-translate-y-1 cursor-pointer backdrop-blur-sm overflow-hidden`}
-              >
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start mb-4"></div>
-                  <div className="font-display text-lg font-extrabold text-white mb-1">
-                    {cat.name}
-                  </div>
-
-                  <div
-                    className={`mt-3 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1`}
-                  >
-                    play now <ArrowRight className="w-3 h-3" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
-
-        {/* ── QUIZ + LEADERBOARD ── */}
         <section className="relative z-10 max-w-6xl mx-auto px-6 md:px-10 py-16">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
             {/* Quiz preview */}
@@ -347,82 +311,6 @@ export default function Home() {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Leaderboard */}
-            <div>
-              <p className="text-[11px] text-sky-400 tracking-[0.22em] uppercase mb-2">
-                // global ranking
-              </p>
-              <h2 className="font-display text-3xl font-extrabold text-white mb-8">
-                Top devs this week
-              </h2>
-
-              <Card className="bg-slate-900/80 border border-sky-500/12 backdrop-blur-sm">
-                <CardContent className="p-6 space-y-1">
-                  <div className="flex justify-between px-3 mb-3">
-                    <span className="text-[10px] text-slate-700 tracking-[0.18em] uppercase">
-                      handle
-                    </span>
-                    <span className="text-[10px] text-slate-700 tracking-[0.18em] uppercase">
-                      score
-                    </span>
-                  </div>
-
-                  {LEADERBOARD.map((p, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/[0.02] transition-colors"
-                    >
-                      <span className="text-base w-6 text-center">
-                        {p.badge}
-                      </span>
-                      <Avatar className="w-7 h-7">
-                        <AvatarFallback className="text-[10px] bg-slate-800 text-slate-400">
-                          {p.name.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className={`flex-1 font-mono text-sm ${p.color}`}>
-                        {p.name}
-                      </span>
-                      <span
-                        className={`font-display font-bold text-sm ${i === 0 ? "text-amber-400" : "text-slate-500"}`}
-                      >
-                        {p.score.toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-
-                  <Separator className="my-3 bg-white/4" />
-
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg border border-blue-500/20 bg-blue-500/5 cursor-pointer hover:bg-blue-500/8 transition-colors">
-                        <span className="text-base w-6 text-center">👤</span>
-                        <Avatar className="w-7 h-7">
-                          <AvatarFallback className="text-[10px] bg-blue-900/40 text-blue-400">
-                            YO
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="flex-1 font-mono text-sm text-blue-400">
-                          you
-                        </span>
-                        <span className="font-mono text-xs text-blue-500">
-                          → sign in
-                        </span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent className="font-mono text-xs bg-slate-900 border-sky-500/20">
-                      Create a free account to track your rank
-                    </TooltipContent>
-                  </Tooltip>
-
-                  <Button className="w-full mt-4 font-mono-custom text-xs bg-gradient-to-r from-blue-600/80 to-violet-600/80 hover:from-blue-500 hover:to-violet-500 transition-all">
-                    <Trophy className="w-3.5 h-3.5 mr-2" /> view full
-                    leaderboard
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         </section>
 
@@ -456,7 +344,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="font-mono-custom text-sm border-sky-500/25 text-sky-400 hover:bg-sky-500/5 hover:border-sky-400/40 bg-transparent"
+                className="font-mono-custom text-sm hover:text-white border-sky-500/25 text-sky-400 hover:bg-sky-500/5 hover:border-sky-400/40 bg-transparent"
               >
                 <Star className="w-4 h-4 mr-2" /> view all categories
               </Button>
