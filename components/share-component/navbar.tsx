@@ -46,7 +46,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await signOutUser();
-    dispatch(quizzy.util.resetApiState()); // clears cached profile
+    dispatch(quizzy.util.resetApiState());
     router.push("/login");
     router.refresh();
   };

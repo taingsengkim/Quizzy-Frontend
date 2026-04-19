@@ -1,5 +1,5 @@
 "use server";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { auth } from "../auth";
 import { redirect } from "next/navigation";
 
@@ -23,7 +23,6 @@ export const signOut = async () => {
   return result;
 };
 export const signOutUser = async () => {
-  const result = await auth.api.signOut({ headers: await headers() });
-  return result;
+  const cookieStore = await cookies();
+  cookieStore.delete("better-auth.session_data");
 };
-
