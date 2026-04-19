@@ -14,13 +14,13 @@ export default function NotFoundPage() {
           backgroundSize: "40px 40px",
         }}
       />
-      <div className="inline-flex items-center gap-2 bg-violet-100 text-indigo-700 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-10">
-        <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
+      <div className="inline-flex items-center gap-2 bg-violet-100 text-sky-500 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-10">
+        <span className="w-1.5 h-1.5 rounded-full bg-sky-500 inline-block" />
         Error 404
       </div>
       <div className="relative inline-block">
         <h1
-          className="font-extrabold text-indigo-950 leading-none"
+          className="font-extrabold text-sky-700 leading-none"
           style={{
             fontFamily: "'Syne', sans-serif",
             fontSize: "clamp(80px, 18vw, 140px)",
@@ -32,7 +32,7 @@ export default function NotFoundPage() {
         <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-[3px] bg-indigo-500 rounded-full" />
       </div>
       <h2
-        className="mt-10 mb-3 text-2xl md:text-3xl font-bold text-indigo-950"
+        className="mt-10 mb-3 text-2xl md:text-3xl font-bold text-sky-700"
         style={{ fontFamily: "'Syne', sans-serif" }}
       >
         Page not found
