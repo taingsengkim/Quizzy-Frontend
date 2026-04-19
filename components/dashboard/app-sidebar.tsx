@@ -51,21 +51,21 @@ const data = {
       url: "/category",
       icon: <ListIcon />,
     },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: <ChartBarIcon />,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: <FolderIcon />,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: <UsersIcon />,
-    },
+    // {
+    //   title: "Analytics",
+    //   url: "#",
+    //   icon: <ChartBarIcon />,
+    // },
+    // {
+    //   title: "Projects",
+    //   url: "#",
+    //   icon: <FolderIcon />,
+    // },
+    // {
+    //   title: "Team",
+    //   url: "#",
+    //   icon: <UsersIcon />,
+    // },
   ],
   navClouds: [
     {
