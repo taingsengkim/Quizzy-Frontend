@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 //   return NextResponse.json(data);
 // }
 
+
 export async function GET() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
