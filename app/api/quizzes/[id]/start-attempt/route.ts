@@ -7,7 +7,7 @@ export async function POST(
     const {id} = await params;
     console.log("Quiz Id HINT", id)
   const res = await fetch(
-    `http://localhost:8090/api/v1/quizzes/${id}/start-attempt`,
+    `${process.env.NEXT_PUBLIC_API_URL}/quizzes/${id}/start-attempt`,
     {
       method: "POST",
     }
