@@ -1,6 +1,6 @@
 export default interface CategoryReponse{
     id:number,
-    name:String,
+    name:string,
     totalQuiz:number,
     description:string,
     imageUrl:string

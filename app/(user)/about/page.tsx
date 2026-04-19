@@ -34,7 +34,11 @@ const socialLinks = [
 // Animation Variants
 const fadeInUp = {
   hidden: { opacity: 0, y: 60 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" as const },
+  },
 };
 
 const staggerContainer = {
@@ -51,7 +55,7 @@ const cardVariant = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { type: "spring", stiffness: 120, damping: 15 },
+    transition: { type: "spring" as const, stiffness: 120, damping: 15 },
   },
 };
 
