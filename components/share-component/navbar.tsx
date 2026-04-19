@@ -39,7 +39,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/quizzes", label: "Quizzes" },
-    // { href: "/leaderboard", label: "Leaderboard" },
+    { href: "/about", label: "About" },
   ];
 
   const dispatch = useDispatch();
