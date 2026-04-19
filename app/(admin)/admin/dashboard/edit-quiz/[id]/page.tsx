@@ -1,4 +1,4 @@
-import EditQuizPage from "@/components/dashboard/add-quizzes/EditQuizPage";
+import EditQuizPage from "@/components/dashboard/quizzes/EditQuizPage";
 
 export default async function EditPage({
   params,

@@ -27,18 +27,22 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import CategoryReponse, { QuizResponse } from "@/lib/types/quiz";
-import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
+import {
+  useDeleteCategoryMutation,
+  useGetCategoriesQuery,
+} from "@/lib/features/categories/categoriesSlice";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import DeleteModal from "@/components/PopUp";
+import { useDeleteQuizMutation } from "@/lib/features/quizzes/quizzesSlice";
 
 export default function CategoryTable() {
   const { data: categories, isLoading, isError } = useGetCategoriesQuery();
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryReponse | null>(null);
-
-  const handleConfirmDelete = () => {
-    // deleteQuiz(selectedCategory?.id);
+  const [deleteCategory] = useDeleteCategoryMutation();
+  const handleConfirmDelete = async () => {
+    await deleteCategory(selectedCategory?.id);
     setSelectedCategory(null);
   };
 
@@ -129,7 +133,9 @@ export default function CategoryTable() {
                         <DropdownMenuItem className="cursor-pointer">
                           <Eye className="mr-2 h-4 w-4" /> View Details
                         </DropdownMenuItem>
-                        <Link href={`/admin/dashboard/category/edit${cate.id}`}>
+                        <Link
+                          href={`/admin/dashboard/category/edit/${cate.id}`}
+                        >
                           <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
                             <Edit className="mr-2 h-4 w-4" /> Edit Cateogry
                           </DropdownMenuItem>
