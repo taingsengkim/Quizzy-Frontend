@@ -8,12 +8,9 @@ export default async function MultiPlayerPage({
 }) {
   const { quizId } = await params;
 
-  const res = await fetch(
-    `https://quizzy-springboot-1.onrender.com/api/v1/quizzes/${quizId}`,
-    {
-      cache: "no-store",
-    },
-  );
+  const res = await fetch(`/api/quizzes/${quizId}`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     return <NotFoundQuiz />;

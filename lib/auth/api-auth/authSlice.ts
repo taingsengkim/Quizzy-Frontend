@@ -1,5 +1,3 @@
-import build from "next/dist/build";
-import CategoryReponse, { QuizResponse } from "@/lib/types/quiz";
 import { quizzy } from "@/lib/features/api/api";
 
     export const quizzyApi = quizzy.injectEndpoints({
@@ -11,7 +9,7 @@ import { quizzy } from "@/lib/features/api/api";
                     body:requestBody,
                     credentials: 'include',
                 }), 
-                invalidatesTags:['auth']
+                invalidatesTags:['profile']
             }),
             register:builder.mutation({
                 query:(requestBody)=>({
@@ -20,7 +18,7 @@ import { quizzy } from "@/lib/features/api/api";
                     body:requestBody,
                     credentials: 'include',
                 }), 
-                invalidatesTags:['auth']
+                invalidatesTags:['profile']
             }),
             getProfile: builder.query<any, void>({
                 query: () => ({
@@ -28,7 +26,7 @@ import { quizzy } from "@/lib/features/api/api";
                     method: 'GET',
                      credentials: 'include',
                 }),
-                providesTags: ['auth'],
+                providesTags: ['profile'],
                 }),
         })
     })

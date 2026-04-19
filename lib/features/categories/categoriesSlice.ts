@@ -1,4 +1,3 @@
-import build from "next/dist/build";
 import { quizzy } from "../api/api";
 import CategoryReponse from "@/lib/types/quiz";
 

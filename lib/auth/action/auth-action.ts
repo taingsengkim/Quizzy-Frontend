@@ -24,7 +24,6 @@ export const signOut = async () => {
 };
 export const signOutUser = async () => {
   const result = await auth.api.signOut({ headers: await headers() });
-  redirect("/login"); 
   return result;
 };
 

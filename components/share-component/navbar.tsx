@@ -25,9 +25,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signOutUser } from "@/lib/auth/action/auth-action";
+import { useDispatch } from "react-redux";
+import { quizzy } from "@/lib/features/api/api";
 
 export default function Navbar() {
-  const { data: user } = useGetProfileQuery();
+  const { data: user } = useGetProfileQuery(undefined, {
+    refetchOnFocus: true,
+    refetchOnMountOrArgChange: true,
+  });
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -37,6 +42,14 @@ export default function Navbar() {
     { href: "/leaderboard", label: "Leaderboard" },
   ];
 
+  const dispatch = useDispatch();
+
+  const handleLogout = async () => {
+    await signOutUser();
+    dispatch(quizzy.util.resetApiState()); // clears cached profile
+    router.push("/login");
+    router.refresh();
+  };
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-[#080b14]/80 backdrop-blur-xl border-b border-sky-500/10">
       <div className="flex items-center justify-between px-6 md:px-10 py-4">
@@ -99,7 +112,7 @@ export default function Navbar() {
 
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={signOutUser}>
+                <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2 text-red-400" />
                   <span className="text-red-400">Logout</span>
                 </DropdownMenuItem>

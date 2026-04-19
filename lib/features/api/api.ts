@@ -7,6 +7,6 @@ export const quizzy = createApi({
         credentials: "include",
     }),
     
-    tagTypes:['categories','quizzes','auth','quizResults'],
+    tagTypes:['categories','quizzes','profile','quizResults'],
     endpoints:()=>({})
 })
