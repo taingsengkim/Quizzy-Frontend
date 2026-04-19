@@ -76,7 +76,7 @@ export default function CategoryQuizzesClient({ categoryId }: Props) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {quizzes?.map((quiz: Quiz) => (
+          {quizzes?.content?.map((quiz: Quiz) => (
             <Card
               key={quiz.id}
               className={`group border-slate-800 transition-all duration-300 overflow-hidden

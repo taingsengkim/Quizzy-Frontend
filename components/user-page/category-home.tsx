@@ -32,7 +32,7 @@ export default function CategoriesSection({
         </h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories?.map((cat) => (
+        {categories?.content?.map((cat) => (
           <Link key={cat.id} href={`/quizzes?category=${cat.id}`}>
             <div className="group relative h-[200px] rounded-2xl overflow-hidden border border-white/5 bg-[#0f1629] cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/30">
               {cat.imageUrl ? (

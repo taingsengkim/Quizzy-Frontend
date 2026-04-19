@@ -48,7 +48,7 @@ const data = {
     },
     {
       title: "Categories",
-      url: "/category",
+      url: "/categories",
       icon: <ListIcon />,
     },
     // {

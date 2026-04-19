@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useState } from "react";
 const quizSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
@@ -30,8 +31,11 @@ type QuizFormValues = z.infer<typeof quizSchema>;
 export default function CreateQuizPage() {
   const router = useRouter();
   const [createQuiz, { isLoading }] = useAddQuizMutation();
-  const { data: categories } = useGetCategoriesQuery();
-
+  const [page, setPage] = useState(0);
+  const { data: categories } = useGetCategoriesQuery({
+    page,
+    size: 10,
+  });
   const {
     control,
     handleSubmit,
@@ -132,7 +136,7 @@ export default function CreateQuizPage() {
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {categories?.map((c) => (
+                  {categories?.content?.map((c) => (
                     <SelectItem key={c.id} value={String(c.id)}>
                       {c.name}
                     </SelectItem>

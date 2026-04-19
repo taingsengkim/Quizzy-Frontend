@@ -32,7 +32,6 @@ export default function EditCategoryPage() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [categoryName, setCategoryName] = useState("");
 
@@ -49,12 +48,9 @@ export default function EditCategoryPage() {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/categories`,
-          { credentials: "include" },
-        );
+        const res = await fetch(`/api/categories`, { credentials: "include" });
         const categories = await res.json();
-        const cat = categories.find((c: any) => String(c.id) === id);
+        const cat = categories?.content?.find((c: any) => String(c.id) === id);
         if (cat) {
           reset({
             name: cat.name ?? "",
@@ -122,7 +118,7 @@ export default function EditCategoryPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
               variant="outline"
-              onClick={() => router.push("/admin/categories")}
+              onClick={() => router.push("/admin/dashboard/categories")}
             >
               Back to categories
             </Button>

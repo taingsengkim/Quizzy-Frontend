@@ -51,9 +51,8 @@ export default function ProfileComponent2() {
   const avg = totalQ ? Math.round((totalC / totalQ) * 100) : 0;
 
   const avatarSrc =
-    profile.avatarUrl ||
+    profile?.avatar ||
     `https://api.dicebear.com/8.x/identicon/svg?seed=${profile.username}`;
-
   return (
     <>
       <EditProfileModal
@@ -92,15 +91,13 @@ export default function ProfileComponent2() {
           </div>
 
           <div className="p-6 space-y-6">
-            {/* ── avatar + username ── */}
             <div className="flex items-center gap-4 border-b border-slate-800 pb-6">
-              <div className="relative w-20 h-20 rounded-full border-2 border-slate-700 bg-slate-800 p-1 shadow-inner flex-shrink-0">
+              <div className="relative w-20 h-20 rounded-full border-2 border-slate-700 bg-slate-800 overflow-hidden">
                 <Image
                   src={avatarSrc}
                   alt={`${profile.username}'s avatar`}
-                  width={250}
-                  height={250}
-                  className="rounded-full object-cover"
+                  fill
+                  className="object-cover"
                   sizes="80px"
                   priority
                 />
@@ -118,7 +115,6 @@ export default function ProfileComponent2() {
               </div>
             </div>
 
-            {/* ── info rows ── */}
             <div className="grid gap-3 text-sm">
               <div className="flex items-center">
                 <span className="text-slate-500 w-28 shrink-0">
@@ -142,8 +138,6 @@ export default function ProfileComponent2() {
                 </div>
               </div>
             </div>
-
-            {/* ── stats ── */}
             <div className="grid grid-cols-3 gap-4 py-2">
               {[
                 {
@@ -171,8 +165,6 @@ export default function ProfileComponent2() {
                 </div>
               ))}
             </div>
-
-            {/* ── quiz history ── */}
             <div className="space-y-3">
               <p className="text-xs text-slate-500">// execution_history.log</p>
               <div className="bg-slate-950/50 rounded-lg border border-slate-800/50 p-4 max-h-[300px] overflow-y-auto custom-scrollbar">

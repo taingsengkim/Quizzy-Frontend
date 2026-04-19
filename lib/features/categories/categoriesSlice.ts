@@ -1,10 +1,11 @@
+import { PageResponse } from "@/lib/pagination";
 import { quizzy } from "../api/api";
 import CategoryReponse from "@/lib/types/quiz";
 
     export const quizzyApi = quizzy.injectEndpoints({
         endpoints:(builder)=>({
-            getCategories: builder.query<CategoryReponse[],void>({
-                query:()=>'/categories',
+            getCategories: builder.query<PageResponse<CategoryReponse>, { page: number; size: number }>({
+                query: ({ page, size }) => `/categories?page=${page}&size=${size}`,
                 providesTags:['categories']
             }),
             addCategory: builder.mutation({

@@ -126,7 +126,11 @@ function Typewriter({ text }: { text: string }) {
   );
 }
 export default function Home() {
-  const { data: categories } = useGetCategoriesQuery();
+  const [page, setPage] = useState(0);
+  const { data: categories } = useGetCategoriesQuery({
+    page,
+    size: 10,
+  });
 
   return (
     <TooltipProvider>

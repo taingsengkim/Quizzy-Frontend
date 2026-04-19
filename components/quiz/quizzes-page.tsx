@@ -4,9 +4,14 @@ import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Zap, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function QuizzesPage() {
-  const { data: categories, isLoading } = useGetCategoriesQuery();
+  const [page, setPage] = useState(0);
+  const { data: categories, isLoading } = useGetCategoriesQuery({
+    page,
+    size: 10,
+  });
 
   if (isLoading) {
     return (
@@ -21,7 +26,7 @@ export default function QuizzesPage() {
 
   return (
     <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      {categories?.map((cat) => {
+      {categories?.content?.map((cat) => {
         const progressWidth = cat?.totalQuiz
           ? Math.min(cat.totalQuiz * 10, 100)
           : 5;

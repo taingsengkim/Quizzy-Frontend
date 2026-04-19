@@ -11,13 +11,19 @@ import {
 import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
 import { useGetQuizzesQuery } from "@/lib/features/quizzes/quizzesSlice";
 import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
+import { useState } from "react";
 
 export function SectionCards() {
+  const [page, setPage] = useState(0);
+
   const {
     data: categories,
     isLoading: categoryLoading,
     isError: categoryError,
-  } = useGetCategoriesQuery();
+  } = useGetCategoriesQuery({
+    page,
+    size: 10,
+  });
   const {
     data: quizzes,
     isLoading: quizLoading,

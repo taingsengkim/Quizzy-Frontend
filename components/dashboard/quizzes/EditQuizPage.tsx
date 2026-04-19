@@ -62,7 +62,12 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
   const router = useRouter();
   const [isAddOpen, setIsAddOpen] = useState(false);
   const { data: quiz, isLoading: isLoadingQuiz } = useGetQuizByIdQuery(quizId);
-  const { data: categories } = useGetCategoriesQuery();
+  const [page, setPage] = useState(0);
+
+  const { data: categories } = useGetCategoriesQuery({
+    page,
+    size: 10,
+  });
   const [updateQuiz, { isLoading: isUpdating }] = useUpdateQuizMutation();
   const [deleteQuestion] = useDeleteQuestionMutation();
   const {
@@ -187,8 +192,8 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
             {
               label: "Category",
               value:
-                categories?.find((c) => c.id === quiz?.categoryId)?.name ??
-                "N/A",
+                categories?.content?.find((c) => c.id === quiz?.categoryId)
+                  ?.name ?? "N/A",
               icon: LayoutGrid,
               color: "text-purple-500",
             },
@@ -265,7 +270,7 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
                         </SelectTrigger>
 
                         <SelectContent>
-                          {categories?.map((cat) => (
+                          {categories?.content?.map((cat) => (
                             <SelectItem key={cat.id} value={String(cat.id)}>
                               {cat.name}
                             </SelectItem>

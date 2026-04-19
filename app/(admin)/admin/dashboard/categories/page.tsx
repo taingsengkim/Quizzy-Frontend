@@ -37,7 +37,14 @@ import DeleteModal from "@/components/PopUp";
 import { useDeleteQuizMutation } from "@/lib/features/quizzes/quizzesSlice";
 
 export default function CategoryTable() {
-  const { data: categories, isLoading, isError } = useGetCategoriesQuery();
+  const {
+    data: categories,
+    isLoading,
+    isError,
+  } = useGetCategoriesQuery({
+    page: 0,
+    size: 10,
+  });
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryReponse | null>(null);
   const [deleteCategory] = useDeleteCategoryMutation();
@@ -64,7 +71,7 @@ export default function CategoryTable() {
             Manage your curriculum, track points, and update quiz content.
           </p>
         </div>
-        <Link href="/admin/dashboard/category/create">
+        <Link href="/admin/dashboard/categories/create">
           <Button className="flex gap-2">
             <Plus className="w-4 h-4" /> Create New Category
           </Button>
@@ -83,7 +90,7 @@ export default function CategoryTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories?.map((cate) => {
+            {categories?.content?.map((cate) => {
               return (
                 <TableRow
                   key={cate.id}
@@ -130,11 +137,13 @@ export default function CategoryTable() {
                       <DropdownMenuContent align="end" className="w-[160px]">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="cursor-pointer">
-                          <Eye className="mr-2 h-4 w-4" /> View Details
-                        </DropdownMenuItem>
+                        <Link href={`/admin/dashboard/categories/${cate?.id}`}>
+                          <DropdownMenuItem className="cursor-pointer">
+                            <Eye className="mr-2 h-4 w-4" /> View Details
+                          </DropdownMenuItem>
+                        </Link>
                         <Link
-                          href={`/admin/dashboard/category/edit/${cate.id}`}
+                          href={`/admin/dashboard/categories/edit/${cate.id}`}
                         >
                           <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
                             <Edit className="mr-2 h-4 w-4" /> Edit Cateogry
