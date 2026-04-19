@@ -8,9 +8,12 @@ export default async function MultiPlayerPage({
 }) {
   const { quizId } = await params;
 
-  const res = await fetch(`/api/quizzes/${quizId}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/quizzes/${quizId}`,
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!res.ok) {
     return <NotFoundQuiz />;
