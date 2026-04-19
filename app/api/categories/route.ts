@@ -1,4 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+
+// export async function GET() {
+
+//   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories`, {
+//     method: "GET",
+//   });
+//   const data = await res.json();
+//   return NextResponse.json(data);
+// }
+
 export async function GET() {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -12,7 +22,9 @@ export async function GET() {
       );
     }
 
-    const res = await fetch(`${baseUrl}/categories`);
+    const res = await fetch(`${baseUrl}/categories`, {
+     method: "GET",
+  });
 
     const text = await res.text();
 
