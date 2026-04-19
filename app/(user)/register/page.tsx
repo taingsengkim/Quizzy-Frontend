@@ -8,9 +8,6 @@ export default async function RegisterPage() {
     headers: await headers(),
   });
 
-  if (session?.user) {
-    redirect("/");
-  }
   console.log("session", session);
   return <RegisterComponent />;
 }
