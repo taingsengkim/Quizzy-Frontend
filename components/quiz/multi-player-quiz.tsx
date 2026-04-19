@@ -118,7 +118,9 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     }
     const client = new Client({
       webSocketFactory: () =>
-        new SockJS(`http://localhost:8090/ws?username=${normalizedUsername}`),
+        new SockJS(
+          `wss://quizzy-springboot-1.onrender.com/ws?username=${normalizedUsername}`,
+        ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
       debug: (str) => console.log(str),
@@ -168,7 +170,9 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     }
     const client = new Client({
       webSocketFactory: () =>
-        new SockJS(`http://localhost:8090/ws?username=${normalizedUsername}`),
+        new SockJS(
+          `wss://quizzy-springboot-1.onrender.com/ws?username=${normalizedUsername}`,
+        ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
       debug: (str) => console.log(str),
