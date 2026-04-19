@@ -8,7 +8,7 @@ export async function GET(
   const { searchParams } = new URL(req.url);
   const attemptId = searchParams.get("attemptId");
   const res = await fetch(
-    `http://localhost:8090/api/v1/quizzes/${id}/questions/${questionId}/hint?attemptId=${attemptId}`
+    `${process.env.NEXT_PUBLIC_API_URL}/quizzes/${id}/questions/${questionId}/hint?attemptId=${attemptId}`
   );
   const text = await res.text();
 

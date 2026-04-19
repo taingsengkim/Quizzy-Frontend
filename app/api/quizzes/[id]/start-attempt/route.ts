@@ -12,7 +12,6 @@ export async function POST(
       method: "POST",
     }
   );
-
   const data = await res.json();
 
   return NextResponse.json(data);
