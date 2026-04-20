@@ -4,4 +4,6 @@ export type PageResponse<T> = {
   totalElements: number;
   number: number;
   size: number;
+  first:number;
+  last:number;
 };

@@ -24,7 +24,7 @@ export interface QuizResponse {
   description: string;
   duration: number;
   categoryId: number;
-  questions: QuestionResponse [];
+  questions: QuestionResponse[];
 }
 export interface CreateAnswer  {
   text: string;

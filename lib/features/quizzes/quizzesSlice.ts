@@ -1,10 +1,24 @@
+import { PageResponse } from "@/lib/pagination";
 import { quizzy } from "../api/api";
 import CategoryReponse, { QuizResponse } from "@/lib/types/quiz";
 
 export const quizzyApi = quizzy.injectEndpoints({
   endpoints: (builder) => ({
-    getQuizzes: builder.query<QuizResponse[], void>({
-      query: () => "/quizzes",
+   
+    getQuizzes: builder.query<PageResponse<QuizResponse>, { page: number; size: number; search?: string ;categoryId?: number} >({
+      query: ({ page, size, search,categoryId  }) => {
+        const params = new URLSearchParams();
+
+        params.append("page", String(page));
+        params.append("size", String(size));
+
+        if (search && search.trim() !== "") {
+          params.append("search", search);
+        }
+        if (categoryId) params.append("categoryId", String(categoryId));
+
+        return `/quizzes?${params.toString()}`;
+      },
       providesTags: ["quizzes"],
     }),
     getQuizById: builder.query({

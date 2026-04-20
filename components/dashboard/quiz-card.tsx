@@ -36,13 +36,14 @@ import {
   MoreHorizontal,
   Edit,
   Trash2,
-  Eye,
   FileText,
   Plus,
   ChevronLeft,
   ChevronRight,
   SlidersHorizontal,
   X,
+  Search,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 import DeleteModal from "../PopUp";
@@ -67,110 +68,129 @@ const defaultFilters: Filters = {
 };
 
 export function QuizAdminTable() {
-  const { data: quizzes, isLoading, isError } = useGetQuizzesQuery();
-
-  const [selectedQuiz, setSelectedQuiz] = useState<QuizResponse | null>(null);
-  const [deleteQuiz] = useDeleteQuizMutation();
-
-  const [page, setPage] = useState(1);
-  const { data: categories } = useGetCategoriesQuery({
-    page,
-    size: 10,
-  });
+  const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(10);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [showFilters, setShowFilters] = useState(false);
   const [sortField, setSortField] = useState<"duration" | "questions" | "">("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
+  const [selectedQuiz, setSelectedQuiz] = useState<QuizResponse | null>(null);
+  const [deleteQuiz] = useDeleteQuizMutation();
 
-  const handleConfirmDelete = () => {
-    deleteQuiz(selectedQuiz?.id);
-    setSelectedQuiz(null);
+  const submitSearch = () => {
+    setDebouncedSearch(searchInput);
+    setPage(0);
   };
+
+  const {
+    data: quizData,
+    isLoading,
+    isFetching,
+    isError,
+  } = useGetQuizzesQuery({
+    page,
+    size: pageSize,
+    search: debouncedSearch || undefined,
+    categoryId: filters.categoryId ? Number(filters.categoryId) : undefined,
+  });
+
+  // Categories are only for the dropdown — fetch all, no search filter here
+  const { data: categories } = useGetCategoriesQuery({
+    page: 0,
+    size: 100,
+  });
+
+  const totalPages = quizData?.totalPages ?? 1;
+  const totalElements = quizData?.totalElements ?? 0;
+  const isFirst = quizData?.first ?? true;
+  const isLast = quizData?.last ?? true;
+
+  const filtered = useMemo(() => {
+    let list = (quizData?.content ?? []).map((quiz) => ({
+      ...quiz,
+      questionCount: quiz.questions.length,
+      totalPoints: quiz.questions.reduce((sum, q) => sum + q.points, 0),
+    }));
+
+    // categoryId is handled server-side via the API query
+    if (filters.durationMin) {
+      list = list.filter((q) => q.duration >= Number(filters.durationMin));
+    }
+    if (filters.durationMax) {
+      list = list.filter((q) => q.duration <= Number(filters.durationMax));
+    }
+    if (filters.questionsMin) {
+      list = list.filter(
+        (q) => q.questionCount >= Number(filters.questionsMin),
+      );
+    }
+    if (filters.questionsMax) {
+      list = list.filter(
+        (q) => q.questionCount <= Number(filters.questionsMax),
+      );
+    }
+    if (sortField && sortOrder) {
+      list = [...list].sort((a, b) => {
+        const va = sortField === "duration" ? a.duration : a.questionCount;
+        const vb = sortField === "duration" ? b.duration : b.questionCount;
+        return sortOrder === "asc" ? va - vb : vb - va;
+      });
+    }
+    return list;
+  }, [quizData, filters, sortField, sortOrder]);
+
+  const resetPage = () => setPage(0);
 
   const updateFilter = (key: keyof Filters, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
-    setPage(1);
+    resetPage();
   };
 
   const clearFilters = () => {
     setFilters(defaultFilters);
-    setPage(1);
+    setSearchInput("");
+    setDebouncedSearch("");
+    resetPage();
   };
 
   const toggleSort = (field: "duration" | "questions") => {
     if (sortField !== field) {
       setSortField(field);
       setSortOrder("asc");
-    } else if (sortOrder === "asc") {
-      setSortOrder("desc");
-    } else {
+    } else if (sortOrder === "asc") setSortOrder("desc");
+    else {
       setSortField("");
       setSortOrder("");
     }
   };
 
-  const activeFilterCount = Object.values(filters).filter(
-    (v) => v !== "",
-  ).length;
+  const handleConfirmDelete = () => {
+    deleteQuiz(selectedQuiz?.id);
+    setSelectedQuiz(null);
+  };
 
-  const filtered = useMemo(() => {
-    if (!quizzes) return [];
+  const activeFilterCount =
+    Object.values(filters).filter((v) => v !== "").length +
+    (searchInput ? 1 : 0);
 
-    let result = quizzes?.content?.map((quiz) => ({
-      ...quiz,
-      questionCount: quiz.questions.length,
-      totalPoints: quiz.questions.reduce((sum, q) => sum + q.points, 0),
-    }));
-
-    if (filters.categoryId !== "") {
-      result = result.filter(
-        (q) => q.categoryId === Number(filters.categoryId),
-      );
-    }
-    if (filters.durationMin !== "") {
-      result = result.filter((q) => q.duration >= Number(filters.durationMin));
-    }
-    if (filters.durationMax !== "") {
-      result = result.filter((q) => q.duration <= Number(filters.durationMax));
-    }
-    if (filters.questionsMin !== "") {
-      result = result.filter(
-        (q) => q.questionCount >= Number(filters.questionsMin),
-      );
-    }
-    if (filters.questionsMax !== "") {
-      result = result.filter(
-        (q) => q.questionCount <= Number(filters.questionsMax),
-      );
-    }
-
-    if (sortField && sortOrder) {
-      result = [...result].sort((a, b) => {
-        const va = sortField === "duration" ? a.duration : a.questionCount;
-        const vb = sortField === "duration" ? b.duration : b.questionCount;
-        return sortOrder === "asc" ? va - vb : vb - va;
-      });
-    }
-
-    return result;
-  }, [quizzes, filters, sortField, sortOrder]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
-
-  const SortIndicator = ({ field }: { field: string }) => {
-    if (sortField !== field)
-      return <span className="ml-1 text-muted-foreground/40">↕</span>;
-    return (
+  const SortIndicator = ({ field }: { field: string }) =>
+    sortField !== field ? (
+      <span className="ml-1 text-muted-foreground/40">↕</span>
+    ) : (
       <span className="ml-1 text-primary">
         {sortOrder === "asc" ? "↑" : "↓"}
       </span>
     );
-  };
 
   if (isLoading)
-    return <div className="p-8 text-center">Loading quizzes...</div>;
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
+        <Loader2 className="w-8 h-8 animate-spin text-primary/50" />
+        <p className="text-sm text-muted-foreground">Loading quizzes...</p>
+      </div>
+    );
   if (isError)
     return (
       <div className="p-8 text-center text-red-500">Error loading data.</div>
@@ -178,14 +198,17 @@ export function QuizAdminTable() {
 
   return (
     <div className="w-full space-y-4 p-6">
-      {/* Header */}
+      {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight text-black">
-            Quiz Management
-          </h2>
+          <h2 className="text-2xl font-bold tracking-tight">Quiz Management</h2>
           <p className="text-muted-foreground text-sm">
-            Manage your curriculum, track points, and update quiz content.
+            {totalElements} total quiz{totalElements !== 1 ? "zes" : ""}
+            {isFetching && (
+              <span className="ml-2 inline-flex items-center gap-1 text-primary">
+                <Loader2 className="w-3 h-3 animate-spin" /> syncing...
+              </span>
+            )}
           </p>
         </div>
         <Link href="/admin/dashboard/create-quiz">
@@ -195,7 +218,34 @@ export function QuizAdminTable() {
         </Link>
       </div>
 
-      {/* Filter Toggle Bar */}
+      {/* ── Search bar ── */}
+      <div className="flex items-center gap-2 max-w-md">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <Input
+            className="pl-9 pr-9 h-9 text-sm"
+            placeholder="Search by quiz name..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submitSearch()}
+          />
+          {searchInput && (
+            <X
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground cursor-pointer hover:text-foreground"
+              onClick={() => {
+                setSearchInput("");
+                setDebouncedSearch("");
+                resetPage();
+              }}
+            />
+          )}
+        </div>
+        <Button size="sm" className="h-9 px-4" onClick={submitSearch}>
+          Search
+        </Button>
+      </div>
+
+      {/* ── Filter toggle + active chips ── */}
       <div className="flex flex-wrap items-center gap-2">
         <Button
           variant={showFilters ? "default" : "outline"}
@@ -212,7 +262,6 @@ export function QuizAdminTable() {
           )}
         </Button>
 
-        {/* Active filter chips */}
         {filters.categoryId && (
           <Badge variant="secondary" className="flex gap-1 items-center">
             Category:{" "}
@@ -264,14 +313,14 @@ export function QuizAdminTable() {
         )}
 
         <span className="ml-auto text-sm text-muted-foreground">
-          {filtered.length} quiz{filtered.length !== 1 ? "zes" : ""} found
+          {filtered.length} quiz{filtered.length !== 1 ? "zes" : ""} on this
+          page
         </span>
       </div>
 
-      {/* Filter Panel */}
+      {/* ── Filter panel ── */}
       {showFilters && (
         <div className="rounded-lg border bg-muted/30 p-4 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Category */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Category
@@ -296,7 +345,6 @@ export function QuizAdminTable() {
             </Select>
           </div>
 
-          {/* Duration */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Duration (mins)
@@ -321,7 +369,6 @@ export function QuizAdminTable() {
             </div>
           </div>
 
-          {/* Questions */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
               Total Questions
@@ -348,7 +395,7 @@ export function QuizAdminTable() {
         </div>
       )}
 
-      {/* Table */}
+      {/* ── Table ── */}
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
@@ -376,7 +423,7 @@ export function QuizAdminTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginated.length === 0 ? (
+            {filtered.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={6}
@@ -386,11 +433,10 @@ export function QuizAdminTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              paginated.map((quiz) => {
+              filtered.map((quiz) => {
                 const categoryName =
                   categories?.content?.find((c) => c.id === quiz.categoryId)
                     ?.name ?? `Category #${quiz.categoryId}`;
-
                 return (
                   <TableRow
                     key={quiz.id}
@@ -439,9 +485,6 @@ export function QuizAdminTable() {
                         <DropdownMenuContent align="end" className="w-[160px]">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          {/* <DropdownMenuItem className="cursor-pointer">
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                          </DropdownMenuItem> */}
                           <Link href={`/admin/dashboard/edit-quiz/${quiz.id}`}>
                             <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
                               <Edit className="mr-2 h-4 w-4" /> Edit Quiz
@@ -465,7 +508,7 @@ export function QuizAdminTable() {
         </Table>
       </div>
 
-      {/* Pagination */}
+      {/* ── Pagination ── */}
       <div className="flex items-center justify-between text-sm text-muted-foreground flex-wrap gap-3">
         <div className="flex items-center gap-2">
           <span>Rows per page:</span>
@@ -473,7 +516,7 @@ export function QuizAdminTable() {
             value={String(pageSize)}
             onValueChange={(v) => {
               setPageSize(Number(v));
-              setPage(1);
+              resetPage();
             }}
           >
             <SelectTrigger className="h-8 w-[70px]">
@@ -491,20 +534,16 @@ export function QuizAdminTable() {
 
         <div className="flex items-center gap-4">
           <span>
-            {filtered.length === 0
-              ? "0 results"
-              : `${(page - 1) * pageSize + 1}–${Math.min(
-                  page * pageSize,
-                  filtered.length,
-                )} of ${filtered.length}`}
+            Page <span className="font-medium text-foreground">{page + 1}</span>{" "}
+            / {totalPages} · {totalElements} total
           </span>
           <div className="flex gap-1">
             <Button
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              disabled={page === 1}
-              onClick={() => setPage((p) => p - 1)}
+              disabled={isFirst || isFetching}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -512,8 +551,8 @@ export function QuizAdminTable() {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              disabled={page === totalPages}
-              onClick={() => setPage((p) => p + 1)}
+              disabled={isLast || isFetching}
+              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
