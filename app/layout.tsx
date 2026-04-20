@@ -16,21 +16,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // --- metadataBase (required for absolute URLs on social platforms) ---
+  metadataBase: new URL("https://www.quizzy.it.com"),
+
   // --- Core ---
   title: {
     default: "Quizzy for Devs – Programming Quizzes for Developers",
     template: "%s | Quizzy for Devs",
   },
   description:
-    "Test and sharpen your coding skills with 600+ programming quiz questions across JavaScript, React, TypeScript, Python, SQL and more. Join 50,000+ developers competing daily.",
-
-  // --- Canonical URL ---
-  metadataBase: new URL("https://www.quizzy.it.com"),
-  alternates: {
-    canonical: "/",
-  },
-
-  // --- Keywords ---
+    "600+ programming quiz questions across 12 languages. Test your skills, climb the leaderboard, and compete with 50,000+ developers.",
   keywords: [
     "programming quiz",
     "coding quiz",
@@ -44,33 +39,13 @@ export const metadata: Metadata = {
     "programming practice",
     "developer leaderboard",
   ],
+  authors: [{ name: "Quizzy for Devs", url: "https://www.quizzy.it.com" }],
+  creator: "Quizzy for Devs",
+  publisher: "Quizzy for Devs",
 
-  // --- Open Graph (Facebook, LinkedIn, WhatsApp previews) ---
-  openGraph: {
-    type: "website",
-    url: "https://www.quizzy.it.com",
-    title: "Quizzy for Devs – Programming Quizzes for Developers",
-    description:
-      "600+ programming quiz questions across 12 languages. Test your skills, climb the leaderboard, and compete with 50,000+ developers.",
-    siteName: "Quizzy for Devs",
-    images: [
-      {
-        url: "/og-image.png", // Create a 1200x630px image
-        width: 1200,
-        height: 630,
-        alt: "Quizzy for Devs – Programming Quizzes",
-      },
-    ],
-  },
-
-  // --- Twitter / X Card ---
-  twitter: {
-    card: "summary_large_image",
-    title: "Quizzy for Devs – Programming Quizzes for Developers",
-    description:
-      "600+ programming quiz questions across 12 languages. Join 50,000+ devs competing daily.",
-    images: ["/og-image.png"],
-    // creator: "@yourTwitterHandle", // Add if you have one
+  // --- Canonical ---
+  alternates: {
+    canonical: "https://www.quizzy.it.com/",
   },
 
   // --- Robots ---
@@ -82,20 +57,61 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
 
-  // --- Icons ---
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
+  // --- Open Graph (Facebook, Discord, Telegram, WhatsApp, LinkedIn) ---
+  openGraph: {
+    type: "website",
+    url: "https://www.quizzy.it.com/",
+    siteName: "Quizzy for Devs",
+    title: "Quizzy for Devs – Programming Quizzes for Developers",
+    description:
+      "600+ programming quiz questions across 12 languages. Test your skills, climb the leaderboard, and compete with 50,000+ developers.",
+    locale: "en_US",
+    images: [
+      {
+        url: "https://www.quizzy.it.com/og-image.png", // ✅ absolute URL
+        width: 1200,
+        height: 630,
+        alt: "Quizzy for Devs – Programming Quizzes for Developers",
+        type: "image/png",
+      },
+    ],
   },
 
-  // --- Verification (add your codes from Google/Bing Search Console) ---
+  // --- Twitter / X ---
+  twitter: {
+    card: "summary_large_image",
+    site: "quizzy.it.com",
+    title: "Quizzy for Devs – Programming Quizzes for Developers",
+    description:
+      "600+ programming quiz questions across 12 languages. Test your skills, climb the leaderboard, and compete with 50,000+ developers.",
+    images: [
+      {
+        url: "https://www.quizzy.it.com/og-image.png", // ✅ absolute URL
+        alt: "Quizzy for Devs – Programming Quizzes for Developers",
+      },
+    ],
+    // creator: "@yourTwitterHandle", // add if you have one
+  },
+
+  // --- Icons / Favicon ---
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    shortcut: "/favicon.ico",
+  },
+
+  // --- Verification (uncomment after getting codes from Search Console) ---
   verification: {
     // google: "your-google-verification-code",
-    // other: { "msvalidate.01": ["your-bing-code"] },
+    // other: { "msvalidate.01": ["your-bing-verification-code"] },
   },
 };
 const jsonLd = {
