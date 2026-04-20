@@ -1,6 +1,12 @@
 import QuizPageComponent from "@/components/quiz/quizzes-page";
 import { Zap } from "lucide-react";
-
+import { Metadata } from "next";
+export const metadata: Metadata = {
+  title: "All Programming Quizzes",
+  description:
+    "Browse 600+ programming quiz questions on JavaScript, React, TypeScript, Python, SQL and more. Pick your challenge and start competing.",
+  alternates: { canonical: "/quizzes" },
+};
 export default function QuizPage() {
   return (
     <div className=" max-w-6xl mx-auto  px-6 py-12">
