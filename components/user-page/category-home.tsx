@@ -1,17 +1,11 @@
+import { PageResponse } from "@/lib/pagination";
+import CategoryReponse from "@/lib/types/quiz";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-type Category = {
-  id: number;
-  name: string;
-  totalQuiz: number;
-  description: string | null;
-  imageUrl: string | null;
-};
-
 interface CategoriesSectionProps {
   catRef?: React.RefObject<HTMLElement>;
-  categories?: Category[];
+  categories?: PageResponse<CategoryReponse>;
 }
 
 export default function CategoriesSection({

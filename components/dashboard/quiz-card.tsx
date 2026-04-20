@@ -542,7 +542,7 @@ export function QuizAdminTable() {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              disabled={isFirst || isFetching}
+              // disabled={isFirst || isFetching}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -551,7 +551,7 @@ export function QuizAdminTable() {
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              disabled={isLast || isFetching}
+              // disabled={isLast || isFetching}
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
             >
               <ChevronRight className="h-4 w-4" />
