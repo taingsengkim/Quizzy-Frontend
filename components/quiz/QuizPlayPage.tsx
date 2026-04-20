@@ -119,8 +119,11 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
     const usedOnThisQuestion = hintUsedMap[question.id] || 0;
     if (usedOnThisQuestion >= 1)
       return toast.warning("You've already used your hint for this question.");
-    if (totalHintsUsed >= 2)
-      return toast.warning("You've used all 2 hints allowed for this quiz.");
+    const totalHintsAllowed = quiz.questions.length * quiz.maxHintsPerQuestion;
+    if (totalHintsUsed >= quiz.maxHintsPerQuestion)
+      return toast.warning(
+        `You've used all ${quiz.maxHintsPerQuestion} hints allowed for this quiz.`,
+      );
     try {
       hintRequestingRef.current = true;
       setHintLoading(true);
@@ -375,8 +378,12 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   }
 
   const usedOnCurrentQuestion = hintUsedMap[question.id] || 0;
+  const totalHintsAllowed = quiz.questions.length * quiz.maxHintsPerQuestion;
   const hintDisabled =
-    hintLoading || usedOnCurrentQuestion >= 1 || totalHintsUsed >= 2;
+    hintLoading ||
+    usedOnCurrentQuestion >= 1 ||
+    totalHintsUsed >= quiz.maxHintsPerQuestion;
+
   const isWarning = timeRemaining !== null && timeRemaining <= 60;
   const isDanger = timeRemaining !== null && timeRemaining <= 30;
 
@@ -535,7 +542,7 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                 {hintLoading ? "Loading..." : "💡 Show Hint"}
               </Button>
               <span className="text-xs text-slate-500 font-mono">
-                {totalHintsUsed}/2 quiz hints used
+                {totalHintsUsed}/{quiz.maxHintsPerQuestion} quiz hints used
                 {usedOnCurrentQuestion >= 1 && (
                   <span className="ml-2 text-amber-500/70">
                     · used on this question

@@ -119,7 +119,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     const client = new Client({
       webSocketFactory: () =>
         new SockJS(
-          `https://quizzy-springboot-1.onrender.com/ws?username=${normalizedUsername}`,
+          `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}ws?username=${normalizedUsername}`,
         ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
@@ -171,7 +171,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     const client = new Client({
       webSocketFactory: () =>
         new SockJS(
-          `https://quizzy-springboot-1.onrender.com/ws?username=${normalizedUsername}`,
+          `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/ws?username=${normalizedUsername}`,
         ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
@@ -206,9 +206,10 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     const usedOnThisQuestion = hintUsedMap[question.id] || 0;
     if (usedOnThisQuestion >= 1)
       return toast.warning("You've already used your hint for this question.");
-    if (totalHintsUsed >= 2)
-      return toast.warning("You've used all 2 hints allowed for this quiz.");
-
+    if (totalHintsUsed >= quiz.maxHintsPerQuestion)
+      return toast.warning(
+        `You've used all ${quiz.maxHintsPerQuestion} hints allowed for this quiz.`,
+      );
     try {
       hintRequestingRef.current = true;
       setHintLoading(true);
@@ -605,7 +606,10 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
             (() => {
               const usedOnThisQuestion = hintUsedMap[myQuestion.id] || 0;
               const hintDisabled =
-                hintLoading || usedOnThisQuestion >= 1 || totalHintsUsed >= 2;
+                hintLoading ||
+                usedOnThisQuestion >= 1 ||
+                totalHintsUsed >= quiz.maxHintsPerQuestion;
+
               return (
                 <div className="relative group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
@@ -669,7 +673,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                             {hintLoading ? "Loading..." : "💡 Show Hint"}
                           </button>
                           <span className="text-xs text-slate-500 font-mono">
-                            {totalHintsUsed}/2 hints used
+                            {totalHintsUsed}/{quiz.maxHintsPerQuestion} hints
+                            used
                             {usedOnThisQuestion >= 1 && (
                               <span className="ml-2 text-amber-500/70">
                                 · used on this question
