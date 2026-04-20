@@ -84,7 +84,7 @@ export const metadata: Metadata = {
   // --- Twitter / X ---
   twitter: {
     card: "summary_large_image",
-    site: "quizzy.it.com",
+    site: "@quizzy.it.com",
     title: "Quizzy for Devs – Programming Quizzes for Developers",
     description:
       "600+ programming quiz questions across 12 languages. Test your skills, climb the leaderboard, and compete with 50,000+ developers.",
