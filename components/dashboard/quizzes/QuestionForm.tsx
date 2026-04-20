@@ -37,7 +37,6 @@ export const questionSchema = z.object({
       message: "At least 1 correct answer required",
     }),
 });
-
 export type QuestionFormValues = z.infer<typeof questionSchema>;
 type Props = {
   defaultValues?: Partial<QuestionFormValues>;

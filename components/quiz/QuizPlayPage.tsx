@@ -470,7 +470,7 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
         )}
         <div className="relative group">
           <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-25 group-hover:opacity-40 transition-opacity" />
-          <div className="relative bg-[#0d121f] border border-slate-800 p-10 md:p-16 rounded-[2rem] shadow-2xl">
+          <div className="relative bg-[#0d121f] border border-slate-800 p-2 md:p-16 rounded-[2rem] shadow-2xl">
             <div className="absolute top-0 right-0 p-8 pointer-events-none">
               <div className="w-16 h-16 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
             </div>

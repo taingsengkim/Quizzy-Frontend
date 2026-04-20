@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 import { CheckCircle2, Loader2 } from "lucide-react";
 import { useAddCategoryMutation } from "@/lib/features/categories/categoriesSlice";
+import { useRouter } from "next/navigation";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required").max(255, "Name too long"),
@@ -27,7 +28,7 @@ function FieldError({ message }: { message?: string }) {
 export default function CreateCategoryPage() {
   const [submitted, setSubmitted] = useState(false);
   const [addCategory, { isLoading }] = useAddCategoryMutation();
-
+  const router = useRouter();
   const {
     control,
     handleSubmit,
@@ -53,7 +54,7 @@ export default function CreateCategoryPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="min-h-screen  flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center max-w-md w-full">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
@@ -78,7 +79,7 @@ export default function CreateCategoryPage() {
   }
 
   return (
-    <div className="min-h-screen text-black bg-gray-50 p-6">
+    <div className="min-h-screen text-black  p-6">
       <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
         <h1 className="text-xl font-bold mb-4 text-black">Create Category</h1>
 
@@ -128,17 +129,25 @@ export default function CreateCategoryPage() {
             />
             <FieldError message={errors.imageUrl?.message} />
           </div>
-
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              "Create Category"
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create Category"
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+            >
+              Cancel
+            </Button>
+          </div>
         </form>
       </div>
     </div>

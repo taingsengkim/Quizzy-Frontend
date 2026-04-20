@@ -14,23 +14,19 @@ import {
   BookOpen,
   LayoutGrid,
   FileQuestion,
-  Trash2,
   Settings2,
   Sparkles,
 } from "lucide-react";
-
 import {
   useGetQuizByIdQuery,
   useUpdateQuizMutation,
   useDeleteQuestionMutation,
 } from "@/lib/features/quizzes/quizzesSlice";
 import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice";
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectTrigger,

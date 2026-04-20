@@ -130,16 +130,8 @@ export default function EditCategoryPage() {
   }
 
   return (
-    <div className="min-h-screen text-black bg-gray-50 p-6">
+    <div className="min-h-screen text-black p-6">
       <div className="max-w-2xl mx-auto">
-        <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 mb-5 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to categories
-        </button>
-
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
