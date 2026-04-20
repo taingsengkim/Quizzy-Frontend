@@ -281,7 +281,7 @@ export default function QuizSidebar({
             Top players this week
           </p>
           <Link
-            href="/leaderboard"
+            href="/"
             className="text-[11px] text-sky-400 hover:text-sky-300 transition flex items-center gap-1"
           >
             view all <ArrowRight className="w-3 h-3" />
