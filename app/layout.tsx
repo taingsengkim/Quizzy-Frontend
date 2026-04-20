@@ -72,7 +72,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "https://www.quizzy.it.com/og-image.png", // ✅ absolute URL
+        url: "https://www.quizzy.it.com/opengraph-image.png",
         width: 1200,
         height: 630,
         alt: "Quizzy for Devs – Programming Quizzes for Developers",
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
       "600+ programming quiz questions across 12 languages. Test your skills, climb the leaderboard, and compete with 50,000+ developers.",
     images: [
       {
-        url: "https://www.quizzy.it.com/og-image.png", // ✅ absolute URL
+        url: "https://www.quizzy.it.com/opengraph-image.png",
         alt: "Quizzy for Devs – Programming Quizzes for Developers",
       },
     ],
