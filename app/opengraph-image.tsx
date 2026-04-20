@@ -21,12 +21,9 @@ export default async function Image() {
           fontFamily: "monospace",
         }}
       >
-        {/* Top label */}
         <div style={{ color: "#666", fontSize: 24, marginBottom: 24 }}>
           // programming quizzes for developers
         </div>
-
-        {/* Logo */}
         <div
           style={{
             color: "#fff",
@@ -37,13 +34,9 @@ export default async function Image() {
         >
           quizzy_
         </div>
-
-        {/* Tagline */}
         <div style={{ color: "#a3a3a3", fontSize: 32, marginBottom: 48 }}>
           Stop guessing. Start proving.
         </div>
-
-        {/* Stats row */}
         <div style={{ display: "flex", gap: 48 }}>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <span
@@ -70,8 +63,6 @@ export default async function Image() {
             <span style={{ color: "#666", fontSize: 20 }}>devs ranked</span>
           </div>
         </div>
-
-        {/* URL watermark */}
         <div
           style={{
             position: "absolute",
