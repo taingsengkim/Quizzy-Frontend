@@ -25,7 +25,7 @@ export function NavMain({
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           <SidebarMenuItem className="flex items-center gap-2  justify-center">
-            <Link href={"/admin/dashboard/create-quiz"} className="w-100">
+            <Link href={"/dashboard/create-quiz"} className="w-100">
               {" "}
               <SidebarMenuButton
                 tooltip="Quick Create"
@@ -39,7 +39,7 @@ export function NavMain({
         </SidebarMenu>
         <SidebarMenu>
           {items.map((item) => (
-            <Link key={item.title} href={`/admin/dashboard/${item.url}`}>
+            <Link key={item.title} href={`/dashboard/${item.url}`}>
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon}

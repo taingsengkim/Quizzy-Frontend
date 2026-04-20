@@ -57,7 +57,7 @@ export default function CreateQuizPage() {
         ...values,
         questions: [],
       }).unwrap();
-      router.push(`/admin/dashboard/edit-quiz/${res.id}`);
+      router.push(`/dashboard/edit-quiz/${res.id}`);
     } catch (err) {
       console.error(err);
     }

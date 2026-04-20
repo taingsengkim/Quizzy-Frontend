@@ -211,7 +211,7 @@ export function QuizAdminTable() {
             )}
           </p>
         </div>
-        <Link href="/admin/dashboard/create-quiz">
+        <Link href="/dashboard/create-quiz">
           <Button className="flex gap-2">
             <Plus className="w-4 h-4" /> Create New Quiz
           </Button>
@@ -485,7 +485,7 @@ export function QuizAdminTable() {
                         <DropdownMenuContent align="end" className="w-[160px]">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <Link href={`/admin/dashboard/edit-quiz/${quiz.id}`}>
+                          <Link href={`/dashboard/edit-quiz/${quiz.id}`}>
                             <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
                               <Edit className="mr-2 h-4 w-4" /> Edit Quiz
                             </DropdownMenuItem>

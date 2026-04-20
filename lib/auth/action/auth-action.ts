@@ -19,7 +19,7 @@ export const signInSocial = async (provider: "github" | "google" ) => {
 
 export const signOut = async () => {
   const result = await auth.api.signOut({ headers: await headers() });
-  redirect("/admin/login"); 
+  redirect("/login-admin"); 
   return result;
 };
 export const signOutUser = async () => {

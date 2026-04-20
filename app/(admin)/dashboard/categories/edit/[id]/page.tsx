@@ -118,7 +118,7 @@ export default function EditCategoryPage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button
               variant="outline"
-              onClick={() => router.push("/admin/dashboard/categories")}
+              onClick={() => router.push("/dashboard/categories")}
             >
               Back to categories
             </Button>

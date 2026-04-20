@@ -54,7 +54,7 @@ export default function AdminLogin() {
     try {
       const result = await loginAdmin(data);
       console.log(result);
-      router.push("/admin/dashboard");
+      router.push("/dashboard");
     } catch (err: any) {
       console.error("Spring Boot Login failed:", err);
     } finally {
@@ -92,7 +92,9 @@ export default function AdminLogin() {
               </Label>
               <div className="relative">
                 <Mail
-                  className={`absolute left-3 top-3 h-4 w-4 ${errors.email ? "text-destructive" : "text-muted-foreground"}`}
+                  className={`absolute left-3 top-3 h-4 w-4 ${
+                    errors.email ? "text-destructive" : "text-muted-foreground"
+                  }`}
                 />
                 <Controller
                   control={control}
@@ -102,7 +104,11 @@ export default function AdminLogin() {
                       {...field}
                       id="email"
                       placeholder="name@company.com"
-                      className={`pl-10 ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                      className={`pl-10 ${
+                        errors.email
+                          ? "border-destructive focus-visible:ring-destructive"
+                          : ""
+                      }`}
                     />
                   )}
                 />
@@ -130,7 +136,11 @@ export default function AdminLogin() {
               </div>
               <div className="relative">
                 <Lock
-                  className={`absolute left-3 top-3 h-4 w-4 ${errors.password ? "text-destructive" : "text-muted-foreground"}`}
+                  className={`absolute left-3 top-3 h-4 w-4 ${
+                    errors.password
+                      ? "text-destructive"
+                      : "text-muted-foreground"
+                  }`}
                 />
                 <Controller
                   control={control}
@@ -140,7 +150,11 @@ export default function AdminLogin() {
                       {...field}
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      className={`pl-10 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                      className={`pl-10 ${
+                        errors.password
+                          ? "border-destructive focus-visible:ring-destructive"
+                          : ""
+                      }`}
                     />
                   )}
                 />

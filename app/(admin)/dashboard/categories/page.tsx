@@ -139,7 +139,7 @@ export default function CategoryTable() {
             Manage your curriculum, track points, and update quiz content.
           </p>
         </div>
-        <Link href="/admin/dashboard/categories/create">
+        <Link href="/dashboard/categories/create">
           <Button className="flex gap-2">
             <Plus className="w-4 h-4" /> Create New Category
           </Button>
@@ -265,14 +265,12 @@ export default function CategoryTable() {
                       <DropdownMenuContent align="end" className="w-[160px]">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <Link href={`/admin/dashboard/categories/${cate?.id}`}>
+                        <Link href={`/dashboard/categories/${cate?.id}`}>
                           <DropdownMenuItem className="cursor-pointer">
                             <Eye className="mr-2 h-4 w-4" /> View Details
                           </DropdownMenuItem>
                         </Link>
-                        <Link
-                          href={`/admin/dashboard/categories/edit/${cate.id}`}
-                        >
+                        <Link href={`/dashboard/categories/edit/${cate.id}`}>
                           <DropdownMenuItem className="cursor-pointer text-blue-600 focus:text-blue-600">
                             <Edit className="mr-2 h-4 w-4" /> Edit Category
                           </DropdownMenuItem>

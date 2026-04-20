@@ -15,7 +15,7 @@ export default async function DashboardLayout({
   console.log("auth token", authToken);
 
   if (!authToken) {
-    redirect("/admin/login");
+    redirect("/login-admin");
   }
   const token = authToken?.value;
   const repsonse = await getAdminData(token);

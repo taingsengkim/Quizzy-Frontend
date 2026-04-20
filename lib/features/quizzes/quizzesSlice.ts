@@ -102,7 +102,7 @@ export const quizzyApi = quizzy.injectEndpoints({
     }),
     getQuizToPlay: builder.query({
       query: (id: number | string) =>
-        `http://localhost:8090/api/v1/quizzes/${id}/play`,
+        `/quizzes/${id}/play`,
     }),
     submitQuizResult: builder.mutation({
       query: (payload: {

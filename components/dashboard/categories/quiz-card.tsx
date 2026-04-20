@@ -1,4 +1,4 @@
-import { Quiz } from "@/app/(admin)/admin/dashboard/categories/[id]/page";
+import { Quiz } from "@/app/(admin)/dashboard/categories/[id]/page";
 import {
   ChevronDown,
   ChevronRight,
@@ -60,7 +60,7 @@ export default function QuizCard({ quiz }: { quiz: Quiz }) {
             </h3>
           </div>
           <Link
-            href={`/admin/dashboard/edit-quiz/${quiz.id}`}
+            href={`/dashboard/edit-quiz/${quiz.id}`}
             className="flex gap-2 cursor-pointer hover:bg-gray-300 items-center p-2 rounded-3xl transition hover:text-blue-400 "
           >
             <Edit />
