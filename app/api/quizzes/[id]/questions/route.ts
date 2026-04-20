@@ -17,7 +17,7 @@ export async function POST(
     console.log("FINAL PAYLOAD:", payload);
 
     const response = await fetch(
-      "http://localhost:8090/api/v1/questions",
+      `${process.env.NEXT_PUBLIC_API_URL}/questions`,
       {
         method: "POST",
         headers: {

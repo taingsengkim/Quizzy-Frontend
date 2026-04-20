@@ -323,7 +323,7 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
             </Card>
           </aside>
           <section className="lg:col-span-8 space-y-6">
-            <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-xl  ">
               <div>
                 <h2 className="text-lg font-bold">Question Bank</h2>
                 <p className="text-xs text-muted-foreground">
@@ -342,7 +342,7 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
 
             <div className="space-y-4  rounded-lg">
               {quiz?.questions?.map((q: any, idx: number) => (
-                <div key={q.id} className="group relative border-2">
+                <div key={q.id} className="group relative ">
                   <QuestionCard
                     question={q}
                     index={idx}

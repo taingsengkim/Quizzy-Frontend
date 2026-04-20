@@ -6,10 +6,10 @@ import {
   ChevronDown,
   ChevronRight,
   Circle,
-  Code2,
   Lightbulb,
   X,
 } from "lucide-react";
+import CodeBlock from "@/components/quiz/code-display";
 
 export default function QuestionCardQuizDetail({
   question,
@@ -89,25 +89,9 @@ export default function QuestionCardQuizDetail({
         </div>
       </button>
 
-      {/* Expanded body */}
       {open && (
         <div className="border-t border-gray-100 px-4 pb-4 pt-3 space-y-3 bg-gray-50/60">
-          {/* Code block */}
-          {question.code && (
-            <div className="rounded-lg overflow-hidden border border-gray-200">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800">
-                <Code2 className="w-3 h-3 text-gray-400" />
-                <span className="text-[10px] text-gray-400 font-mono">
-                  code
-                </span>
-              </div>
-              <pre className="bg-gray-900 text-emerald-400 font-mono text-xs px-4 py-3 overflow-x-auto leading-relaxed">
-                {question.code}
-              </pre>
-            </div>
-          )}
-
-          {/* Answers */}
+          {question.code && <CodeBlock code={question.code} />}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">

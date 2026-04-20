@@ -91,11 +91,7 @@ export function QuestionCard({
 
           {question?.code && (
             <div className="mt-2">
-              <div className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                <Code2 className="h-3 w-3" />
-                Code snippet
-              </div>
-              <pre className="p-3 bg-slate-100 dark:bg-slate-900 rounded-md text-xs font-mono overflow-x-auto border">
+              <pre className="p-3  dark:bg-slate-900 rounded-md text-xs font-mono overflow-x-auto ">
                 <CodeBlock code={question?.code} />
               </pre>
             </div>
@@ -174,12 +170,7 @@ export function QuestionCard({
           </div>
         ))}
       </div>
-      {/* <EditQuestionDialog
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        question={question}
-        quizId={quizId}
-      /> */}
+
       <QuestionModal
         open={isEditOpen}
         onOpenChange={setIsEditOpen}

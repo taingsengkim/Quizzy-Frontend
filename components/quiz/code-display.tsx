@@ -13,8 +13,7 @@ export default function CodeBlock({ code }: { code: string }) {
   };
 
   return (
-    <div className="my-8 rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl shadow-black/40 bg-[#080b14]">
-      {/* title bar */}
+    <div className="my-8 rounded-2xl overflow-hidden border border-slate-700/50 bg-[#080b14]">
       <div className="flex items-center justify-between px-4 py-2.5 bg-[#0f1420] border-b border-slate-700/50">
         <div className="flex items-center gap-3">
           <div className="flex gap-1.5">
