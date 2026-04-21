@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+   async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "quizzy.it.com" }], // non-www
+        destination: "https://www.quizzy.it.com/:path*",  //  www
+        permanent: true, // 301 redirect
+      },
+    ];
+  },
 };
 
 export default nextConfig;
