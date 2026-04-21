@@ -29,6 +29,7 @@ export async function PATCH(
     body: JSON.stringify(body),
   });
 
+  console.log("RES IN QUIZZES/[id] ( PATCH )",res)
   if (!res.ok) {
     return NextResponse.json(
       { message: "Failed to update quiz" },
