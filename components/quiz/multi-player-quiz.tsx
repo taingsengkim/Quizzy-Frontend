@@ -8,6 +8,7 @@ import { Check, Clock } from "lucide-react";
 import CodeBlock from "./code-display";
 import { toast } from "sonner";
 import NotFoundQuiz from "../share-component/not-found-quiz";
+import { useSearchParams } from "next/navigation";
 
 type CurrentQuestion = {
   id: number;
@@ -46,8 +47,15 @@ type RoomState = {
 
 export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const [stompClient, setStompClient] = useState<Client | null>(null);
-  const [roomCode, setRoomCode] = useState("");
-  const [username, setUsername] = useState("");
+
+  const searchParams = useSearchParams();
+
+  const [roomCode, setRoomCode] = useState(
+    searchParams.get("code")?.toUpperCase() ?? "",
+  );
+  const [username, setUsername] = useState(
+    searchParams.get("username")?.toLowerCase() ?? "",
+  );
   const [room, setRoom] = useState<RoomState | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [hasAnswered, setHasAnswered] = useState(false);
@@ -149,6 +157,69 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
       });
     }
   }, [timeIsUp]);
+
+  // Auto-connect when we have username + roomCode from URL
+  useEffect(() => {
+    if (!username || !roomCode || stompClient?.connected) return;
+
+    const normalizedUsername = username.trim().toLowerCase();
+    const normalizedRoomCode = roomCode.trim().toUpperCase();
+
+    const client = new Client({
+      webSocketFactory: () => {
+        const base = process.env.NEXT_PUBLIC_WEBSOCKET_URL || "";
+        const url = base.endsWith("/") ? `${base}ws` : `${base}/ws`;
+        return new SockJS(`${url}?username=${normalizedUsername}`);
+      },
+      connectHeaders: { username: normalizedUsername },
+      reconnectDelay: 5000,
+    });
+
+    client.onConnect = () => {
+      console.log("Connected to quiz room");
+
+      // Subscribe before publishing
+      if (subscriptionRef.current) subscriptionRef.current.unsubscribe();
+      const sub = client.subscribe(
+        `/topic/room/${normalizedRoomCode}`,
+        (message) => {
+          const roomUpdate: RoomState = JSON.parse(message.body);
+          setRoom((prev) => {
+            const prevQ = prev?.playerCurrentQuestion?.[normalizedUsername];
+            const nextQ =
+              roomUpdate.playerCurrentQuestion?.[normalizedUsername];
+            if (prevQ?.questionIndex !== nextQ?.questionIndex) {
+              setHasAnswered(false);
+              setSelectedAnswers([]);
+              setHint(null);
+            }
+            return roomUpdate;
+          });
+        },
+      );
+      subscriptionRef.current = sub;
+
+      client.publish({
+        destination: "/app/join-room",
+        body: JSON.stringify({
+          roomCode: normalizedRoomCode,
+          username: normalizedUsername,
+        }),
+      });
+    };
+
+    client.onStompError = (frame) => {
+      console.error("STOMP Error:", frame);
+      toast.error("Failed to connect to room");
+    };
+
+    client.activate();
+    setStompClient(client);
+
+    return () => {
+      client.deactivate();
+    };
+  }, [username, roomCode]); // runs once when both are populated
   if (isLoading) return <p>Loading quiz...</p>;
   if (error || !quiz) return <NotFoundQuiz />;
 
@@ -484,21 +555,35 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
           <div className="relative w-full max-w-md">
             <div className="absolute top-0 right-0 w-14 h-14 border-t-[1.5px] border-r-[2.5px] border-sky-500/20 rounded-tr-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-10 h-10 border-b-[1.5px] border-l-[2.5px] border-violet-500/15 rounded-bl-3xl pointer-events-none" />
-            <div className="bg-[#0d1220] border border-slate-800 rounded-3xl p-7 md:p-9 space-y-5 font-mono text-white overflow-hidden">
-              <div className="inline-flex items-center gap-2 bg-[#0f1a2e] border border-[#1e3a5f] rounded-full px-3 py-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-                <span className="text-sky-400 text-[11px] tracking-widest uppercase">
-                  multiplayer
-                </span>
+            <div className="bg-[#0d1220] border border-slate-800 rounded-3xl  p-9 space-y-5 font-mono text-white overflow-hidden">
+              <div className="flex gap-2 flex-wrap justify-center">
+                <div className="inline-flex items-center gap-2 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
+                  <span className="text-orange-400 text-[11px] tracking-widest uppercase">
+                    multiplayer
+                  </span>
+                </div>
+
+                <div className="inline-flex items-center gap-2 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
+                  <span className="text-[9px] text-slate-600 uppercase tracking-widest">
+                    quiz
+                  </span>
+                  <span className="text-slate-700 text-[10px]">·</span>
+                  <span className="text-sky-400 text-[11px] tracking-widest uppercase">
+                    {quiz?.title}
+                  </span>
+                </div>
               </div>
+
               <div>
                 <h2 className="text-2xl font-bold text-slate-100 tracking-tight">
                   CodeRoom
                 </h2>
-                <p className="text-slate-400 text-xs mt-1">
+                <p className="text-slate-500 text-xs mt-1">
                   join or create a live quiz room
                 </p>
               </div>
+
               <div className="space-y-1.5">
                 <label className="text-[11px] uppercase tracking-widest text-slate-500">
                   username

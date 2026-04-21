@@ -40,6 +40,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/quizzes", label: "Quizzes" },
     { href: "/about", label: "About" },
+    { href: "/quizzes/multiplayer/join", label: "Join Room" },
   ];
 
   const dispatch = useDispatch();
@@ -103,12 +104,12 @@ export default function Navbar() {
                     <DropdownMenuItem onClick={() => router.push("/profile")}>
                       <User className="w-4 h-4 mr-2" /> Profile
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                    {/* <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                       <LayoutDashboard className="w-4 h-4 mr-2" /> Dashboard
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Settings className="w-4 h-4 mr-2" /> Settings
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="w-4 h-4 mr-2 text-red-400" />
@@ -183,7 +184,6 @@ export default function Navbar() {
                   <p className="text-slate-500 text-xs">{user.email}</p>
                 </div>
               </div>
-
               <button
                 onClick={() => {
                   router.push("/profile");
@@ -193,6 +193,7 @@ export default function Navbar() {
               >
                 <User className="w-4 h-4" /> Profile
               </button>
+
               {/* <button
                 onClick={() => {
                   router.push("/dashboard");
