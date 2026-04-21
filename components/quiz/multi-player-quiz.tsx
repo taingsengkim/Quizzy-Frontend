@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useGetQuizByIdQuery } from "@/lib/features/quizzes/quizzesSlice";
-import { Check } from "lucide-react";
+import { Check, Clock } from "lucide-react";
 import CodeBlock from "./code-display";
 import { toast } from "sonner";
 import NotFoundQuiz from "../share-component/not-found-quiz";
@@ -20,7 +20,6 @@ type CurrentQuestion = {
   difficulty?: string;
 };
 
-// ✅ NEW TYPE
 type AnswerResult = {
   questionIndex: number;
   questionText: string;
@@ -41,7 +40,8 @@ type RoomState = {
   finishedPlayers?: string[];
   playerCurrentQuestion?: Record<string, CurrentQuestion>;
   playerQuestionIndex?: Record<string, number>;
-  playerAnswerHistory?: Record<string, AnswerResult[]>; // ✅ NEW
+  playerAnswerHistory?: Record<string, AnswerResult[]>;
+  startedAt?: number;
 };
 
 export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
@@ -80,6 +80,75 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     startNewAttempt();
   }, [quizId]);
 
+  const [elapsed, setElapsed] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Start/sync timer when room starts
+  useEffect(() => {
+    if (!room?.started || room.finished || !room.startedAt) return;
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    // Sync elapsed from server startedAt so all clients are in sync
+    const syncElapsed = () => {
+      const diff = Math.floor((Date.now() - room.startedAt!) / 1000);
+      setElapsed(diff);
+    };
+
+    syncElapsed();
+    timerRef.current = setInterval(syncElapsed, 1000);
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [room?.started, room?.startedAt]);
+
+  // Stop timer when finished
+  useEffect(() => {
+    if (room?.finished && timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [room?.finished]);
+  const timeLimitSeconds = quiz ? quiz.duration * 60 : null;
+  const timeRemaining =
+    timeLimitSeconds !== null ? Math.max(0, timeLimitSeconds - elapsed) : null;
+  const timeIsUp = timeLimitSeconds !== null && timeRemaining === 0;
+  const isWarning = timeRemaining !== null && timeRemaining <= 60;
+  const isDanger = timeRemaining !== null && timeRemaining <= 30;
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+  // Auto-submit when time runs out
+  useEffect(() => {
+    if (!timeIsUp || !stompClient?.connected || !room || iFinished) return;
+    if (selectedAnswers.length > 0) handleSubmit();
+  }, [timeIsUp]);
+
+  const timeUpSentRef = useRef(false);
+
+  useEffect(() => {
+    if (!timeIsUp || !stompClient?.connected || !room || room.finished) return;
+    if (timeUpSentRef.current) return;
+    timeUpSentRef.current = true;
+
+    // Submit current answer if any selected
+    if (selectedAnswers.length > 0 && !hasAnswered) {
+      handleSubmit();
+    }
+
+    // Tell backend time is up only owner needs to send this once
+    if (isOwner) {
+      stompClient.publish({
+        destination: "/app/time-up",
+        body: JSON.stringify({ roomCode: room.roomCode }),
+      });
+    }
+  }, [timeIsUp]);
   if (isLoading) return <p>Loading quiz...</p>;
   if (error || !quiz) return <NotFoundQuiz />;
 
@@ -659,6 +728,32 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 totalHintsUsed >= quiz.maxHintsPerQuestion;
               return (
                 <div className="relative group">
+                  {timeRemaining !== null && (
+                    <div
+                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-sm font-bold transition-all duration-300 mb-4
+                      ${
+                        isDanger
+                          ? "border-rose-500/50 bg-rose-500/10 text-rose-400 animate-pulse"
+                          : isWarning
+                          ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
+                          : "border-slate-700 bg-slate-900/40 text-slate-300"
+                      }`}
+                    >
+                      <Clock className="w-4 h-4" />
+                      {formatTime(timeRemaining)}
+                    </div>
+                  )}
+                  {timeIsUp && (
+                    <div className="mb-4 p-3 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 text-center font-mono text-sm font-bold tracking-wide">
+                      time's up — submitting...
+                    </div>
+                  )}
+                  {!room.started && (
+                    <div className="mt-3 pt-3 border-t border-slate-800 flex items-center gap-2 text-xs font-mono text-slate-500">
+                      <Clock className="w-3 h-3" />
+                      {quiz?.duration} min time limit
+                    </div>
+                  )}
                   <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
                   <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
                     <div className="absolute top-0 right-0 p-6 pointer-events-none">
@@ -730,7 +825,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     {!hasAnswered && (
                       <button
                         onClick={handleSubmit}
-                        disabled={selectedAnswers.length === 0}
+                        disabled={selectedAnswers.length === 0 || timeIsUp}
                         className={`mt-4 w-full p-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200
                         ${
                           selectedAnswers.length === 0
