@@ -71,19 +71,10 @@ export default function EditCategoryPage() {
   const onSubmit = async (values: CategoryFormValues) => {
     setSaving(true);
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            name: values.name,
-            description: values.description || null,
-            imageUrl: values.imageUrl || null,
-          }),
-        },
-      );
+      const res = await fetch(`/api/categories/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(values),
+      });
       if (!res.ok) throw new Error();
       setCategoryName(values.name);
       setSubmitted(true);

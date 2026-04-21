@@ -533,23 +533,25 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                 💡 {hint}
               </div>
             )}
-            <div className="flex items-center gap-3">
-              <Button
-                onClick={handleGetHint}
-                disabled={hintDisabled || timeIsUp}
-                className="bg-amber-500 hover:bg-amber-400 text-black font-bold disabled:opacity-30"
-              >
-                {hintLoading ? "Loading..." : "💡 Show Hint"}
-              </Button>
-              <span className="text-xs text-slate-200 font-mono">
-                {totalHintsUsed}/{quiz.maxHintsPerQuestion} quiz hints used
-                {usedOnCurrentQuestion >= 1 && (
-                  <span className="ml-2 text-amber-500/70">
-                    · used on this question
-                  </span>
-                )}
-              </span>
-            </div>
+            {question.hint && question.hint.trim() !== "" && (
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleGetHint}
+                  disabled={hintDisabled || timeIsUp}
+                  className="bg-amber-500 hover:bg-amber-400 text-black font-bold disabled:opacity-30"
+                >
+                  {hintLoading ? "Loading..." : "💡 Show Hint"}
+                </Button>
+                <span className="text-xs text-slate-200 font-mono">
+                  {totalHintsUsed}/{quiz.maxHintsPerQuestion} quiz hints used
+                  {usedOnCurrentQuestion >= 1 && (
+                    <span className="ml-2 text-amber-500/70">
+                      · used on this question
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
           </div>
 
           <Button

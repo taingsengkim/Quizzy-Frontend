@@ -7,8 +7,8 @@ export async function POST(
   try {
     const {id} = await params; 
     console.log("QUIZ ID FROM ROUTE HANDLERS ", id)
+  const token = req.cookies.get("better-auth.session_data")?.value;
     const body = await req.json();
-
     const payload = {
       ...body,
       quizId:id
@@ -22,6 +22,7 @@ export async function POST(
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(payload),
       }

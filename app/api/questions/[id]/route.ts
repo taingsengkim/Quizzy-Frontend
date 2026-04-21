@@ -36,10 +36,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+    const token = req.cookies.get("better-auth.session_data")?.value;
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/questions/${id}`,
     { 
       method: "DELETE",
+       headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
     },
   );
 

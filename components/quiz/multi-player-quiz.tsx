@@ -412,6 +412,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     ?.sort((a, b) => b.score - a.score);
   const finishedCount = room?.finishedPlayers?.length ?? 0;
   const totalPlayers = room?.participants?.length ?? 0;
+  const progress =
+    ((myQuestion?.questionIndex ?? 1 + 1) / quiz.questions.length) * 100;
 
   const renderAnswers = (question: CurrentQuestion) => {
     const { answers, questionType } = question;
@@ -890,6 +892,18 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                             {hint}
                           </div>
                         )}
+                        <div className="w-full my-5 space-y-2">
+                          <div className="flex justify-between  font-mono text-[10px] text-slate-200 uppercase tracking-widest">
+                            <span>Sync Progress</span>
+                            <span>{Math.round(progress)}%</span>
+                          </div>
+                          <div className="h-5 bg-slate-900 rounded-md border border-slate-800 overflow-hidden">
+                            <div
+                              className="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-700"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
                         {myQuestion?.hint?.trim() != "" && (
                           <div className="flex items-center gap-3">
                             <button
