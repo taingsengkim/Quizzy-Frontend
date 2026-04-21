@@ -110,7 +110,7 @@ export const metadata: Metadata = {
 
   // --- Verification (uncomment after getting codes from Search Console) ---
   verification: {
-    // google: "your-google-verification-code",
+    google: "sha9U89TLX6Gup_QipHRFlMYV7S4ZcdWy0VbkMyXtEU",
     // other: { "msvalidate.01": ["your-bing-verification-code"] },
   },
 };
