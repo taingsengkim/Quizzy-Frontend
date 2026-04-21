@@ -40,6 +40,7 @@ export default function Navbar() {
     { href: "/", label: "Home" },
     { href: "/quizzes", label: "Quizzes" },
     { href: "/quizzes/multiplayer/join", label: "Join Room" },
+    { href: "/quizzes/instant", label: "Instant Quiz" },
     { href: "/about", label: "About" },
   ];
 
