@@ -171,7 +171,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
     const client = new Client({
       webSocketFactory: () =>
         new SockJS(
-          `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/ws?username=${normalizedUsername}`,
+          `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}ws?username=${normalizedUsername}`,
         ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
