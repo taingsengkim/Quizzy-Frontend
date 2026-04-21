@@ -1,5 +1,6 @@
 import MultiplayerQuizPage from "@/components/quiz/multi-player-quiz";
 import NotFoundQuiz from "@/components/share-component/not-found-quiz";
+import { Suspense } from "react";
 
 export default async function MultiPlayerPage({
   params,
@@ -19,5 +20,9 @@ export default async function MultiPlayerPage({
     return <NotFoundQuiz />;
   }
 
-  return <MultiplayerQuizPage quizId={quizId} />;
+  return (
+    <Suspense>
+      <MultiplayerQuizPage quizId={quizId} />;
+    </Suspense>
+  );
 }
