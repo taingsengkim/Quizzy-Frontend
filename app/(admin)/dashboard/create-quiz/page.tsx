@@ -24,6 +24,7 @@ const quizSchema = z.object({
   description: z.string().min(1, "Description is required"),
   duration: z.coerce.number().min(1, "Duration must be at least 1 minute"),
   categoryId: z.coerce.number().min(1, "Category is required"),
+  maxHintsPerQuestion: z.coerce.number(),
   questions: z.array(z.any()).optional(),
 });
 
@@ -47,6 +48,7 @@ export default function CreateQuizPage() {
       description: "",
       duration: 1,
       categoryId: 1,
+      maxHintsPerQuestion: 0,
       questions: [],
     },
   });
@@ -100,27 +102,52 @@ export default function CreateQuizPage() {
             </p>
           )}
         </div>
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Duration (minutes)
-          </label>
-          <Controller
-            name="duration"
-            control={control}
-            render={({ field }) => (
-              <Input
-                type="number"
-                min={1}
-                value={field.value}
-                onChange={(e) => field.onChange(Number(e.target.value))}
-              />
+        <div className="flex gap-5">
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Hint Attempts Allowed
+            </label>
+            <Controller
+              name="maxHintsPerQuestion"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="number"
+                  min={1}
+                  value={field.value}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              )}
+            />
+            {errors.maxHintsPerQuestion && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.maxHintsPerQuestion.message}
+              </p>
             )}
-          />
-          {errors.duration && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.duration.message}
-            </p>
-          )}
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">
+              Duration (minutes)
+            </label>
+
+            <Controller
+              name="duration"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  type="number"
+                  min={1}
+                  value={field.value}
+                  onChange={(e) => field.onChange(Number(e.target.value))}
+                />
+              )}
+            />
+            {errors.duration && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.duration.message}
+              </p>
+            )}
+          </div>
         </div>
         <div>
           <label className="text-sm font-medium text-gray-700">Category</label>

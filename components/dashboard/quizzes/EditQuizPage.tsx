@@ -50,6 +50,7 @@ const quizSettingsSchema = z.object({
   description: z.string().min(1, "Description is required"),
   duration: z.coerce.number().min(1, "Must be at least 1 minute"),
   categoryId: z.number().min(1, "Please select a category"),
+  maxHintsPerQuestion: z.coerce.number(),
 });
 
 type QuizSettingsValues = z.infer<typeof quizSettingsSchema>;
@@ -73,7 +74,13 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
     formState: { errors, isDirty },
   } = useForm<QuizSettingsValues>({
     resolver: zodResolver(quizSettingsSchema) as any,
-    defaultValues: { title: "", description: "", duration: 1, categoryId: 1 },
+    defaultValues: {
+      title: "",
+      description: "",
+      duration: 1,
+      categoryId: 1,
+      maxHintsPerQuestion: 0,
+    },
   });
 
   useEffect(() => {
@@ -83,6 +90,7 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
         description: quiz.description ?? "",
         duration: quiz.duration ?? 1,
         categoryId: quiz.category?.id ?? quiz.categoryId ?? 1,
+        maxHintsPerQuestion: quiz.maxHintsPerQuestion ?? 0,
       });
     }
   }, [quiz, reset]);
@@ -98,7 +106,8 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
 
   const handleDeleteQuestion = async (questionId: number) => {
     try {
-      await deleteQuestion({ quizId, questionId }).unwrap();
+      console.log("QUESTION ID IN EDIT ( DELETE DEBUG ) ", questionId);
+      await deleteQuestion(questionId).unwrap();
       toast.success("Question removed");
     } catch (err) {
       toast.error("Failed to delete question");
@@ -286,6 +295,28 @@ export default function EditQuizPage({ quizId }: { quizId: string }) {
                   </Label>
                   <Controller
                     name="duration"
+                    control={control}
+                    render={({ field }) => (
+                      <div className="relative">
+                        <Clock className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="number"
+                          {...field}
+                          className="pl-9 bg-slate-50/50 border-slate-200"
+                        />
+                      </div>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="Hint Attemps"
+                    className="text-xs uppercase tracking-wider font-bold text-muted-foreground"
+                  >
+                    Hint Attempts
+                  </Label>
+                  <Controller
+                    name="maxHintsPerQuestion"
                     control={control}
                     render={({ field }) => (
                       <div className="relative">

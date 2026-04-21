@@ -23,6 +23,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import QuestionModal from "./QuestionModal";
+import DeleteModal from "@/components/PopUp";
+import { QuestionResponse } from "@/lib/types/quiz";
 
 export interface Answer {
   id: number;
@@ -66,11 +68,15 @@ export function QuestionCard({
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
+      console.log(question.id);
       await onDelete(question.id);
     } finally {
       setIsDeleting(false);
     }
   };
+  const [selectedQuestion, setSelectedQuestion] =
+    useState<QuestionResponse | null>(null);
+
   return (
     <div className="border rounded-xl p-6 bg-card shadow-sm space-y-4">
       <div className="flex justify-between items-start gap-4">
@@ -111,10 +117,20 @@ export function QuestionCard({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 hover:text-blue-500"
               onClick={() => setIsEditOpen(true)}
             >
               <Pencil className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hover:text-red-500"
+              onClick={() => {
+                setIsDeleteOpen(true);
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
             </Button>
 
             <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
