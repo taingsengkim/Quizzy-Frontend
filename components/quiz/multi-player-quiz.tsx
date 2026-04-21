@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useGetQuizByIdQuery } from "@/lib/features/quizzes/quizzesSlice";
-import { Check, CheckCheck, Copy, Terminal } from "lucide-react";
+import { Check } from "lucide-react";
 import CodeBlock from "./code-display";
 import { toast } from "sonner";
 import NotFoundQuiz from "../share-component/not-found-quiz";
@@ -20,6 +20,16 @@ type CurrentQuestion = {
   difficulty?: string;
 };
 
+// ✅ NEW TYPE
+type AnswerResult = {
+  questionIndex: number;
+  questionText: string;
+  selectedAnswerTexts: string[];
+  correctAnswerTexts: string[];
+  correct: boolean;
+  points: number;
+};
+
 type RoomState = {
   roomCode: string;
   owner: string;
@@ -31,6 +41,7 @@ type RoomState = {
   finishedPlayers?: string[];
   playerCurrentQuestion?: Record<string, CurrentQuestion>;
   playerQuestionIndex?: Record<string, number>;
+  playerAnswerHistory?: Record<string, AnswerResult[]>; // ✅ NEW
 };
 
 export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
@@ -70,37 +81,29 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   }, [quizId]);
 
   if (isLoading) return <p>Loading quiz...</p>;
-
-  if (error || !quiz) {
-    return <NotFoundQuiz />;
-  }
+  if (error || !quiz) return <NotFoundQuiz />;
 
   const normalizedUsername = username.trim().toLowerCase();
   const totalQuestions = quiz?.questions?.length ?? 0;
-
   const addLog = (msg: string) =>
     setLogs((prev) => [`[${new Date().toLocaleTimeString()}] ${msg}`, ...prev]);
 
   const subscribeToRoomTopic = (clientInstance: Client, code: string) => {
     if (subscriptionRef.current) subscriptionRef.current.unsubscribe();
-
     const sub = clientInstance.subscribe(`/topic/room/${code}`, (message) => {
       const roomUpdate: RoomState = JSON.parse(message.body);
-
       setRoom((prev) => {
         const prevQ = prev?.playerCurrentQuestion?.[normalizedUsername];
         const nextQ = roomUpdate.playerCurrentQuestion?.[normalizedUsername];
         if (prevQ?.questionIndex !== nextQ?.questionIndex) {
           setHasAnswered(false);
           setSelectedAnswers([]);
-          setHint(null); // clear hint on question change
+          setHint(null);
         }
         return roomUpdate;
       });
-
       addLog(`Room update — started: ${roomUpdate.started}`);
     });
-
     subscriptionRef.current = sub;
   };
 
@@ -123,7 +126,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
         ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
-      debug: (str) => console.log(str),
     });
     client.onConnect = () => {
       addLog("Connected");
@@ -175,7 +177,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
         ),
       connectHeaders: { username: normalizedUsername },
       reconnectDelay: 5000,
-      debug: (str) => console.log(str),
     });
     client.onConnect = () => {
       addLog("Connected");
@@ -202,13 +203,12 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const handleGetHint = async (question: CurrentQuestion) => {
     if (!attemptId) return toast.error("Attempt not ready yet!");
     if (hintRequestingRef.current) return;
-
     const usedOnThisQuestion = hintUsedMap[question.id] || 0;
     if (usedOnThisQuestion >= 1)
-      return toast.warning("You've already used your hint for this question.");
+      return toast.warning("Already used hint for this question.");
     if (totalHintsUsed >= quiz.maxHintsPerQuestion)
       return toast.warning(
-        `You've used all ${quiz.maxHintsPerQuestion} hints allowed for this quiz.`,
+        `You've used all ${quiz.maxHintsPerQuestion} hints.`,
       );
     try {
       hintRequestingRef.current = true;
@@ -257,7 +257,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
         answer: selectedAnswers.join(","),
       }),
     });
-    addLog(`Answered: ${selectedAnswers.join(", ")}`);
   };
 
   const isOwner = room?.owner?.trim().toLowerCase() === normalizedUsername;
@@ -410,60 +409,81 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Multiplayer Quiz</h1>
-
+    <div className="max-w-2xl mx-auto">
       {!room && (
-        <div className="min-h-screen flex justify-center">
-          <div className="relative group w-full max-w-md">
-            <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-10 rounded-[2rem] shadow-2xl space-y-6 font-mono text-white">
-              <div className="absolute top-0 right-0 p-6 pointer-events-none">
-                <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
+        <div className="min-h-screen flex items-center justify-center px-4 mt-8 bg-[#080b14]">
+          <div className="relative w-full max-w-md">
+            <div className="absolute top-0 right-0 w-14 h-14 border-t-[1.5px] border-r-[2.5px] border-sky-500/20 rounded-tr-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-10 h-10 border-b-[1.5px] border-l-[2.5px] border-violet-500/15 rounded-bl-3xl pointer-events-none" />
+            <div className="bg-[#0d1220] border border-slate-800 rounded-3xl p-7 md:p-9 space-y-5 font-mono text-white overflow-hidden">
+              <div className="inline-flex items-center gap-2 bg-[#0f1a2e] border border-[#1e3a5f] rounded-full px-3 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+                <span className="text-sky-400 text-[11px] tracking-widest uppercase">
+                  multiplayer
+                </span>
               </div>
-              <div className="text-center space-y-2">
-                <h2 className="text-3xl font-bold text-white tracking-tight">
-                  🖥️ CodeRoom
+              <div>
+                <h2 className="text-2xl font-bold text-slate-100 tracking-tight">
+                  CodeRoom
                 </h2>
-                <p className="text-slate-400 text-sm">
-                  Join or create a multiplayer quiz room
+                <p className="text-slate-400 text-xs mt-1">
+                  join or create a live quiz room
                 </p>
               </div>
-              <div className="space-y-2">
-                <label className="text-slate-400 text-sm">Username</label>
+              <div className="space-y-1.5">
+                <label className="text-[11px] uppercase tracking-widest text-slate-500">
+                  username
+                </label>
                 <input
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder="your_handle"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-900/40 border border-slate-800 p-4 rounded-xl text-sky-300 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
+                  className="w-full bg-[#080e1c] border border-slate-800 rounded-xl px-4 py-3 text-sky-300 text-sm placeholder-slate-700 focus:outline-none focus:border-sky-500 transition"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-slate-400 text-sm">Room Code</label>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-slate-800" />
+                <span className="text-[11px] text-slate-600">
+                  join existing
+                </span>
+                <div className="flex-1 h-px bg-slate-800" />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] uppercase tracking-widest text-slate-500">
+                  room code
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Enter room code"
+                    placeholder="e.g. XK-4821"
                     value={roomCode}
                     onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                    className="flex-1 bg-slate-900/40 border border-slate-800 p-4 rounded-xl text-sky-300 placeholder-slate-500 focus:outline-none focus:border-sky-500 transition"
+                    className="flex-1 bg-[#080e1c] border border-slate-800 rounded-xl px-4 py-3 text-sky-300 text-sm placeholder-slate-700 focus:outline-none focus:border-sky-500 transition"
                   />
                   <button
                     onClick={connectAndJoin}
-                    className="px-5 rounded-xl bg-sky-500/10 border border-sky-500/30 text-sky-400 font-semibold hover:bg-sky-500/20 transition"
+                    disabled={!roomCode.trim()}
+                    className="px-5 cursor-pointer rounded-xl bg-[#0f1e35] border border-[#1e4976] text-sky-400 text-sm font-semibold hover:bg-[#162840] transition whitespace-nowrap disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    Join
+                    join →
                   </button>
                 </div>
               </div>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-slate-800" />
+                <span className="text-[11px] text-slate-600">or</span>
+                <div className="flex-1 h-px bg-slate-800" />
+              </div>
               <button
                 onClick={connectAndCreate}
-                className="w-full p-4 rounded-xl bg-gradient-to-r from-sky-500 to-cyan-400 text-black font-bold hover:opacity-90 transition shadow-lg"
+                disabled={!!roomCode.trim()}
+                className="w-full py-3.5 cursor-pointer rounded-xl bg-sky-500 text-[#020c1b] text-sm font-bold tracking-wide hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
               >
-                Create Room
+                + create room
               </button>
-              <p className="text-center text-xs text-slate-500 italic">
-                Enter your username and join or create a room
+              <p className="text-center text-[11px] text-slate-600 italic">
+                rooms expire after 30 min of inactivity
               </p>
             </div>
           </div>
@@ -471,41 +491,45 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
       )}
 
       {room && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
+        <div className="space-y-4 mt-20">
+          <div className="flex justify-between items-start">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wide">
-                Room Code
+              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mb-1">
+                room code
               </p>
-              <p className="text-3xl font-mono font-bold text-blue-600 tracking-widest">
+              <p className="text-3xl font-mono font-bold text-sky-400 tracking-[0.18em]">
                 {room.roomCode}
               </p>
             </div>
             <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
+              className={`px-3 py-1 rounded-full text-[11px] font-semibold font-mono border tracking-wide ${
                 room.finished
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-emerald-950/60 border-emerald-800 text-emerald-400"
                   : room.started
-                  ? "bg-purple-100 text-purple-700"
-                  : "bg-yellow-100 text-yellow-700"
+                  ? "bg-violet-950/60 border-violet-800 text-violet-400"
+                  : "bg-amber-950/60 border-amber-800 text-amber-400"
               }`}
             >
               {room.finished
-                ? "Finished"
+                ? "● finished"
                 : room.started
-                ? "Playing"
-                : "Waiting"}
+                ? "● playing"
+                : "◌ waiting"}
             </span>
           </div>
-          <div className="border rounded-xl p-4">
-            <p className="text-sm font-semibold text-gray-100 mb-2">
-              Players ({totalPlayers})
+
+          {/* Players panel */}
+          <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold text-slate-400 font-mono uppercase tracking-wider">
+                players ({totalPlayers})
+              </p>
               {room.started && (
-                <span className="ml-2 text-xs text-gray-100 font-normal">
+                <span className="text-[11px] text-slate-500 font-mono">
                   {finishedCount}/{totalPlayers} completed
                 </span>
               )}
-            </p>
+            </div>
             <div className="flex flex-wrap gap-2">
               {room.participants?.map((p) => {
                 const pFinished = room.finishedPlayers?.includes(p);
@@ -513,22 +537,28 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 return (
                   <span
                     key={p}
-                    className={`px-3 py-1 rounded-full text-sm border flex items-center gap-1 ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border transition-all ${
                       pFinished
-                        ? "border-green-300 text-green-800"
-                        : "border-gray-300 text-gray-100"
+                        ? "bg-emerald-950/50 border-emerald-800 text-emerald-400"
+                        : "bg-slate-900 border-slate-700 text-slate-300"
                     }`}
                   >
                     {p}
                     {p === room.owner && (
-                      <span className="text-xs opacity-60">(host)</span>
+                      <span className="text-[10px] text-emerald-500 font-extrabold opacity-60">
+                        (host)
+                      </span>
                     )}
                     {room.started && !pFinished && (
-                      <span className="text-xs opacity-60">q{pIndex + 1}</span>
+                      <span className="text-[10px] text-slate-600">
+                        q{pIndex + 1}
+                      </span>
                     )}
-                    {pFinished && <Check className="w-3 h-3" />}
+                    {pFinished && (
+                      <Check className="w-3 h-3 text-emerald-400" />
+                    )}
                     {room.scores?.[p] !== undefined && room.started && (
-                      <span className="font-semibold ml-1">
+                      <span className="text-sky-400 font-bold ml-0.5">
                         {room.scores[p]}pts
                       </span>
                     )}
@@ -537,68 +567,86 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               })}
             </div>
           </div>
+
+          {/* Start button — owner only */}
           {!room.started && isOwner && (
             <button
               onClick={handleStartRoom}
-              className="bg-purple-600 text-white p-3 rounded-lg w-full font-semibold hover:bg-purple-700"
+              className="relative cursor-pointer w-full py-3.5 rounded-xl font-mono font-bold text-sm tracking-widest uppercase overflow-hidden group
+                bg-[#0f1e35] border border-sky-500/30 text-sky-400
+                hover:border-sky-400/60 hover:text-sky-300
+                active:scale-[0.98] transition-all duration-200"
             >
-              Start Quiz
+              <span className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500 bg-gradient-to-r from-transparent via-sky-500/10 to-transparent" />
+              <span className="relative flex items-center justify-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+                start quiz
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
+              </span>
             </button>
           )}
+
+          {/* Waiting message — non-owner */}
           {!room.started && !isOwner && (
-            <p className="text-center text-sm text-gray-400 italic">
-              Waiting for host to start...
+            <p className="text-center text-sm text-slate-500 font-mono italic py-2">
+              ◌ waiting for host to start...
             </p>
           )}
+
+          {/* Waiting for others after finishing */}
           {room.started && !room.finished && iFinished && (
-            <div className="border rounded-xl p-5 space-y-4">
-              <div className="text-center">
-                <p className="text-lg font-semibold text-green-800">
-                  You finished all questions!
+            <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-6 space-y-4 font-mono">
+              <div className="text-center space-y-1">
+                <p className="text-emerald-400 font-bold text-lg">
+                  all questions done!
                 </p>
-                <p className="text-sm text-green-600 mt-1">
-                  {finishedCount}/{totalPlayers} players done — waiting for
+                <p className="text-slate-500 text-xs">
+                  {finishedCount}/{totalPlayers} players finished — waiting for
                   others...
                 </p>
               </div>
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wide font-medium mb-2">
-                  Current standings
+                <p className="text-[10px] text-slate-600 uppercase tracking-widest mb-3">
+                  current standings
                 </p>
-                <ul className="space-y-1">
+                <div className="space-y-2">
                   {leaderboard?.map((p, i) => (
-                    <li
+                    <div
                       key={p.username}
-                      className="flex justify-between items-center py-1.5 border-b last:border-0"
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm
+                        ${
+                          p.username === normalizedUsername
+                            ? "bg-sky-950/40 border-sky-800 text-sky-300"
+                            : "bg-slate-900/40 border-slate-800 text-slate-400"
+                        }`}
                     >
-                      <span className="flex items-center gap-2 text-sm">
-                        <span className="text-gray-400 w-5">#{i + 1}</span>
+                      <span className="flex items-center gap-3">
                         <span
-                          className={
-                            p.username === normalizedUsername
-                              ? "font-semibold"
-                              : ""
-                          }
+                          className={`text-xs w-5 ${
+                            i === 0 ? "text-amber-400" : "text-slate-600"
+                          }`}
                         >
-                          {p.username}
+                          #{i + 1}
                         </span>
+                        {p.username}
                         {room.finishedPlayers?.includes(p.username) ? (
-                          <span className="text-xs text-green-600">done</span>
+                          <span className="text-[10px] text-emerald-500">
+                            done
+                          </span>
                         ) : (
-                          <span className="text-xs text-gray-400">
+                          <span className="text-[10px] text-slate-600">
                             playing...
                           </span>
                         )}
                       </span>
-                      <span className="text-sm font-semibold">
-                        {p.score} pts
-                      </span>
-                    </li>
+                      <span className="font-bold">{p.score} pts</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             </div>
           )}
+
           {room.started &&
             !room.finished &&
             !iFinished &&
@@ -609,7 +657,6 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 hintLoading ||
                 usedOnThisQuestion >= 1 ||
                 totalHintsUsed >= quiz.maxHintsPerQuestion;
-
               return (
                 <div className="relative group">
                   <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
@@ -617,10 +664,9 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     <div className="absolute top-0 right-0 p-6 pointer-events-none">
                       <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
                     </div>
-
                     <div className="flex flex-wrap justify-between items-center mb-6 gap-3 text-sm">
-                      <span className="text-slate-400">
-                        Question {myIndex + 1}
+                      <span className="text-slate-400 font-mono">
+                        question {myIndex + 1}
                         {totalQuestions ? ` / ${totalQuestions}` : ""}
                       </span>
                       <div className="flex gap-2 items-center flex-wrap">
@@ -645,23 +691,20 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                         )}
                       </div>
                     </div>
-
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
                       {myQuestion.text}
                     </h3>
-
                     {myQuestion.code && (
                       <div className="mb-6">
                         <CodeBlock code={myQuestion.code} />
                       </div>
                     )}
-
                     {renderAnswers(myQuestion)}
                     {!hasAnswered && (
                       <div className="mt-6 space-y-3">
                         {hint && (
                           <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm">
-                            💡 {hint}
+                            {hint}
                           </div>
                         )}
                         <div className="flex items-center gap-3">
@@ -670,7 +713,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                             disabled={hintDisabled}
                             className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-black font-bold text-sm transition-all"
                           >
-                            {hintLoading ? "Loading..." : "💡 Show Hint"}
+                            {hintLoading ? "Loading..." : "Show Hint"}
                           </button>
                           <span className="text-xs text-slate-500 font-mono">
                             {totalHintsUsed}/{quiz.maxHintsPerQuestion} hints
@@ -693,62 +736,179 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                           selectedAnswers.length === 0
                             ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
                             : myQuestion.questionType === "TRUE_FALSE"
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-black hover:opacity-90 shadow-lg"
+                            ? "bg-emerald-500 text-black hover:opacity-90"
                             : myQuestion.questionType === "MULTIPLE_CHOICE"
-                            ? "bg-gradient-to-r from-sky-500 to-cyan-400 text-black hover:opacity-90 shadow-lg"
-                            : "bg-gradient-to-r from-amber-500 to-orange-400 text-black hover:opacity-90 shadow-lg"
+                            ? "bg-sky-500 text-black hover:opacity-90"
+                            : "bg-amber-500 text-black hover:opacity-90"
                         }`}
                       >
                         {selectedAnswers.length === 0
-                          ? "Select an answer"
-                          : `Submit Answer${
+                          ? "select an answer"
+                          : `submit answer${
                               selectedAnswers.length > 1
                                 ? `s (${selectedAnswers.length})`
                                 : ""
                             }`}
                       </button>
                     )}
-
                     {hasAnswered && (
-                      <p className="text-center text-sm text-slate-400 mt-6 italic">
-                        Loading next question...
+                      <p className="text-center text-sm text-slate-500 font-mono mt-6 italic">
+                        loading next question...
                       </p>
                     )}
                   </div>
                 </div>
               );
             })()}
+
           {room.started && !room.finished && !iFinished && !myQuestion && (
-            <p className="text-center text-sm text-gray-400 italic py-6">
-              Loading question...
+            <p className="text-center text-sm text-slate-500 font-mono italic py-6">
+              loading question...
             </p>
           )}
-          {room.finished && (
-            <div className="bg-gradient-to-br from-gray-900 to-gray-800 border border-gray-700 rounded-2xl p-6 space-y-5 shadow-xl">
-              <h2 className="text-xl font-bold">🏆 Final Leaderboard</h2>
-              <ul className="space-y-1">
-                {leaderboard?.map((p, i) => (
-                  <li
-                    key={p.username}
-                    className={`flex justify-between items-center py-2 border-b last:border-0 ${
-                      p.username === normalizedUsername ? "font-semibold" : ""
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <span className="text-gray-400 text-sm w-6">
-                        #{i + 1}
-                      </span>
-                      {p.username}
-                      {p.username === normalizedUsername && (
-                        <span className="text-xs text-blue-500">(you)</span>
-                      )}
-                    </span>
-                    <span className="font-semibold">{p.score} pts</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+
+          {room.finished &&
+            (() => {
+              const myHistory =
+                room.playerAnswerHistory?.[normalizedUsername] ?? [];
+              const myScore = room.scores?.[normalizedUsername] ?? 0;
+              const correctCount = myHistory.filter((r) => r.correct).length;
+
+              return (
+                <div className="space-y-5 pb-10">
+                  <div className="bg-[#0d1220] border border-slate-800 rounded-2xl p-6 font-mono">
+                    <div className="flex items-center justify-between mb-5">
+                      <div>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">
+                          your score
+                        </p>
+                        <p className="text-4xl font-bold text-sky-400">
+                          {myScore} pts
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">
+                          accuracy
+                        </p>
+                        <p className="text-2xl font-bold text-slate-200">
+                          {correctCount}/{myHistory.length}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-slate-800 pt-4">
+                      <p className="text-[10px] text-slate-600 uppercase tracking-widest mb-3">
+                        final leaderboard
+                      </p>
+                      <div className="space-y-2">
+                        {leaderboard?.map((p, i) => (
+                          <div
+                            key={p.username}
+                            className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm
+                            ${
+                              p.username === normalizedUsername
+                                ? "bg-sky-950/40 border-sky-800 text-sky-300"
+                                : "bg-slate-900/40 border-slate-800 text-slate-400"
+                            }`}
+                          >
+                            <span className="flex items-center gap-3">
+                              <span
+                                className={`text-xs w-5 font-bold ${
+                                  i === 0 ? "text-amber-400" : "text-slate-600"
+                                }`}
+                              >
+                                #{i + 1}
+                              </span>
+                              {p.username}
+                              {p.username === normalizedUsername && (
+                                <span className="text-[10px] text-sky-500">
+                                  (you)
+                                </span>
+                              )}
+                            </span>
+                            <span className="font-bold">{p.score} pts</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-4 font-mono">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-4">
+                      your answers
+                    </p>
+                    <div className="space-y-3">
+                      {myHistory.map((r, i) => (
+                        <div
+                          key={i}
+                          className={`rounded-xl border p-4 space-y-3
+                          ${
+                            r.correct
+                              ? "bg-emerald-950/30 border-emerald-800"
+                              : "bg-rose-950/20 border-rose-900"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <p className="text-sm text-slate-200 leading-snug">
+                              {r.questionText}
+                            </p>
+                            <span
+                              className={`shrink-0 text-[11px] px-2.5 py-0.5 rounded-full border font-bold
+                            ${
+                              r.correct
+                                ? "bg-emerald-950/60 border-emerald-700 text-emerald-400"
+                                : "bg-rose-950/60 border-rose-800 text-rose-400"
+                            }`}
+                            >
+                              {r.correct ? `+${r.points}pts` : "wrong"}
+                            </span>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <p className="text-[10px] text-slate-600 uppercase tracking-wider">
+                              your answer
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {r.selectedAnswerTexts.map((a, j) => (
+                                <span
+                                  key={j}
+                                  className={`text-xs px-2.5 py-1 rounded-lg border
+                                  ${
+                                    r.correct
+                                      ? "bg-emerald-950/40 border-emerald-800 text-emerald-300"
+                                      : "bg-rose-950/40 border-rose-800 text-rose-300"
+                                  }`}
+                                >
+                                  {a}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          {!r.correct && (
+                            <div className="space-y-1.5">
+                              <p className="text-[10px] text-slate-600 uppercase tracking-wider">
+                                correct answer
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {r.correctAnswerTexts.map((a, j) => (
+                                  <span
+                                    key={j}
+                                    className="text-xs px-2.5 py-1 rounded-lg border bg-emerald-950/40 border-emerald-800 text-emerald-300"
+                                  >
+                                    {a}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
         </div>
       )}
     </div>
