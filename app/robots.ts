@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: "https://www.quizzy.it.com/sitemap.xml",
+    sitemap: "https://quizzy-it.vercel.app/sitemap.xml",
   };
 }

@@ -4,13 +4,13 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-      <loc>https://www.quizzy.it.com</loc>
+      <loc>https://quizzy-it.vercel.app/</loc>
     </url>
     <url>
-      <loc>https://www.quizzy.it.com/quizzes</loc>
+      <loc>https://quizzy-it.vercel.app/quizzes</loc>
     </url>
     <url>
-      <loc>https://www.quizzy.it.com/category</loc>
+      <loc>https://quizzy-it.vercel.app/category</loc>
     </url>
   </urlset>`;
 

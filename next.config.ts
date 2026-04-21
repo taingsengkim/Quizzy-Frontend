@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         has: [{ type: "host", value: "quizzy.it.com" }], // non-www
-        destination: "https://www.quizzy.it.com/:path*",  //  www
+        destination: "https://quizzy-it.vercel.app/:path*",  //  www
         permanent: true, // 301 redirect
       },
     ];
