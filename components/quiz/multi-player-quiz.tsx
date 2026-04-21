@@ -19,6 +19,7 @@ type CurrentQuestion = {
   questionType?: string;
   points?: number;
   difficulty?: string;
+  hint?: string;
 };
 
 type AnswerResult = {
@@ -65,6 +66,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   const [hint, setHint] = useState<string | null>(null);
   const [hintLoading, setHintLoading] = useState(false);
   const [hintUsedMap, setHintUsedMap] = useState<Record<number, number>>({});
+
   const [totalHintsUsed, setTotalHintsUsed] = useState(0);
   const [attemptId, setAttemptId] = useState<string | null>(null);
   const attemptStartedRef = useRef(false);
@@ -401,6 +403,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
   const isOwner = room?.owner?.trim().toLowerCase() === normalizedUsername;
   const myQuestion = room?.playerCurrentQuestion?.[normalizedUsername] ?? null;
+  console.log("my question", myQuestion);
   const myIndex = room?.playerQuestionIndex?.[normalizedUsername] ?? 0;
   const iFinished =
     room?.finishedPlayers?.includes(normalizedUsername) ?? false;
@@ -887,24 +890,26 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                             {hint}
                           </div>
                         )}
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => handleGetHint(myQuestion)}
-                            disabled={hintDisabled}
-                            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-black font-bold text-sm transition-all"
-                          >
-                            {hintLoading ? "Loading..." : "Show Hint"}
-                          </button>
-                          <span className="text-xs text-slate-500 font-mono">
-                            {totalHintsUsed}/{quiz.maxHintsPerQuestion} hints
-                            used
-                            {usedOnThisQuestion >= 1 && (
-                              <span className="ml-2 text-amber-500/70">
-                                · used on this question
-                              </span>
-                            )}
-                          </span>
-                        </div>
+                        {myQuestion?.hint?.trim() != "" && (
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => handleGetHint(myQuestion)}
+                              disabled={hintDisabled}
+                              className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-30 disabled:cursor-not-allowed text-black font-bold text-sm transition-all"
+                            >
+                              {hintLoading ? "Loading..." : "Show Hint"}
+                            </button>
+                            <span className="text-xs text-slate-500 font-mono">
+                              {totalHintsUsed}/{quiz.maxHintsPerQuestion} hints
+                              used
+                              {usedOnThisQuestion >= 1 && (
+                                <span className="ml-2 text-amber-500/70">
+                                  · used on this question
+                                </span>
+                              )}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
                     {!hasAnswered && (
