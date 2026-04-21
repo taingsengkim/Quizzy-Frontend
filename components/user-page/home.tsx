@@ -31,6 +31,7 @@ import { useGetCategoriesQuery } from "@/lib/features/categories/categoriesSlice
 import Navbar from "../share-component/navbar";
 import CategoriesSection from "./category-home";
 import QuizSidebar from "./quiz-preview";
+import Link from "next/link";
 
 const QUESTION = {
   lang: "JavaScript",
@@ -162,12 +163,16 @@ export default function Home() {
             </p>
 
             <div className="flex flex-wrap gap-4 mt-10">
-              <Button
-                size="lg"
-                className="font-mono-custom text-sm bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 shadow-[0_0_40px_rgba(99,102,241,.4)] hover:shadow-[0_0_60px_rgba(99,102,241,.6)] transition-all"
-              >
-                <Zap className="w-4 h-4 mr-2" /> start challenge
-              </Button>
+              <Link href={"/quizzes/instant"}>
+                {" "}
+                <Button
+                  size="lg"
+                  className="font-mono-custom text-sm bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 shadow-[0_0_40px_rgba(99,102,241,.4)] hover:shadow-[0_0_60px_rgba(99,102,241,.6)] transition-all"
+                >
+                  <Zap className="w-4 h-4 mr-2" /> start challenge
+                </Button>
+              </Link>
+
               <Button
                 size="lg"
                 variant="outline"
