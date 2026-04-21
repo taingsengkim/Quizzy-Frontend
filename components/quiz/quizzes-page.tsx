@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Loader2, Search, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useState, useMemo } from "react";
+import Image from "next/image";
 
 const PAGE_SIZE = 9;
 
@@ -115,63 +116,69 @@ export default function QuizzesPage() {
                 href={`/quizzes/${cat.id}`}
                 className="group relative block"
               >
-                <Card className="h-full bg-[#0a0f1d] border border-slate-800/60 rounded-2xl shadow-lg overflow-hidden transition-transform duration-300 group-hover:-translate-y-1 group-hover:border-sky-500">
-                  <CardContent className="p-6 relative z-10 flex flex-col justify-between h-full">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl group-hover:border-sky-500 transition-colors">
-                        <img
+                <Card className="h-full bg-[#0a0f1d] border border-slate-800 rounded-2xl overflow-hidden transition-all duration-300 group-hover:-translate-y-1 group-hover:border-sky-500 relative">
+                  <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-sky-400 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <CardContent className="p-6 flex flex-col h-full gap-0">
+                    <div className="flex justify-between items-start mb-5">
+                      <div className="w-25 h-25  bg-slate-900 border border-slate-800 group-hover:border-sky-500 rounded-[14px] flex items-center justify-center transition-colors duration-300 shrink-0">
+                        <Image
                           src={cat.imageUrl}
                           alt={"img of " + cat.name}
-                          className="w-16 h-16 object-contain"
+                          width={150}
+                          height={150}
+                          className="h-20 w-20 rounded-lg object-cover"
                         />
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs font-mono text-slate-500 uppercase">
-                          Availability
-                        </p>
-                        <p
-                          className={`text-sm font-bold font-mono ${
+                      <div
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold font-mono tracking-wide border ${
+                          cat.totalQuiz > 0
+                            ? "bg-emerald-400/10 text-emerald-400 border-emerald-400/20"
+                            : "bg-slate-700/30 text-slate-500 border-slate-700/40"
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
                             cat.totalQuiz > 0
-                              ? "text-emerald-400"
-                              : "text-slate-500"
+                              ? "bg-emerald-400"
+                              : "bg-slate-600"
                           }`}
-                        >
-                          {cat.totalQuiz > 0 ? "ACTIVE" : "PENDING"}
-                        </p>
+                        />
+                        {cat.totalQuiz > 0 ? "Active" : "Pending"}
                       </div>
                     </div>
-
-                    <h2 className="text-xl font-bold text-white mb-2 group-hover:text-sky-400 transition-colors">
+                    <h2 className="text-[17px] font-bold text-slate-100 mb-2 group-hover:text-sky-400 transition-colors duration-300">
                       {cat.name}
                     </h2>
-                    <p className="text-sm text-slate-400 line-clamp-3 mb-4 group-hover:text-slate-200 transition-colors">
+                    <p className="text-sm text-slate-500 line-clamp-2 mb-5 group-hover:text-slate-300 transition-colors duration-300 leading-relaxed">
                       {cat.description ||
                         "Sector analysis unavailable. Initialize link to explore modules."}
                     </p>
-                    <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
-                      <span>
-                        Sector_ID:{" "}
+                    <div className="flex justify-between items-center text-[11px] font-mono mb-3">
+                      <span className="text-slate-600">
+                        ID:{" "}
                         <span className="text-sky-400 font-bold">
                           0x0{cat.id}
                         </span>
                       </span>
-                      <span>
+                      <span className="text-slate-600">
                         Modules:{" "}
-                        <span className="text-white font-bold">
+                        <span className="text-slate-200 font-bold">
                           {cat.totalQuiz || 0}
                         </span>
                       </span>
                     </div>
-                    <div className="relative h-1 w-full bg-slate-800 rounded-full overflow-hidden mb-4">
+                    <div className="h-[3px] w-full bg-slate-800 rounded-full overflow-hidden mb-5">
                       <div
-                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-sky-500 to-violet-500 transition-all duration-500"
+                        className="h-full bg-gradient-to-r from-sky-500 to-violet-500 rounded-full transition-all duration-500"
                         style={{ width: `${progressWidth}%` }}
                       />
                     </div>
-
-                    <div className="flex justify-end">
-                      <div className="flex items-center justify-center w-8 h-8 bg-slate-900 border border-slate-800 rounded-lg group-hover:bg-sky-500 group-hover:border-sky-400 transition-all">
-                        <ArrowRight className="w-4 h-4 text-slate-500 group-hover:text-white transition-transform duration-300" />
+                    <div className="flex justify-between items-center mt-auto">
+                      <span className="text-[11px] font-mono text-slate-700">
+                        sector_{String(cat.id).padStart(3, "0")}
+                      </span>
+                      <div className="w-8 h-8 bg-slate-900 border border-slate-800 rounded-[10px] flex items-center justify-center group-hover:bg-sky-500 group-hover:border-sky-400 transition-all duration-300">
+                        <ArrowRight className="w-3.5 h-3.5 text-slate-500 group-hover:text-white transition-colors duration-300" />
                       </div>
                     </div>
                   </CardContent>

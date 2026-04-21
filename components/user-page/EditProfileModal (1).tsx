@@ -32,14 +32,12 @@ interface EditProfileModalProps {
   onSaved?: () => void;
 }
 
-const IMGBB_API_KEY = "c36df12c246b46f041dd3629832b6457";
-
 async function uploadToImgbb(file: File): Promise<string> {
   const formData = new FormData();
   formData.append("image", file);
 
   const res = await fetch(
-    `https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`,
+    `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
     { method: "POST", body: formData },
   );
 

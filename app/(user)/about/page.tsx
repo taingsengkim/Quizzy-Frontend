@@ -7,7 +7,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const features = [
-  { icon: Users, title: "Public Speaking" },
+  { icon: Users, title: "Creative Thinking" },
   { icon: Award, title: "Career-Oriented" },
   { icon: BookOpen, title: "Creative Thinking" },
 ];

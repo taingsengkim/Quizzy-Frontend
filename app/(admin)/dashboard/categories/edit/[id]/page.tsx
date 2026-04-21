@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
-import { ArrowLeft, CheckCircle2, Loader2, Trash2 } from "lucide-react";
+import { CheckCircle2, Loader2, UploadCloud, X } from "lucide-react";
 import { toast } from "sonner";
 
 const categorySchema = z.object({
@@ -26,6 +26,18 @@ function FieldError({ message }: { message?: string }) {
   return <p className="text-sm text-red-500 mt-1">{message}</p>;
 }
 
+async function uploadToImgBB(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(
+    `https://api.imgbb.com/1/upload?key=${process.env.NEXT_PUBLIC_IMGBB_API_KEY}`,
+    { method: "POST", body: formData },
+  );
+  if (!res.ok) throw new Error("Image upload failed");
+  const data = await res.json();
+  return data.data.url as string;
+}
+
 export default function EditCategoryPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -35,10 +47,17 @@ export default function EditCategoryPage() {
   const [submitted, setSubmitted] = useState(false);
   const [categoryName, setCategoryName] = useState("");
 
+  // Image upload state
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const {
     control,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<CategoryFormValues>({
     resolver: zodResolver(categorySchema),
@@ -58,6 +77,8 @@ export default function EditCategoryPage() {
             imageUrl: cat.imageUrl ?? "",
           });
           setCategoryName(cat.name ?? "");
+          // Show existing image as preview
+          if (cat.imageUrl) setPreview(cat.imageUrl);
         }
       } catch {
         toast.error("Failed to load category");
@@ -67,6 +88,41 @@ export default function EditCategoryPage() {
     };
     fetchCategory();
   }, [id, reset]);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setUploadError("Please select an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError("Image must be under 5MB.");
+      return;
+    }
+
+    setUploadError(null);
+    setPreview(URL.createObjectURL(file));
+    setUploading(true);
+
+    try {
+      const url = await uploadToImgBB(file);
+      setValue("imageUrl", url, { shouldValidate: true });
+    } catch {
+      setUploadError("Upload failed. Please try again.");
+      setPreview(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPreview(null);
+    setValue("imageUrl", "");
+    setUploadError(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const onSubmit = async (values: CategoryFormValues) => {
     setSaving(true);
@@ -87,7 +143,7 @@ export default function EditCategoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
       </div>
     );
@@ -95,7 +151,7 @@ export default function EditCategoryPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      <div className="min-h-screen flex items-center justify-center p-6">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center max-w-md w-full">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8 text-green-600" />
@@ -125,6 +181,7 @@ export default function EditCategoryPage() {
       <div className="max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {/* Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Name
@@ -139,6 +196,7 @@ export default function EditCategoryPage() {
               <FieldError message={errors.name?.message} />
             </div>
 
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Description
@@ -157,25 +215,68 @@ export default function EditCategoryPage() {
               <FieldError message={errors.description?.message} />
             </div>
 
+            {/* Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Image URL
+                Image
               </label>
-              <Controller
-                control={control}
-                name="imageUrl"
-                render={({ field }) => (
-                  <Input
-                    placeholder="https://example.com/image.png"
-                    {...field}
+
+              {preview ? (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 group">
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
                   />
-                )}
+                  {uploading && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <Loader2 className="w-6 h-6 text-white animate-spin" />
+                      <span className="text-white text-sm ml-2">
+                        Uploading...
+                      </span>
+                    </div>
+                  )}
+                  {!uploading && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-36 border-2 border-dashed border-gray-300 hover:border-gray-400 rounded-xl flex flex-col items-center justify-center gap-2 text-gray-400 hover:text-gray-500 transition-colors bg-gray-50 hover:bg-gray-100"
+                >
+                  <UploadCloud className="w-8 h-8" />
+                  <span className="text-sm font-medium">
+                    Click to upload image
+                  </span>
+                  <span className="text-xs">PNG, JPG, GIF up to 5MB</span>
+                </button>
+              )}
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
               />
+
+              {uploadError && (
+                <p className="text-sm text-red-500 mt-1">{uploadError}</p>
+              )}
               <FieldError message={errors.imageUrl?.message} />
             </div>
 
+            {/* Actions */}
             <div className="flex items-center gap-3 pt-1">
-              <Button type="submit" disabled={saving}>
+              <Button type="submit" disabled={saving || uploading}>
                 {saving ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
