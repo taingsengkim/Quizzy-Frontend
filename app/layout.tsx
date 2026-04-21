@@ -136,6 +136,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <meta
+          name="google-site-verification"
+          content="dmsFKMIcD5dmTK6D2ITVpYxsMUG4lSgfFnS71fPNWJI"
+        />
+      </head>
       <body className=" flex flex-col font-mono-custom relative bg-[#080b14]  overflow-x-hidden">
         <StoreProvider>
           <Toaster
