@@ -18,6 +18,9 @@ export default function JoinRoomComponent() {
     if (!username.trim()) return toast.warning("Please enter a username");
     if (!roomCode.trim()) return toast.warning("Please enter a room code");
 
+    // Prevent double-click spawning multiple clients
+    if (clientRef.current?.active) return;
+
     setLoading(true);
     const normalizedUsername = username.trim().toLowerCase();
     const normalizedRoomCode = roomCode.trim().toUpperCase();
@@ -33,30 +36,41 @@ export default function JoinRoomComponent() {
       debug: (str) => console.log("[STOMP]", str),
     });
 
+    clientRef.current = client;
+
+    const cleanup = (errorMsg?: string) => {
+      client.deactivate();
+      clientRef.current = null;
+      if (errorMsg) toast.error(errorMsg);
+      setLoading(false);
+    };
+
     client.onConnect = () => {
       console.log("Connected, subscribing to room...");
 
-      const subscription = client.subscribe(
-        `/topic/room/${normalizedRoomCode}`,
-        (message) => {
-          try {
-            const roomState = JSON.parse(message.body);
+      client.subscribe(`/topic/room/${normalizedRoomCode}`, (message) => {
+        try {
+          const roomState = JSON.parse(message.body);
+          client.deactivate();
+          clientRef.current = null;
+          router.push(
+            `/quizzes/multiplayer/${roomState.quizId}?code=${normalizedRoomCode}&username=${normalizedUsername}`,
+          );
+        } catch (err) {
+          console.error(err);
+          cleanup("Failed to parse room data");
+        }
+      });
 
-            client.deactivate(); // Clean up connection
+      client.subscribe(`/user/queue/errors`, (message) => {
+        try {
+          const error = JSON.parse(message.body);
+          cleanup(error.message || "Room not found. Please check your code.");
+        } catch {
+          cleanup("Room not found. Please check your code.");
+        }
+      });
 
-            // Navigate to the clean quiz page with params
-            router.push(
-              `/quizzes/multiplayer/${roomState.quizId}?code=${normalizedRoomCode}&username=${normalizedUsername}`,
-            );
-          } catch (err) {
-            console.error(err);
-            toast.error("Failed to parse room data");
-            setLoading(false);
-          }
-        },
-      );
-
-      // Join the room
       client.publish({
         destination: "/app/join-room",
         body: JSON.stringify({
@@ -64,30 +78,27 @@ export default function JoinRoomComponent() {
           username: normalizedUsername,
         }),
       });
+
+      // Safety timeout using ref-based check
+      setTimeout(() => {
+        if (clientRef.current?.active) {
+          cleanup("Timeout: Could not join room");
+        }
+      }, 7000);
     };
 
     client.onStompError = (frame) => {
       console.error("STOMP Error:", frame);
-      toast.error("Room not found or connection failed");
-      setLoading(false);
+      cleanup("Connection failed. Please try again.");
     };
 
     client.onWebSocketError = () => {
-      toast.error("WebSocket connection failed");
-      setLoading(false);
+      cleanup("WebSocket connection failed");
     };
-
-    // Safety timeout
-    setTimeout(() => {
-      if (loading) {
-        client.deactivate();
-        toast.error("Timeout: Could not join room");
-        setLoading(false);
-      }
-    }, 7000);
 
     client.activate();
   };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#080b14] px-4">
       <div className="relative w-full max-w-sm">
