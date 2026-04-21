@@ -8,7 +8,7 @@ export default function SocialAuthButtons() {
     try {
       await signInSocial(provider);
     } catch (err) {
-      toast.error("OAuth failed");
+      console.error("OAuth failed");
     }
   };
 
