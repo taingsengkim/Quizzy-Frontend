@@ -88,8 +88,6 @@ export default function InstantQuizComponent() {
     null,
   );
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  // We no longer pre-fetch — questions are fetched on startQuiz with the chosen difficulty
   useEffect(() => {
     setLoadingData(false);
   }, []);

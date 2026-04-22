@@ -40,8 +40,8 @@ export default function AdminLogin() {
   } = useForm<LoginFormValue>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "kim040322@gmail.com",
-      password: "Kim123!@#",
+      email: "",
+      password: "",
     },
   });
   const router = useRouter();
