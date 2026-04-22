@@ -660,6 +660,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 {room.roomCode}
               </p>
             </div>
+
             <span
               className={`px-3 py-1 rounded-full text-[11px] font-semibold font-mono border tracking-wide ${
                 room.finished
@@ -676,7 +677,15 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 : "◌ waiting"}
             </span>
           </div>
-
+          <div className="inline-flex items-center gap-2 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
+            <span className="text-[9px] text-slate-600 uppercase tracking-widest">
+              quiz
+            </span>
+            <span className="text-slate-700 text-[10px]">·</span>
+            <span className="text-sky-400 text-[11px] tracking-widest uppercase">
+              {quiz?.title}
+            </span>
+          </div>
           {/* Players panel */}
           <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3">

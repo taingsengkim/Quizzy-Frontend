@@ -33,8 +33,8 @@ export default function LoginComponent() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "kim040322@gmail.com",
-      password: "Kim123!@#",
+      email: "",
+      password: "",
     },
   });
 
