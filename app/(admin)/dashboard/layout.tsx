@@ -10,7 +10,7 @@ export default async function DashboardLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   const cookieStore = await cookies();
-  const authToken = cookieStore.get("better-auth.session_data");
+  const authToken = cookieStore.get("access_token");
 
   console.log("auth token", authToken);
 

@@ -53,7 +53,7 @@ export default function AdminLogin() {
     setIsLoading(true);
     try {
       const result = await loginAdmin(data);
-      console.log(result);
+      console.log("RESULT IN ADMIN LOGIN", result);
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Spring Boot Login failed:", err);
