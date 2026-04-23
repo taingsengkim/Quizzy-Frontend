@@ -3,7 +3,7 @@ import { cookies, headers } from "next/headers";
 import { auth } from "../auth";
 import { redirect } from "next/navigation";
 
-export const signInSocial = async (provider: "github" | "google" ) => {
+export const signInSocial = async (provider: "github" | "google") => {
   const { url } = await auth.api.signInSocial({
     body: {
       provider,
@@ -14,15 +14,22 @@ export const signInSocial = async (provider: "github" | "google" ) => {
   if (url) {
     redirect(url);
   }
-  return null
+  return null;
 };
 
 export const signOut = async () => {
   const result = await auth.api.signOut({ headers: await headers() });
-  redirect("/login-admin"); 
+  const cookieStore = await cookies();
+  // Delete all Better Auth related cookies
+  cookieStore.delete("access_token");
+  cookieStore.delete("refresh_token");
+
   return result;
 };
+
 export const signOutUser = async () => {
   const cookieStore = await cookies();
-  cookieStore.delete("better-auth.session_data");
+
+   cookieStore.delete("access_token");
+  cookieStore.delete("refresh_token");
 };

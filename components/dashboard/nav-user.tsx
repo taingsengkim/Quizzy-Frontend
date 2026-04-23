@@ -16,7 +16,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { signOut } from "@/lib/auth/action/auth-action";
+import { signOut, signOutUser } from "@/lib/auth/action/auth-action";
+import { quizzy } from "@/lib/features/api/api";
 import {
   EllipsisVerticalIcon,
   CircleUserRoundIcon,
@@ -24,6 +25,8 @@ import {
   BellIcon,
   LogOutIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 
 export function NavUser({
   user,
@@ -36,7 +39,13 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   console.log(user);
-
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const handleLogout = async () => {
+    await signOutUser();
+    dispatch(quizzy.util.resetApiState());
+    router.push("/login-admin");
+  };
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -95,7 +104,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={signOut}>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOutIcon />
               Log out
             </DropdownMenuItem>
