@@ -31,12 +31,27 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
 
-    response.cookies.set("better-auth.session_data", data.accessToken, {
+    // response.cookies.set("better-auth.session_data", data.accessToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "lax",
+    //   path: "/",
+    //   maxAge: 60 * 60 * 24 * 7,
+    // });
+    response.cookies.set("access_token", data.accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 60 * 15, // 15 min
+    });
+
+    response.cookies.set("refresh_token", data.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
     });
 
     return response;

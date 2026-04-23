@@ -28,7 +28,14 @@ import { quizzy } from "@/lib/features/api/api";
                 }),
                 providesTags: ['profile'],
                 }),
+            refreshToken: builder.mutation({
+                query: () => ({
+                    url: "/refresh",
+                    method: "POST",
+                    credentials: "include",
+                }),
+            })
         })
     })
 
-    export const {useLoginMutation,useRegisterMutation,useGetProfileQuery} = quizzyApi
+    export const {useLoginMutation,useRegisterMutation,useGetProfileQuery,useRefreshTokenMutation} = quizzyApi
