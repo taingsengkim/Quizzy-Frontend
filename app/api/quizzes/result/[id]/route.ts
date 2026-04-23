@@ -6,7 +6,7 @@ export async function GET(
 ) {
   const { id } = await params; 
 
-  const token = req.cookies.get("better-auth.session_data")?.value;
+  const token = req.cookies.get("access_token")?.value;
 
   if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

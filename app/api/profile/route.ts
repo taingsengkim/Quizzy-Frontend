@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const cookieStore = await cookies();
-  // const token = cookieStore.get("better-auth.session_data")?.value;
+  // const token = cookieStore.get("access_token")?.value;
   const token = cookieStore.get("access_token")?.value;
 
   if (!token) {
@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("better-auth.session_data")?.value;
+  const token = cookieStore.get("access_token")?.value;
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });

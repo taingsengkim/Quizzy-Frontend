@@ -17,7 +17,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const token = req.cookies.get("better-auth.session_data")?.value;
+  const token = req.cookies.get("access_token")?.value;
   const body = await req.json();
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quizzes/${id}`, {

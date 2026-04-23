@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     //   auto login after register
     const response = NextResponse.json(data);
     if (data.accessToken) {
-      response.cookies.set("better-auth.session_data", data.accessToken, {
+      response.cookies.set("access_token", data.accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",

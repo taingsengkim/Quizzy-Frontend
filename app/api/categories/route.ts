@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const token = req.cookies.get("better-auth.session_data")?.value;
+    const token = req.cookies.get("access_token")?.value;
 
     const body = await req.json();
 

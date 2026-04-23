@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
 
-    // response.cookies.set("better-auth.session_data", data.accessToken, {
+    // response.cookies.set("access_token", data.accessToken, {
     //   httpOnly: true,
     //   secure: process.env.NODE_ENV === "production",
     //   sameSite: "lax",

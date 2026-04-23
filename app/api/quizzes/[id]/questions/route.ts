@@ -7,7 +7,7 @@ export async function POST(
   try {
     const {id} = await params; 
     console.log("QUIZ ID FROM ROUTE HANDLERS ", id)
-  const token = req.cookies.get("better-auth.session_data")?.value;
+  const token = req.cookies.get("access_token")?.value;
     const body = await req.json();
     const payload = {
       ...body,

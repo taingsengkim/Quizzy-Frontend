@@ -5,7 +5,7 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const token = req.cookies.get("better-auth.session_data")?.value;
+  const token = req.cookies.get("access_token")?.value;
   const { id } = await params;
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/categories/${id}`, {
     method: "DELETE",
@@ -32,7 +32,7 @@ export async function GET(
   const { id } = await params;
 
   const cookieStore = await cookies();
-  const token = cookieStore.get("better-auth.session_data")?.value;
+  const token = cookieStore.get("access_token")?.value;
 
   if (!token) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
@@ -62,7 +62,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const token = req.cookies.get("better-auth.session_data")?.value;
+  const token = req.cookies.get("access_token")?.value;
   const body = await req.json();
 
   const res = await fetch(
