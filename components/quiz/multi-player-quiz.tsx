@@ -432,24 +432,20 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 disabled={hasAnswered}
                 onClick={() => toggleAnswer(a.id, questionType)}
                 className={`relative flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 font-bold text-xl transition-all duration-200
-                  ${
-                    hasAnswered
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }
-                  ${
-                    selected
-                      ? isTrue
-                        ? "border-emerald-500 bg-emerald-500/15 text-emerald-300"
-                        : "border-rose-500 bg-rose-500/15 text-rose-300"
-                      : "border-slate-700 bg-slate-900/40 text-slate-400 hover:border-slate-500 hover:text-white"
-                  }`}
+          ${hasAnswered ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${
+            selected
+              ? isTrue
+                ? "border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-300"
+                : "border-rose-500 bg-rose-500/15 text-rose-600 dark:text-rose-300"
+              : "border-sky-100 dark:border-slate-700 bg-sky-50 dark:bg-slate-900/40 text-sky-600 dark:text-slate-400 hover:border-sky-300 dark:hover:border-slate-500 hover:text-sky-800 dark:hover:text-white"
+          }`}
               >
                 <span className="text-4xl">{isTrue ? "✓" : "✗"}</span>
                 <span>{a.text}</span>
                 {selected && (
                   <span className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center bg-current">
-                    <Check className="w-3 h-3 text-[#0d121f]" />
+                    <Check className="w-3 h-3 text-white dark:text-[#0d121f]" />
                   </span>
                 )}
               </button>
@@ -470,24 +466,20 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 disabled={hasAnswered}
                 onClick={() => toggleAnswer(a.id, questionType)}
                 className={`group/btn flex items-center gap-4 w-full text-left p-5 rounded-2xl border-2 transition-all duration-200
-                  ${
-                    hasAnswered
-                      ? "opacity-50 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }
-                  ${
-                    selected
-                      ? "border-sky-500 bg-sky-500/10 text-white"
-                      : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-white"
-                  }`}
+          ${hasAnswered ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${
+            selected
+              ? "border-sky-500 bg-sky-500/10 text-sky-700 dark:text-white"
+              : "border-sky-100 dark:border-slate-700 bg-sky-50 dark:bg-slate-900/40 text-sky-700 dark:text-slate-300 hover:border-sky-300 dark:hover:border-slate-500 hover:text-sky-900 dark:hover:text-white"
+          }`}
               >
                 <div
                   className={`w-5 h-5 rounded-md border-2 flex-shrink-0 flex items-center justify-center transition-all
-                  ${
-                    selected
-                      ? "border-sky-500 bg-sky-500"
-                      : "border-slate-600 group-hover/btn:border-slate-400"
-                  }`}
+          ${
+            selected
+              ? "border-sky-500 bg-sky-500"
+              : "border-sky-200 dark:border-slate-600 group-hover/btn:border-sky-400 dark:group-hover/btn:border-slate-400"
+          }`}
                 >
                   {selected && <Check className="w-3 h-3 text-white" />}
                 </div>
@@ -510,24 +502,20 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               disabled={hasAnswered}
               onClick={() => toggleAnswer(a.id, questionType)}
               className={`group/btn flex items-center gap-4 w-full text-left p-5 rounded-2xl border-2 transition-all duration-200
-                ${
-                  hasAnswered
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer"
-                }
-                ${
-                  selected
-                    ? "border-amber-500 bg-amber-500/10 text-white"
-                    : "border-slate-700 bg-slate-900/40 text-slate-300 hover:border-slate-500 hover:text-white"
-                }`}
+          ${hasAnswered ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+          ${
+            selected
+              ? "border-amber-500 bg-amber-500/10 text-amber-700 dark:text-white"
+              : "border-amber-100 dark:border-slate-700 bg-amber-50 dark:bg-slate-900/40 text-amber-700 dark:text-slate-300 hover:border-amber-300 dark:hover:border-slate-500 hover:text-amber-900 dark:hover:text-white"
+          }`}
             >
               <div
                 className={`w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold transition-all
-                ${
-                  selected
-                    ? "bg-amber-500 text-black"
-                    : "bg-slate-800 text-slate-400 group-hover/btn:bg-slate-700"
-                }`}
+          ${
+            selected
+              ? "bg-amber-500 text-black"
+              : "bg-amber-100 dark:bg-slate-800 text-amber-600 dark:text-slate-400 group-hover/btn:bg-amber-200 dark:group-hover/btn:bg-slate-700"
+          }`}
               >
                 {labels[idx] ?? idx + 1}
               </div>
@@ -535,11 +523,11 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               <div className="ml-auto">
                 <div
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
-                  ${
-                    selected
-                      ? "border-amber-500"
-                      : "border-slate-600 group-hover/btn:border-slate-400"
-                  }`}
+            ${
+              selected
+                ? "border-amber-500"
+                : "border-amber-200 dark:border-slate-600 group-hover/btn:border-amber-400 dark:group-hover/btn:border-slate-400"
+            }`}
                 >
                   {selected && (
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
@@ -554,43 +542,45 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto dark:bg-[#080b14] bg-white">
       {!room && (
-        <div className="min-h-screen flex items-center justify-center px-4 mt-8 bg-[#080b14]">
+        <div className="min-h-screen flex items-center justify-center px-4 mt-8 bg-white dark:bg-[#080b14]">
           <div className="relative w-full max-w-md">
             <div className="absolute top-0 right-0 w-14 h-14 border-t-[1.5px] border-r-[2.5px] border-sky-500/20 rounded-tr-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-10 h-10 border-b-[1.5px] border-l-[2.5px] border-violet-500/15 rounded-bl-3xl pointer-events-none" />
-            <div className="bg-[#0d1220] border border-slate-800 rounded-3xl  p-9 space-y-5 font-mono text-white overflow-hidden">
+            <div className="bg-gray-50 dark:bg-[#0d1220] border border-gray-200 dark:border-slate-800 rounded-3xl p-9 space-y-5 font-mono text-gray-900 dark:text-white overflow-hidden">
               <div className="flex gap-2 flex-wrap justify-center">
-                <div className="inline-flex items-center gap-2 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
+                <div className="inline-flex items-center gap-2 bg-orange-50 dark:bg-[#0a1628] border border-orange-200 dark:border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400 animate-pulse" />
-                  <span className="text-orange-400 text-[11px] tracking-widest uppercase">
+                  <span className="text-orange-500 dark:text-orange-400 text-[11px] tracking-widest uppercase">
                     multiplayer
                   </span>
                 </div>
 
-                <div className="inline-flex items-center gap-2 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
-                  <span className="text-[9px] text-slate-600 uppercase tracking-widest">
+                <div className="inline-flex items-center gap-2 bg-sky-50 dark:bg-[#0a1628] border border-sky-200 dark:border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
+                  <span className="text-[9px] text-gray-400 dark:text-slate-600 uppercase tracking-widest">
                     quiz
                   </span>
-                  <span className="text-slate-700 text-[10px]">·</span>
-                  <span className="text-sky-400 text-[11px] tracking-widest uppercase">
+                  <span className="text-gray-300 dark:text-slate-700 text-[10px]">
+                    ·
+                  </span>
+                  <span className="text-sky-600 dark:text-sky-400 text-[11px] tracking-widest uppercase">
                     {quiz?.title}
                   </span>
                 </div>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-slate-100 tracking-tight">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-slate-100 tracking-tight">
                   CodeRoom
                 </h2>
-                <p className="text-slate-500 text-xs mt-1">
+                <p className="text-gray-400 dark:text-slate-500 text-xs mt-1">
                   join or create a live quiz room
                 </p>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase tracking-widest text-slate-500">
+                <label className="text-[11px] uppercase tracking-widest text-gray-400 dark:text-slate-500">
                   username
                 </label>
                 <input
@@ -598,18 +588,20 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                   placeholder="your_handle"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-[#080e1c] border border-slate-800 rounded-xl px-4 py-3 text-sky-300 text-sm placeholder-slate-700 focus:outline-none focus:border-sky-500 transition"
+                  className="w-full bg-gray-100 dark:bg-[#080e1c] border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sky-600 dark:text-sky-300 text-sm placeholder-gray-300 dark:placeholder-slate-700 focus:outline-none focus:border-sky-500 transition"
                 />
               </div>
+
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-slate-800" />
-                <span className="text-[11px] text-slate-600">
+                <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800" />
+                <span className="text-[11px] text-gray-400 dark:text-slate-600">
                   join existing
                 </span>
-                <div className="flex-1 h-px bg-slate-800" />
+                <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800" />
               </div>
+
               <div className="space-y-1.5">
-                <label className="text-[11px] uppercase tracking-widest text-slate-500">
+                <label className="text-[11px] uppercase tracking-widest text-gray-400 dark:text-slate-500">
                   room code
                 </label>
                 <div className="flex gap-2">
@@ -618,30 +610,35 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     placeholder="e.g. XK-4821"
                     value={roomCode}
                     onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-                    className="flex-1 bg-[#080e1c] border border-slate-800 rounded-xl px-4 py-3 text-sky-300 text-sm placeholder-slate-700 focus:outline-none focus:border-sky-500 transition"
+                    className="flex-1 bg-gray-100 dark:bg-[#080e1c] border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sky-600 dark:text-sky-300 text-sm placeholder-gray-300 dark:placeholder-slate-700 focus:outline-none focus:border-sky-500 transition"
                   />
                   <button
                     onClick={connectAndJoin}
                     disabled={!roomCode.trim()}
-                    className="px-5 cursor-pointer rounded-xl bg-[#0f1e35] border border-[#1e4976] text-sky-400 text-sm font-semibold hover:bg-[#162840] transition whitespace-nowrap disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="px-5 cursor-pointer rounded-xl bg-sky-50 dark:bg-[#0f1e35] border border-sky-200 dark:border-[#1e4976] text-sky-600 dark:text-sky-400 text-sm font-semibold hover:bg-sky-100 dark:hover:bg-[#162840] transition whitespace-nowrap disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     join →
                   </button>
                 </div>
               </div>
+
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-slate-800" />
-                <span className="text-[11px] text-slate-600">or</span>
-                <div className="flex-1 h-px bg-slate-800" />
+                <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800" />
+                <span className="text-[11px] text-gray-400 dark:text-slate-600">
+                  or
+                </span>
+                <div className="flex-1 h-px bg-gray-200 dark:bg-slate-800" />
               </div>
+
               <button
                 onClick={connectAndCreate}
                 disabled={!!roomCode.trim()}
-                className="w-full py-3.5 cursor-pointer rounded-xl bg-sky-500 text-[#020c1b] text-sm font-bold tracking-wide hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                className="w-full py-3.5 cursor-pointer rounded-xl bg-sky-500 text-white dark:text-[#020c1b] text-sm font-bold tracking-wide hover:opacity-90 transition disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 + create room
               </button>
-              <p className="text-center text-[11px] text-slate-600 italic">
+
+              <p className="text-center text-[11px] text-gray-400 dark:text-slate-600 italic">
                 rooms expire after 30 min of inactivity
               </p>
             </div>
@@ -666,7 +663,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 room.finished
                   ? "bg-emerald-950/60 border-emerald-800 text-emerald-400"
                   : room.started
-                  ? "bg-violet-950/60 border-violet-800 text-violet-400"
+                  ? "bg-greent-950/60 border-green-800 text-green-400 dark:bg-violet-950/60 dark:border-violet-800 dark:text-violet-400"
                   : "bg-amber-950/60 border-amber-800 text-amber-400"
               }`}
             >
@@ -677,23 +674,25 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 : "◌ waiting"}
             </span>
           </div>
-          <div className="inline-flex items-center gap-2 bg-[#0a1628] border border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
-            <span className="text-[9px] text-slate-600 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 bg-sky-50 dark:bg-[#0a1628] border border-sky-200 dark:border-[#1e3a5f] rounded-lg px-2.5 py-1.5 mb-1">
+            <span className="text-[9px] text-gray-400 dark:text-slate-600 uppercase tracking-widest">
               quiz
             </span>
-            <span className="text-slate-700 text-[10px]">·</span>
-            <span className="text-sky-400 text-[11px] tracking-widest uppercase">
+            <span className="text-gray-300 dark:text-slate-700 text-[10px]">
+              ·
+            </span>
+            <span className="text-sky-600 dark:text-sky-400 text-[11px] tracking-widest uppercase">
               {quiz?.title}
             </span>
           </div>
           {/* Players panel */}
-          <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-4">
+          <div className="bg-gray-50 dark:bg-[#080e1c] border border-gray-200 dark:border-slate-800 rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-slate-400 font-mono uppercase tracking-wider">
+              <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 font-mono uppercase tracking-wider">
                 players ({totalPlayers})
               </p>
               {room.started && (
-                <span className="text-[11px] text-slate-500 font-mono">
+                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-mono">
                   {finishedCount}/{totalPlayers} completed
                 </span>
               )}
@@ -707,18 +706,18 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     key={p}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border transition-all ${
                       pFinished
-                        ? "bg-emerald-950/50 border-emerald-800 text-emerald-400"
-                        : "bg-slate-900 border-slate-700 text-slate-300"
+                        ? "bg-green-100 dark:bg-emerald-950/50 dark:border-emerald-800 text-emerald-400"
+                        : "bg-gray-100 dark:bg-slate-900 border-gray-300 dark:border-slate-700 text-gray-700 dark:text-slate-300"
                     }`}
                   >
                     {p}
                     {p === room.owner && (
-                      <span className="text-[10px] text-emerald-500 font-extrabold opacity-60">
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-500 font-extrabold opacity-60">
                         (host)
                       </span>
                     )}
                     {room.started && !pFinished && (
-                      <span className="text-[10px] text-slate-600">
+                      <span className="text-[10px] text-gray-400 dark:text-slate-600">
                         q{pIndex + 1}
                       </span>
                     )}
@@ -726,7 +725,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                       <Check className="w-3 h-3 text-emerald-400" />
                     )}
                     {room.scores?.[p] !== undefined && room.started && (
-                      <span className="text-sky-400 font-bold ml-0.5">
+                      <span className="text-sky-500 dark:text-sky-400 font-bold ml-0.5">
                         {room.scores[p]}pts
                       </span>
                     )}
@@ -763,18 +762,18 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
           {/* Waiting for others after finishing */}
           {room.started && !room.finished && iFinished && (
-            <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-6 space-y-4 font-mono">
+            <div className="bg-gray-50 dark:bg-[#080e1c] border border-gray-200 dark:border-slate-800 rounded-2xl p-6 space-y-4 font-mono">
               <div className="text-center space-y-1">
-                <p className="text-emerald-400 font-bold text-lg">
+                <p className="text-emerald-500 dark:text-emerald-400 font-bold text-lg">
                   all questions done!
                 </p>
-                <p className="text-slate-500 text-xs">
+                <p className="text-gray-400 dark:text-slate-500 text-xs">
                   {finishedCount}/{totalPlayers} players finished — waiting for
                   others...
                 </p>
               </div>
               <div>
-                <p className="text-[10px] text-slate-600 uppercase tracking-widest mb-3">
+                <p className="text-[10px] text-gray-400 dark:text-slate-600 uppercase tracking-widest mb-3">
                   current standings
                 </p>
                 <div className="space-y-2">
@@ -782,27 +781,29 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     <div
                       key={p.username}
                       className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm
-                        ${
-                          p.username === normalizedUsername
-                            ? "bg-sky-950/40 border-sky-800 text-sky-300"
-                            : "bg-slate-900/40 border-slate-800 text-slate-400"
-                        }`}
+              ${
+                p.username === normalizedUsername
+                  ? "dark:bg-sky-950/40 bg-green-100 dark:border-sky-800 text-sky-300"
+                  : "bg-white dark:bg-slate-900/40 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400"
+              }`}
                     >
                       <span className="flex items-center gap-3">
                         <span
                           className={`text-xs w-5 ${
-                            i === 0 ? "text-amber-400" : "text-slate-600"
+                            i === 0
+                              ? "text-amber-500 dark:text-amber-400"
+                              : "text-gray-300 dark:text-slate-600"
                           }`}
                         >
                           #{i + 1}
                         </span>
                         {p.username}
                         {room.finishedPlayers?.includes(p.username) ? (
-                          <span className="text-[10px] text-emerald-500">
+                          <span className="text-[10px] text-emerald-600 dark:text-emerald-500">
                             done
                           </span>
                         ) : (
-                          <span className="text-[10px] text-slate-600">
+                          <span className="text-[10px] text-gray-400 dark:text-slate-600">
                             playing...
                           </span>
                         )}
@@ -830,42 +831,42 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                   {timeRemaining !== null && (
                     <div
                       className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-mono text-sm font-bold transition-all duration-300 mb-4
-                      ${
-                        isDanger
-                          ? "border-rose-500/50 bg-rose-500/10 text-rose-400 animate-pulse"
-                          : isWarning
-                          ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
-                          : "border-slate-700 bg-slate-900/40 text-slate-300"
-                      }`}
+      ${
+        isDanger
+          ? "border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400 animate-pulse"
+          : isWarning
+          ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+          : "border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-900/40 text-gray-700 dark:text-slate-300"
+      }`}
                     >
                       <Clock className="w-4 h-4" />
                       {formatTime(timeRemaining)}
                     </div>
                   )}
                   {timeIsUp && (
-                    <div className="mb-4 p-3 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-300 text-center font-mono text-sm font-bold tracking-wide">
+                    <div className="mb-4 p-3 rounded-xl border border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-300 text-center font-mono text-sm font-bold tracking-wide">
                       time's up — submitting...
                     </div>
                   )}
                   {!room.started && (
-                    <div className="mt-3 pt-3 border-t border-slate-800 flex items-center gap-2 text-xs font-mono text-slate-500">
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2 text-xs font-mono text-gray-400 dark:text-slate-500">
                       <Clock className="w-3 h-3" />
                       {quiz?.duration} min time limit
                     </div>
                   )}
                   <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
-                  <div className="relative bg-[#0d121f] border border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
+                  <div className="relative bg-white dark:bg-[#0d121f] border border-gray-200 dark:border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
                     <div className="absolute top-0 right-0 p-6 pointer-events-none">
                       <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
                     </div>
                     <div className="flex flex-wrap justify-between items-center mb-6 gap-3 text-sm">
-                      <span className="text-slate-400 font-mono">
+                      <span className="text-gray-500 dark:text-slate-400 font-mono">
                         question {myIndex + 1}
                         {totalQuestions ? ` / ${totalQuestions}` : ""}
                       </span>
                       <div className="flex gap-2 items-center flex-wrap">
                         {myQuestion.questionType && (
-                          <span className="text-xs px-3 py-1 rounded-full border border-slate-700 text-slate-400">
+                          <span className="text-xs px-3 py-1 rounded-full border border-gray-300 dark:border-slate-700 text-gray-500 dark:text-slate-400">
                             {myQuestion.questionType === "MULTIPLE_CHOICE"
                               ? "Multi Select"
                               : myQuestion.questionType === "TRUE_FALSE"
@@ -874,18 +875,18 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                           </span>
                         )}
                         {myQuestion.points && (
-                          <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                          <span className="text-xs px-3 py-1 rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20">
                             +{myQuestion.points} pts
                           </span>
                         )}
                         {myQuestion.difficulty && (
-                          <span className="text-xs px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                          <span className="text-xs px-3 py-1 rounded-full bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 border border-yellow-500/20">
                             {myQuestion.difficulty}
                           </span>
                         )}
                       </div>
                     </div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed tracking-tight">
                       {myQuestion.text}
                     </h3>
                     {myQuestion.code && (
@@ -897,16 +898,16 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     {!hasAnswered && (
                       <div className="mt-6 space-y-3">
                         {hint && (
-                          <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm">
+                          <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-sm">
                             {hint}
                           </div>
                         )}
                         <div className="w-full my-5 space-y-2">
-                          <div className="flex justify-between  font-mono text-[10px] text-slate-200 uppercase tracking-widest">
+                          <div className="flex justify-between font-mono text-[10px] text-gray-600 dark:text-slate-200 uppercase tracking-widest">
                             <span>Sync Progress</span>
                             <span>{Math.round(progress)}%</span>
                           </div>
-                          <div className="h-5 bg-slate-900 rounded-md border border-slate-800 overflow-hidden">
+                          <div className="h-5 bg-gray-200 dark:bg-slate-900 rounded-md border border-gray-300 dark:border-slate-800 overflow-hidden">
                             <div
                               className="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-700"
                               style={{ width: `${progress}%` }}
@@ -922,7 +923,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                             >
                               {hintLoading ? "Loading..." : "Show Hint"}
                             </button>
-                            <span className="text-xs text-slate-500 font-mono">
+                            <span className="text-xs text-gray-400 dark:text-slate-500 font-mono">
                               {totalHintsUsed}/{quiz.maxHintsPerQuestion} hints
                               used
                               {usedOnThisQuestion >= 1 && (
@@ -940,15 +941,15 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                         onClick={handleSubmit}
                         disabled={selectedAnswers.length === 0 || timeIsUp}
                         className={`mt-4 w-full p-4 rounded-2xl font-bold text-sm tracking-wide transition-all duration-200
-                        ${
-                          selectedAnswers.length === 0
-                            ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
-                            : myQuestion.questionType === "TRUE_FALSE"
-                            ? "bg-emerald-500 text-black hover:opacity-90"
-                            : myQuestion.questionType === "MULTIPLE_CHOICE"
-                            ? "bg-sky-500 text-black hover:opacity-90"
-                            : "bg-amber-500 text-black hover:opacity-90"
-                        }`}
+        ${
+          selectedAnswers.length === 0
+            ? "bg-gray-200 dark:bg-slate-800 text-gray-400 dark:text-slate-500 cursor-not-allowed border border-gray-300 dark:border-slate-700"
+            : myQuestion.questionType === "TRUE_FALSE"
+            ? "bg-emerald-500 text-black hover:opacity-90"
+            : myQuestion.questionType === "MULTIPLE_CHOICE"
+            ? "bg-sky-500 text-black hover:opacity-90"
+            : "bg-amber-500 text-black hover:opacity-90"
+        }`}
                       >
                         {selectedAnswers.length === 0
                           ? "select an answer"
@@ -960,7 +961,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                       </button>
                     )}
                     {hasAnswered && (
-                      <p className="text-center text-sm text-slate-500 font-mono mt-6 italic">
+                      <p className="text-center text-sm text-gray-400 dark:text-slate-500 font-mono mt-6 italic">
                         loading next question...
                       </p>
                     )}
@@ -984,28 +985,28 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
               return (
                 <div className="space-y-5 pb-10">
-                  <div className="bg-[#0d1220] border border-slate-800 rounded-2xl p-6 font-mono">
+                  <div className="bg-white dark:bg-[#0d1220] border border-sky-100 dark:border-slate-800 rounded-2xl p-6 font-mono">
                     <div className="flex items-center justify-between mb-5">
                       <div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">
+                        <p className="text-[10px] text-sky-500 dark:text-slate-500 uppercase tracking-widest mb-1">
                           your score
                         </p>
-                        <p className="text-4xl font-bold text-sky-400">
+                        <p className="text-4xl font-bold text-sky-500 dark:text-sky-400">
                           {myScore} pts
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">
+                        <p className="text-[10px] text-sky-500 dark:text-slate-500 uppercase tracking-widest mb-1">
                           accuracy
                         </p>
-                        <p className="text-2xl font-bold text-slate-200">
+                        <p className="text-2xl font-bold text-slate-800 dark:text-slate-200">
                           {correctCount}/{myHistory.length}
                         </p>
                       </div>
                     </div>
 
-                    <div className="border-t border-slate-800 pt-4">
-                      <p className="text-[10px] text-slate-600 uppercase tracking-widest mb-3">
+                    <div className="border-t border-sky-100 dark:border-slate-800 pt-4">
+                      <p className="text-[10px] text-sky-400 dark:text-slate-600 uppercase tracking-widest mb-3">
                         final leaderboard
                       </p>
                       <div className="space-y-2">
@@ -1013,16 +1014,18 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                           <div
                             key={p.username}
                             className={`flex items-center justify-between px-3 py-2 rounded-xl border text-sm
-                            ${
-                              p.username === normalizedUsername
-                                ? "bg-sky-950/40 border-sky-800 text-sky-300"
-                                : "bg-slate-900/40 border-slate-800 text-slate-400"
-                            }`}
+            ${
+              p.username === normalizedUsername
+                ? "bg-green-100 text-black border-0 dark:bg-sky-950/40 dark:border-sky-800 dark:text-sky-300"
+                : "bg-green-50 dark:bg-slate-900/40 border-sky-100 dark:border-slate-800 text-sky-700 dark:text-slate-400"
+            }`}
                           >
                             <span className="flex items-center gap-3">
                               <span
                                 className={`text-xs w-5 font-bold ${
-                                  i === 0 ? "text-amber-400" : "text-slate-600"
+                                  i === 0
+                                    ? "text-amber-500 dark:text-amber-400"
+                                    : "text-sky-300 dark:text-slate-600"
                                 }`}
                               >
                                 #{i + 1}
@@ -1041,8 +1044,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                     </div>
                   </div>
 
-                  <div className="bg-[#080e1c] border border-slate-800 rounded-2xl p-4 font-mono">
-                    <p className="text-[10px] text-slate-500 uppercase tracking-widest mb-4">
+                  <div className="bg-sky-50 dark:bg-[#080e1c] border border-sky-100 dark:border-slate-800 rounded-2xl p-4 font-mono">
+                    <p className="text-[10px] text-sky-500 dark:text-slate-500 uppercase tracking-widest mb-4">
                       your answers
                     </p>
                     <div className="space-y-3">
@@ -1050,30 +1053,30 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                         <div
                           key={i}
                           className={`rounded-xl border p-4 space-y-3
-                          ${
-                            r.correct
-                              ? "bg-emerald-950/30 border-emerald-800"
-                              : "bg-rose-950/20 border-rose-900"
-                          }`}
+          ${
+            r.correct
+              ? "bg-green-100 border-green-200 dark:bg-emerald-950/30 dark:border-emerald-800"
+              : "bg-rose-100 border-rose-200 dark:bg-rose-950/20 dark:border-rose-900"
+          }`}
                         >
                           <div className="flex items-start justify-between gap-3">
-                            <p className="text-sm text-slate-200 leading-snug">
+                            <p className="text-sm text-slate-800 dark:text-slate-200 leading-snug">
                               {r.questionText}
                             </p>
                             <span
                               className={`shrink-0 text-[11px] px-2.5 py-0.5 rounded-full border font-bold
-                            ${
-                              r.correct
-                                ? "bg-emerald-950/60 border-emerald-700 text-emerald-400"
-                                : "bg-rose-950/60 border-rose-800 text-rose-400"
-                            }`}
+              ${
+                r.correct
+                  ? "bg-emerald-950/60 border-emerald-700 text-emerald-400"
+                  : "bg-rose-200 border-rose-300 text-rose-400 dark:bg-rose-950/60 dark:border-rose-800 dark:text-rose-400"
+              }`}
                             >
                               {r.correct ? `+${r.points}pts` : "wrong"}
                             </span>
                           </div>
 
                           <div className="space-y-1.5">
-                            <p className="text-[10px] text-slate-600 uppercase tracking-wider">
+                            <p className="text-[10px] text-sky-500 dark:text-slate-600 uppercase tracking-wider">
                               your answer
                             </p>
                             <div className="flex flex-wrap gap-1.5">
@@ -1081,11 +1084,11 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                                 <span
                                   key={j}
                                   className={`text-xs px-2.5 py-1 rounded-lg border
-                                  ${
-                                    r.correct
-                                      ? "bg-emerald-950/40 border-emerald-800 text-emerald-300"
-                                      : "bg-rose-950/40 border-rose-800 text-rose-300"
-                                  }`}
+                  ${
+                    r.correct
+                      ? "bg-emerald-100 border-emerald-200 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300"
+                      : "bg-rose-100 border-rose-200 text-rose-800 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-300"
+                  }`}
                                 >
                                   {a}
                                 </span>
@@ -1095,14 +1098,14 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
                           {!r.correct && (
                             <div className="space-y-1.5">
-                              <p className="text-[10px] text-slate-600 uppercase tracking-wider">
+                              <p className="text-[10px] text-sky-500 dark:text-slate-600 uppercase tracking-wider">
                                 correct answer
                               </p>
                               <div className="flex flex-wrap gap-1.5">
                                 {r.correctAnswerTexts.map((a, j) => (
                                   <span
                                     key={j}
-                                    className="text-xs px-2.5 py-1 rounded-lg border bg-emerald-950/40 border-emerald-800 text-emerald-300"
+                                    className="text-xs px-2.5 py-1 rounded-lg border bg-emerald-100 border-emerald-300 text-emerald-900 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300"
                                   >
                                     {a}
                                   </span>

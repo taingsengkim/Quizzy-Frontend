@@ -69,11 +69,30 @@ export default function LoginComponent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#02040a] text-slate-200 px-6 relative overflow-hidden">
+    <div
+      className="min-h-screen flex items-center justify-center 
+                bg-white dark:bg-[#02040a] 
+                text-slate-900 dark:text-slate-200 
+                px-6 relative overflow-hidden"
+    >
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[120px] rounded-full" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+        <div
+          className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] 
+                    bg-blue-500/10 dark:bg-blue-600/10 
+                    blur-[120px] rounded-full"
+        />
+
+        <div
+          className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] 
+                    bg-violet-500/10 dark:bg-violet-600/10 
+                    blur-[120px] rounded-full"
+        />
+
+        <div
+          className="absolute inset-0 
+                    bg-[url('https://grainy-gradients.vercel.app/noise.svg')] 
+                    opacity-10 dark:opacity-20 mix-blend-overlay"
+        />
       </div>
 
       <motion.div
@@ -82,26 +101,49 @@ export default function LoginComponent() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="bg-slate-950/50 border-slate-800 backdrop-blur-2xl shadow-2xl overflow-hidden">
-          <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-sky-400 to-violet-500" />
+        <Card
+          className="backdrop-blur-2xl shadow-2xl overflow-hidden
+                 bg-white/70 dark:bg-slate-950/50
+                 border border-slate-200 dark:border-slate-800"
+        >
+          <div
+            className="h-1 w-full 
+                      bg-gradient-to-r from-blue-500 via-sky-400 to-violet-500"
+          />
 
           <CardContent className="p-8 space-y-8">
             <header className="space-y-2 text-center">
-              <h1 className="text-4xl font-black tracking-tighter italic text-white underline decoration-sky-500 decoration-4">
+              <h1
+                className="text-4xl font-black tracking-tighter italic
+                         text-slate-900 dark:text-white
+                         underline decoration-sky-500 decoration-4"
+              >
                 QUIZ<span className="text-sky-500">ZY</span>
               </h1>
-              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em]">
+
+              <p
+                className="text-[10px] font-mono uppercase tracking-[0.3em] 
+                        text-slate-500 dark:text-slate-500"
+              >
                 System.Initialize(Authentication)
               </p>
             </header>
-
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-1.5 group">
-                <Label className="text-[10px] font-mono text-slate-500 ml-1 group-focus-within:text-sky-400 transition-colors uppercase">
+                <Label
+                  className="text-[10px] font-mono ml-1 uppercase
+                              text-slate-500 group-focus-within:text-sky-500 transition-colors"
+                >
                   Neural Link (Email)
                 </Label>
+
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-sky-500 transition-colors" />
+                  <Mail
+                    className="absolute left-3 top-1/2 -translate-y-1/2 
+                               w-4 h-4 text-slate-400 
+                               group-focus-within:text-sky-500 transition-colors"
+                  />
+
                   <Controller
                     control={control}
                     name="email"
@@ -110,24 +152,38 @@ export default function LoginComponent() {
                         {...field}
                         type="email"
                         placeholder="user@domain.com"
-                        className={`text-white pl-10 bg-slate-900/50 border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 transition-all ${
-                          errors.email
-                            ? "border-red-500/50"
-                            : "hover:border-sky-500/40"
-                        }`}
+                        className={`pl-10 transition-all
+                      bg-white dark:bg-slate-900/50
+                      text-slate-900 dark:text-white
+                      border
+                      ${
+                        errors.email
+                          ? "border-red-500"
+                          : "border-slate-300 dark:border-slate-800 hover:border-sky-400/50"
+                      }
+                      focus:border-sky-500/50 focus:ring-sky-500/20`}
                       />
                     )}
                   />
                 </div>
+
                 <ErrorMessage message={errors.email?.message} />
               </div>
-
               <div className="space-y-1.5 group">
-                <Label className="text-[10px] font-mono text-slate-500 ml-1 group-focus-within:text-violet-400 uppercase">
+                <Label
+                  className="text-[10px] font-mono uppercase ml-1
+                              text-slate-500 group-focus-within:text-violet-500"
+                >
                   Access Key
                 </Label>
+
                 <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-violet-500 transition-colors" />
+                  <KeyRound
+                    className="absolute left-3 top-1/2 -translate-y-1/2 
+                                   w-4 h-4 text-slate-400 
+                                   group-focus-within:text-violet-500 transition-colors"
+                  />
+
                   <Controller
                     control={control}
                     name="password"
@@ -136,51 +192,61 @@ export default function LoginComponent() {
                         {...field}
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className={`text-white pl-10 pr-10 bg-slate-900/50 border-slate-800 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all ${
-                          errors.password
-                            ? "border-red-500/50"
-                            : "hover:border-violet-500/40"
-                        }`}
+                        className={`pl-10 pr-10 transition-all
+                      bg-white dark:bg-slate-900/50
+                      text-slate-900 dark:text-white
+                      border
+                      ${
+                        errors.password
+                          ? "border-red-500"
+                          : "border-slate-300 dark:border-slate-800 hover:border-violet-400/50"
+                      }
+                      focus:border-violet-500/50 focus:ring-violet-500/20`}
                       />
                     )}
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 
+                           text-slate-400 hover:text-slate-600 
+                           dark:text-slate-600 dark:hover:text-slate-300"
                   >
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
+
                 <ErrorMessage message={errors.password?.message} />
               </div>
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full relative group h-11 bg-white text-black hover:bg-white/90 font-bold overflow-hidden transition-all active:scale-[0.98]"
+                className="w-full h-11 font-bold relative overflow-hidden
+                       bg-black dark:bg-white 
+                       text-white dark:text-black
+                       hover:opacity-90 active:scale-[0.98]"
               >
                 {isLoading ? (
                   <Loader2 className="animate-spin" />
                 ) : (
                   <>
                     <span className="relative z-10 flex items-center">
-                      EXECUTE LOGIN{" "}
-                      <Zap className="ml-2 w-4 h-4 fill-current" />
+                      EXECUTE LOGIN <Zap className="ml-2 w-4 h-4" />
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </>
                 )}
               </Button>
+
               <SocialAuthButtons />
             </form>
-
             <footer className="text-center">
-              <p className="text-[10px] text-slate-600 font-mono italic">
+              <p className="text-[10px] font-mono italic text-slate-500">
                 Unauthorized_Node?{" "}
                 <Link
                   href="/register"
-                  className="text-sky-500 hover:text-sky-300 underline underline-offset-4 cursor-pointer transition-colors"
+                  className="text-sky-500 hover:text-sky-400 underline underline-offset-4"
                 >
                   Create Account
                 </Link>

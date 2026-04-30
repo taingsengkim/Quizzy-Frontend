@@ -180,9 +180,12 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
 
   if (isLoading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-[#05080f] gap-4">
-        <Loader2 className="w-12 h-12 animate-spin text-sky-500" />
-        <span className="font-mono text-xs text-sky-500/50 animate-pulse tracking-widest">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white dark:bg-[#05080f] gap-4 transition-colors">
+        <div className="p-4 rounded-2xl bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800">
+          <Loader2 className="w-10 h-10 animate-spin text-sky-600 dark:text-sky-500" />
+        </div>
+
+        <span className="font-mono text-xs text-slate-500 dark:text-sky-500/60 animate-pulse tracking-widest">
           ESTABLISHING_CONNECTION...
         </span>
       </div>
@@ -260,66 +263,111 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   if (quizResultId !== null) {
     if (isResultLoading)
       return (
-        <div className="flex items-center justify-center min-h-screen bg-[#05080f]">
+        <div className="flex items-center justify-center min-h-screen bg-white dark:bg-[#05080f]">
           <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
         </div>
       );
 
     return (
-      <div className="min-h-screen bg-[#05080f] flex flex-col items-center py-20 px-6">
+      <div
+        className="min-h-screen flex flex-col items-center py-20 px-6
+bg-gray-50 text-gray-900
+dark:bg-[#05080f] dark:text-white"
+      >
         <div className="max-w-4xl w-full animate-in fade-in slide-in-from-bottom-8 duration-1000">
           <div className="text-center mb-16 relative">
             <div className="absolute inset-0 bg-emerald-500/10 blur-[100px] -z-10 rounded-md" />
             <Trophy className="w-16 h-16 text-emerald-400 mx-auto mb-6" />
-            <h1 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-2">
+
+            <h1
+              className="text-5xl font-black uppercase italic tracking-tighter mb-2
+      text-gray-900 dark:text-white"
+            >
               Protocol <span className="text-emerald-400">Success</span>
             </h1>
-            <p className="text-slate-200 font-mono text-xs uppercase tracking-[0.4em]">
+
+            <p
+              className="font-mono text-xs uppercase tracking-[0.4em]
+      text-gray-500 dark:text-slate-200"
+            >
               Final Accuracy Assessment
             </p>
           </div>
+
           <div className="flex justify-center gap-6 mb-20">
-            <div className="bg-[#0d121f] border border-emerald-500/20 p-8 rounded-md min-w-[200px] text-center shadow-2xl shadow-emerald-500/5">
-              <p className="text-[10px] font-mono text-slate-200 uppercase tracking-widest mb-2">
+            <div
+              className="p-8 rounded-md min-w-[200px] text-center shadow-2xl
+      bg-white border border-gray-200
+      dark:bg-[#0d121f] dark:border-emerald-500/20 dark:shadow-emerald-500/5"
+            >
+              <p
+                className="text-[10px] font-mono uppercase tracking-widest mb-2
+        text-gray-500 dark:text-slate-200"
+              >
                 Performance Score
               </p>
-              <p className="text-5xl font-black text-white">
+
+              <p
+                className="text-5xl font-black
+        text-gray-900 dark:text-white"
+              >
                 {quizResult?.score}
                 <span className="text-emerald-500">/</span>
                 {quiz?.questions?.length}
               </p>
             </div>
-            <div className="bg-[#0d121f] border border-sky-500/20 p-8 rounded-md min-w-[200px] text-center shadow-2xl shadow-sky-500/5">
-              <p className="text-[10px] font-mono text-slate-200 uppercase tracking-widest mb-2">
+            <div
+              className="p-8 rounded-md min-w-[200px] text-center shadow-2xl
+      bg-white border border-gray-200
+      dark:bg-[#0d121f] dark:border-sky-500/20 dark:shadow-sky-500/5"
+            >
+              <p
+                className="text-[10px] font-mono uppercase tracking-widest mb-2
+        text-gray-500 dark:text-slate-200"
+              >
                 Time Taken
               </p>
-              <p className="text-5xl font-black text-white font-mono">
+
+              <p
+                className="text-5xl font-black font-mono
+        text-gray-900 dark:text-white"
+              >
                 {formatTime(quizResult?.duration ?? elapsedSeconds)}
               </p>
             </div>
           </div>
-
           <div className="space-y-8">
-            <h3 className="text-slate-400 font-mono text-[10px] uppercase tracking-widest flex items-center gap-4">
-              <span className="h-px flex-1 bg-slate-800" /> SEQUENCE_LOG{" "}
-              <span className="h-px flex-1 bg-slate-800" />
+            <h3
+              className="font-mono text-[10px] uppercase tracking-widest flex items-center gap-4
+      text-gray-500 dark:text-slate-400"
+            >
+              <span className="h-px flex-1 bg-gray-300 dark:bg-slate-800" />
+              SEQUENCE_LOG
+              <span className="h-px flex-1 bg-gray-300 dark:bg-slate-800" />
             </h3>
+
             {quizResult?.questions.map((q: any, idx: number) => (
               <div
                 key={q.questionId}
-                className="bg-[#0d121f]/60 backdrop-blur-md border border-slate-800 p-8 roundedmd2rem] hover:border-slate-700 transition-colors"
+                className="p-8 rounded-md backdrop-blur-md transition-colors
+          bg-white border border-gray-200 hover:border-gray-300
+          dark:bg-[#0d121f]/60 dark:border-slate-800 dark:hover:border-slate-700"
               >
                 <div className="flex justify-between items-start mb-6 gap-4">
-                  <h3 className="text-xl font-bold text-white leading-snug">
+                  <h3
+                    className="text-xl font-bold leading-snug
+            text-gray-900 dark:text-white"
+                  >
                     {idx + 1}. {q.questionText}
                   </h3>
+
                   <div
                     className={`p-2 rounded-md border ${
                       q.userAnswers.every((val: any) =>
                         q.correctAnswers.includes(val),
                       ) && q.userAnswers.length === q.correctAnswers.length
-                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                        : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                        ? "bg-green-100 border-green-300 text-green-600 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-400"
+                        : "bg-red-100 border-red-300 text-red-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400"
                     }`}
                   >
                     {q.userAnswers.every((val: any) =>
@@ -331,16 +379,17 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                     )}
                   </div>
                 </div>
+
                 <div className="grid grid-cols-1 gap-3">
-                  {q.correctAnswers.map((correct: string) => {
+                  {q.correctAnswers.map((correct: any) => {
                     const isSelected = q.userAnswers.includes(correct);
                     return (
                       <div
                         key={correct}
                         className={`flex justify-between items-center px-5 py-4 rounded-md border font-medium ${
                           isSelected
-                            ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-400"
-                            : "bg-slate-900 border-slate-800 text-slate-200 italic"
+                            ? "bg-green-100 border-green-300 text-green-600 dark:bg-emerald-500/10 dark:border-emerald-500/40 dark:text-emerald-400"
+                            : "bg-gray-100 border-gray-300 text-gray-600 italic dark:bg-slate-900 dark:border-slate-800 dark:text-slate-200"
                         }`}
                       >
                         <span>
@@ -351,11 +400,13 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                     );
                   })}
                   {q.userAnswers
-                    .filter((ua: string) => !q.correctAnswers.includes(ua))
-                    .map((wrong: string) => (
+                    .filter((ua: any) => !q.correctAnswers.includes(ua))
+                    .map((wrong: any) => (
                       <div
                         key={wrong}
-                        className="flex justify-between items-center px-5 py-4 rounded-md border bg-rose-500/10 border-rose-500/40 text-rose-400 font-medium"
+                        className="flex justify-between items-center px-5 py-4 rounded-md border font-medium
+                  bg-red-100 border-red-300 text-red-600
+                  dark:bg-rose-500/10 dark:border-rose-500/40 dark:text-rose-400"
                       >
                         <span>{wrong} (Your Choice)</span>
                         <X className="w-4 h-4" />
@@ -365,12 +416,14 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
               </div>
             ))}
           </div>
-
           <Link
             href="/quizzes"
-            className="mt-20 flex items-center justify-center gap-3 w-full bg-[#0d121f] border border-slate-800 hover:bg-slate-800 text-white h-16 rounded-md font-black uppercase tracking-widest transition-all"
+            className="mt-20 flex items-center justify-center gap-3 w-full h-16 rounded-md font-black uppercase tracking-widest transition-all
+      bg-white border border-gray-300 text-gray-900 hover:bg-gray-100
+      dark:bg-[#0d121f] dark:border-slate-800 dark:text-white dark:hover:bg-slate-800"
           >
-            <ArrowLeft className="w-4 h-4" /> Return to Command Hub
+            <ArrowLeft className="w-4 h-4" />
+            Return to Command Hub
           </Link>
         </div>
       </div>
@@ -388,59 +441,59 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
   const isDanger = timeRemaining !== null && timeRemaining <= 30;
 
   return (
-    <div className="min-h-screen bg-[#05080f] flex items-center justify-center pt-20  px-6">
+    <div className="min-h-screen bg-white dark:bg-[#05080f] flex items-center justify-center pt-20 px-6">
       <div className="max-w-3xl w-full">
         <div className="mb-3 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-4">
-            <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter">
-              Module <span className="text-sky-400">{currentIdx + 1}</span>
-              <span className="text-slate-700 text-2xl ml-3">
+            <h2 className="text-4xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">
+              Module{" "}
+              <span className="text-sky-500 dark:text-sky-400">
+                {currentIdx + 1}
+              </span>
+              <span className="text-gray-300 dark:text-slate-700 text-2xl ml-3">
                 / {quiz.questions.length}
               </span>
             </h2>
           </div>
         </div>
         {timeIsUp && (
-          <div className="mb-6 p-4 rounded-md border border-rose-500/40 bg-rose-500/10 text-rose-300 text-center font-bold tracking-wide">
+          <div className="mb-6 p-4 rounded-md border border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-300 text-center font-bold tracking-wide">
             ⏰ Time's up! Submitting your answers...
           </div>
         )}
         <div className="relative group">
-          <div className="relative bg-[#0d121f] border border-slate-800 p-5 md:p-8 roundedmd1rem] shadow-2xl">
+          <div className="relative bg-gray-50 dark:bg-[#0d121f] border border-gray-200 dark:border-slate-800 p-5 md:p-8 rounded-[1rem] shadow-2xl">
             <div className="flex flex-wrap gap-3 items-start justify-between">
               <div className="flex gap-2">
-                <div className="flex items-center gap-2 text-sky-500 font-mono text-[10px] uppercase tracking-tighter">
+                <div className="flex items-center gap-2 text-sky-600 dark:text-sky-500 font-mono text-[10px] uppercase tracking-tighter">
                   <Cpu className="w-3 h-3" /> {quiz.title}
                 </div>
                 {renderTypeBadge(question.questionType)}
                 {question.difficulty && (
                   <div
                     className={`flex items-center gap-1 px-2.5 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider
-                  ${
-                    question.difficulty === "EASY"
-                      ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
-                      : ""
-                  }
-                  ${
-                    question.difficulty === "MEDIUM"
-                      ? "text-amber-400 border-amber-400/20 bg-amber-400/5"
-                      : ""
-                  }
-                  ${
-                    question.difficulty === "HARD"
-                      ? "text-rose-400 border-rose-400/20 bg-rose-400/5"
-                      : ""
-                  }
-                `}
+                ${
+                  question.difficulty === "EASY"
+                    ? "text-emerald-600 dark:text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
+                    : ""
+                }
+                ${
+                  question.difficulty === "MEDIUM"
+                    ? "text-amber-600 dark:text-amber-400 border-amber-400/20 bg-amber-400/5"
+                    : ""
+                }
+                ${
+                  question.difficulty === "HARD"
+                    ? "text-rose-600 dark:text-rose-400 border-rose-400/20 bg-rose-400/5"
+                    : ""
+                }
+              `}
                   >
                     {question.difficulty}
                   </div>
                 )}
                 {question.points && (
-                  <div
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider text-violet-400 border-violet-400/20 bg-violet-400/5 
-                  `}
-                  >
+                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-md border text-[10px] font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400 border-violet-400/20 bg-violet-400/5">
                     {question.points} pts
                   </div>
                 )}
@@ -451,10 +504,10 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                     className={`flex items-center gap-2 px-4 py-2 rounded-md border font-mono text-sm font-bold transition-all duration-300
                 ${
                   isDanger
-                    ? "border-rose-500/50 bg-rose-500/10 text-rose-400 animate-pulse"
+                    ? "border-rose-500/50 bg-rose-500/10 text-rose-600 dark:text-rose-400 animate-pulse"
                     : isWarning
-                    ? "border-amber-500/50 bg-amber-500/10 text-amber-400"
-                    : "border-slate-700 bg-slate-900/40 text-slate-300"
+                    ? "border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    : "border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-900/40 text-gray-700 dark:text-slate-300"
                 }`}
                   >
                     <Clock className="w-4 h-4" />
@@ -462,7 +515,7 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                   </div>
                 )}
                 {timeRemaining === null && (
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-md border border-slate-700 bg-slate-900/40 font-mono text-sm text-slate-400">
+                  <div className="flex items-center gap-2 px-4 py-2 rounded-md border border-gray-300 dark:border-slate-700 bg-gray-100 dark:bg-slate-900/40 font-mono text-sm text-gray-500 dark:text-slate-400">
                     <Clock className="w-4 h-4" />
                     {formatTime(elapsedSeconds)}
                   </div>
@@ -470,7 +523,7 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
               </div>
             </div>
 
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-6 leading-relaxed tracking-tight">
+            <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-6 leading-relaxed tracking-tight">
               {question.text}
             </h3>
             {question.code != null && question.code !== "" && (
@@ -488,19 +541,19 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                     disabled={timeIsUp}
                     className={`group/btn relative w-full text-left p-2 rounded-md border transition-all duration-300 ${
                       isSelected
-                        ? "bg-sky-500/10 border-sky-500 text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.1)]"
-                        : "bg-slate-900/40 border-slate-800 text-slate-400 hover:border-slate-600 hover:bg-slate-900/60"
+                        ? "bg-sky-500/10 border-sky-500 text-sky-600 dark:text-sky-400 shadow-[0_0_20px_rgba(56,189,248,0.1)]"
+                        : "bg-gray-100 dark:bg-slate-900/40 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400 hover:border-gray-400 dark:hover:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-900/60"
                     } ${timeIsUp ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex items-center justify-between relative z-10">
-                      <span className="text-base font-semibold  tracking-wide">
+                      <span className="text-base font-semibold tracking-wide">
                         {answer.text}
                       </span>
                       <div
                         className={`w-6 h-6 rounded-md border flex items-center justify-center transition-all ${
                           isSelected
                             ? "bg-sky-500 border-sky-500"
-                            : "border-slate-700 bg-slate-950"
+                            : "border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950"
                         }`}
                       >
                         {isSelected && (
@@ -515,11 +568,11 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
           </div>
         </div>
         <div className="w-full my-5 space-y-2">
-          <div className="flex justify-between  font-mono text-[10px] text-slate-200 uppercase tracking-widest">
+          <div className="flex justify-between font-mono text-[10px] text-gray-600 dark:text-slate-200 uppercase tracking-widest">
             <span>Sync Progress</span>
             <span>{Math.round(progress)}%</span>
           </div>
-          <div className="h-5 bg-slate-900 rounded-md border border-slate-800 overflow-hidden">
+          <div className="h-5 bg-gray-200 dark:bg-slate-900 rounded-md border border-gray-300 dark:border-slate-800 overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-sky-600 to-sky-400 transition-all duration-700"
               style={{ width: `${progress}%` }}
@@ -529,7 +582,7 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
         <div className="mt-2 flex items-center justify-between gap-4">
           <div className="flex flex-col gap-2">
             {hint && (
-              <div className="p-4 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-300">
+              <div className="p-4 rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300">
                 💡 {hint}
               </div>
             )}
@@ -542,7 +595,7 @@ export default function PlayQuizComponent({ quizId }: PlayQuizProps) {
                 >
                   {hintLoading ? "Loading..." : "💡 Show Hint"}
                 </Button>
-                <span className="text-xs text-slate-200 font-mono">
+                <span className="text-xs text-gray-600 dark:text-slate-200 font-mono">
                   {totalHintsUsed}/{quiz.maxHintsPerQuestion} quiz hints used
                   {usedOnCurrentQuestion >= 1 && (
                     <span className="ml-2 text-amber-500/70">

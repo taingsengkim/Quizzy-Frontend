@@ -135,34 +135,34 @@ export default function RegisterComponent() {
   const passwordValue = watch("password");
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#02040a] text-slate-200 px-6 relative overflow-hidden">
+    <div className=" py-20 flex items-center justify-center bg-[#fcfcfd] dark:bg-[#02040a] text-slate-600 dark:text-slate-200 px-6 relative overflow-hidden transition-colors duration-500">
       <AnimatePresence>
         {socialPending && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-6"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-black/70 backdrop-blur-sm px-6"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="w-full max-w-sm bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-6"
+              className="w-full max-w-sm bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 space-y-6 shadow-2xl"
             >
               <div className="space-y-1 text-center">
-                <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                   Identity Detected
                 </p>
-                <h2 className="text-white font-bold text-lg">
+                <h2 className="text-slate-900 dark:text-white font-bold text-lg">
                   {socialPending.email}
                 </h2>
-                <p className="text-[10px] text-slate-500 font-mono">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">
                   Select your role to complete registration
                 </p>
               </div>
 
-              <div className="p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex gap-1">
+              <div className="p-1 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800 flex gap-1">
                 {(["STUDENT", "INSTRUCTOR"] as const).map((role) => (
                   <button
                     key={role}
@@ -170,8 +170,8 @@ export default function RegisterComponent() {
                     onClick={() => setSocialRole(role)}
                     className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${
                       socialRole === role
-                        ? "bg-slate-800 text-sky-400 shadow-inner"
-                        : "text-slate-500 hover:text-slate-300"
+                        ? "bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-sm dark:shadow-inner border border-slate-200 dark:border-transparent"
+                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                     }`}
                   >
                     {role}
@@ -183,7 +183,7 @@ export default function RegisterComponent() {
                 <button
                   type="button"
                   onClick={() => setSocialPending(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-slate-800 text-slate-400 text-xs font-mono hover:border-red-500/40 hover:text-red-400 transition-all"
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-xs font-mono hover:border-red-500/40 hover:text-red-500 transition-all"
                 >
                   CANCEL
                 </button>
@@ -191,7 +191,7 @@ export default function RegisterComponent() {
                   type="button"
                   onClick={handleSocialRegister}
                   disabled={isSocialLoading}
-                  className="flex-1 py-2.5 rounded-xl bg-white text-black text-xs font-bold hover:bg-sky-400 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-black text-xs font-bold hover:bg-sky-500 dark:hover:bg-sky-400 transition-all flex items-center justify-center gap-2"
                 >
                   {isSocialLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -207,10 +207,11 @@ export default function RegisterComponent() {
         )}
       </AnimatePresence>
 
+      {/* AMBIENT BACKGROUND */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/10 blur-[120px] rounded-full" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-600/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-500/10 dark:bg-violet-600/10 blur-[120px] rounded-full" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 mix-blend-overlay" />
       </div>
 
       <motion.div
@@ -219,23 +220,24 @@ export default function RegisterComponent() {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md"
       >
-        <Card className="bg-slate-950/50 border-slate-800 backdrop-blur-2xl shadow-2xl overflow-hidden">
-          <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-sky-400 to-violet-500" />
+        <Card className="bg-white/80 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 backdrop-blur-2xl shadow-2xl overflow-hidden transition-colors">
+          <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 via-sky-400 to-violet-500" />
           <CardContent className="p-8 space-y-8">
             <header className="space-y-2 text-center">
-              <h1 className="text-4xl font-black tracking-tighter italic text-white">
+              <h1 className="text-4xl font-black tracking-tighter italic text-slate-900 dark:text-white">
                 QUIZ
-                <span className="text-sky-500 underline decoration-violet-500">
+                <span className="text-sky-500 underline underline-offset-4 decoration-violet-500">
                   ZY
                 </span>
               </h1>
-              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-[0.3em]">
+              <p className="text-[10px] font-mono text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em]">
                 System.Initialize(Account_Creation)
               </p>
             </header>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="p-1 bg-slate-900/80 rounded-xl border border-slate-800 flex gap-1">
+              {/* ROLE SELECTOR */}
+              <div className="p-1 bg-slate-100 dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800 flex gap-1 shadow-inner">
                 <Controller
                   control={control}
                   name="role"
@@ -248,8 +250,8 @@ export default function RegisterComponent() {
                           onClick={() => field.onChange(role)}
                           className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all ${
                             field.value === role
-                              ? "bg-slate-800 text-sky-400 shadow-inner"
-                              : "text-slate-500 hover:text-slate-300"
+                              ? "bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-md dark:shadow-inner border border-slate-200 dark:border-transparent"
+                              : "text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                           }`}
                         >
                           {role}
@@ -260,6 +262,7 @@ export default function RegisterComponent() {
                 />
               </div>
 
+              {/* INPUTS */}
               {[
                 {
                   name: "username",
@@ -277,11 +280,11 @@ export default function RegisterComponent() {
                 },
               ].map((input) => (
                 <div key={input.name} className="space-y-1.5 group">
-                  <Label className="text-[10px] font-mono text-slate-500 ml-1 group-focus-within:text-sky-400 transition-colors">
+                  <Label className="text-[10px] font-mono text-slate-400 dark:text-slate-500 ml-1 group-focus-within:text-sky-500 transition-colors">
                     {input.label}
                   </Label>
                   <div className="relative">
-                    <input.icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-sky-500 transition-colors" />
+                    <input.icon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-600 group-focus-within:text-sky-500 transition-colors" />
                     <Controller
                       control={control}
                       name={input.name as any}
@@ -289,7 +292,7 @@ export default function RegisterComponent() {
                         <Input
                           {...field}
                           placeholder={input.placeholder}
-                          className="text-white pl-10 bg-slate-900/50 border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 placeholder:text-slate-700 transition-all"
+                          className="text-slate-900 dark:text-white pl-10 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-sky-500/50 focus:ring-sky-500/20 placeholder:text-slate-300 dark:placeholder:text-slate-700 transition-all"
                         />
                       )}
                     />
@@ -302,12 +305,13 @@ export default function RegisterComponent() {
                 </div>
               ))}
 
+              {/* PASSWORD */}
               <div className="space-y-1.5 group">
-                <Label className="text-[10px] font-mono text-slate-500 ml-1 group-focus-within:text-violet-400 uppercase">
+                <Label className="text-[10px] font-mono text-slate-400 dark:text-slate-500 ml-1 group-focus-within:text-violet-500 uppercase">
                   Access Key
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-600 group-focus-within:text-violet-500 transition-colors" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-600 group-focus-within:text-violet-500 transition-colors" />
                   <Controller
                     control={control}
                     name="password"
@@ -316,14 +320,14 @@ export default function RegisterComponent() {
                         {...field}
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="text-white pl-10 pr-10 bg-slate-900/50 border-slate-800 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all"
+                        className="text-slate-900 dark:text-white pl-10 pr-10 bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:border-violet-500/50 focus:ring-violet-500/20 transition-all"
                       />
                     )}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 hover:text-sky-500 transition-colors"
                   >
                     {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
@@ -343,13 +347,15 @@ export default function RegisterComponent() {
                       <div
                         className={`h-1 rounded-full transition-all duration-500 ${
                           req.test
-                            ? "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"
-                            : "bg-slate-800"
+                            ? "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.4)]"
+                            : "bg-slate-200 dark:bg-slate-800"
                         }`}
                       />
                       <p
                         className={`text-[7px] uppercase font-bold text-center ${
-                          req.test ? "text-violet-400" : "text-slate-700"
+                          req.test
+                            ? "text-violet-600 dark:text-violet-400"
+                            : "text-slate-300 dark:text-slate-700"
                         }`}
                       >
                         {req.label}
@@ -357,14 +363,13 @@ export default function RegisterComponent() {
                     </div>
                   ))}
                 </div>
-
                 <ErrorMessage message={errors.password?.message} />
               </div>
 
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full relative group h-11 bg-white text-black hover:bg-white/90 font-bold overflow-hidden"
+                className="w-full relative group h-11 bg-slate-900 dark:bg-white text-white dark:text-black hover:bg-slate-800 dark:hover:bg-white/90 font-bold overflow-hidden transition-all shadow-lg"
               >
                 {isLoading ? (
                   <Loader2 className="animate-spin" />
@@ -374,7 +379,7 @@ export default function RegisterComponent() {
                       EXECUTE REGISTER{" "}
                       <Zap className="ml-2 w-4 h-4 fill-current" />
                     </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-sky-400 to-violet-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-sky-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </>
                 )}
               </Button>
@@ -383,11 +388,11 @@ export default function RegisterComponent() {
             </form>
 
             <footer className="text-center">
-              <p className="text-[10px] text-slate-600 font-mono italic">
+              <p className="text-[10px] text-slate-400 dark:text-slate-600 font-mono italic">
                 Existing_Node?{" "}
                 <span
                   onClick={() => router.push("/login")}
-                  className="text-sky-500 hover:text-sky-300 underline cursor-pointer"
+                  className="text-sky-600 dark:text-sky-500 hover:text-sky-400 underline cursor-pointer font-bold"
                 >
                   Re-route to Login
                 </span>

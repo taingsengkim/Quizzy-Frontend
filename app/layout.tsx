@@ -4,6 +4,7 @@ import "./globals.css";
 import StoreProvider from "./StoreProvider";
 import Navbar from "@/components/share-component/navbar";
 import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -142,16 +143,26 @@ export default function RootLayout({
           content="dmsFKMIcD5dmTK6D2ITVpYxsMUG4lSgfFnS71fPNWJI"
         />
       </head>
-      <body className=" flex flex-col font-mono-custom relative bg-[#080b14]  overflow-x-hidden">
-        <StoreProvider>
-          <Toaster
-            theme="dark"
-            position="top-center"
-            richColors
-            expand={false}
-          />
-          {children}
-        </StoreProvider>
+      <body className=" flex flex-col font-mono-custom relative dark:bg-[#080b14] bg-white  overflow-x-hidden">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {" "}
+          <StoreProvider>
+            <Toaster
+              theme="dark"
+              position="top-center"
+              richColors
+              expand={false}
+            />
+
+            {children}
+          </StoreProvider>
+        </ThemeProvider>
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

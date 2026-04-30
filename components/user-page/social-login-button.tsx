@@ -17,7 +17,10 @@ export default function SocialAuthButtons() {
       <button
         type="button"
         onClick={() => handleSocialAuth("google")}
-        className="flex items-center justify-center gap-2.5 w-full py-2.5 bg-slate-900/50 border border-slate-800 hover:border-sky-500/40 rounded-xl text-slate-200 text-sm font-medium transition-all active:scale-[0.98]"
+        className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl text-sm font-medium transition-all active:scale-[0.98]
+               border
+               bg-white text-slate-900 border-slate-200 hover:border-sky-400/60 hover:bg-slate-50
+               dark:bg-slate-900/50 dark:text-slate-200 dark:border-slate-800 dark:hover:border-sky-500/40 dark:hover:bg-slate-800/40"
       >
         <svg
           width="16"
@@ -48,7 +51,10 @@ export default function SocialAuthButtons() {
       <button
         type="button"
         onClick={() => handleSocialAuth("github")}
-        className="flex items-center justify-center gap-2.5 w-full py-2.5 bg-slate-900/50 border border-slate-800 hover:border-violet-500/40 rounded-xl text-slate-200 text-sm font-medium transition-all active:scale-[0.98]"
+        className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-xl text-sm font-medium transition-all active:scale-[0.98]
+               border
+               bg-white text-slate-900 border-slate-200 hover:border-violet-400/60 hover:bg-slate-50
+               dark:bg-slate-900/50 dark:text-slate-200 dark:border-slate-800 dark:hover:border-violet-500/40 dark:hover:bg-slate-800/40"
       >
         <svg
           width="16"
