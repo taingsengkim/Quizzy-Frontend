@@ -73,7 +73,7 @@ export default function QuizzesPage() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4 bg-white dark:bg-[#080b14] transition-colors duration-300">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4  transition-colors duration-300">
         <div className="relative">
           <div className="absolute inset-0 rounded-full border-2 border-slate-100 dark:border-sky-500/10" />
           <Loader2 className="w-10 h-10 animate-spin text-sky-600 dark:text-sky-400 dark:drop-shadow-[0_0_8px_rgba(56,189,248,0.5)]" />
