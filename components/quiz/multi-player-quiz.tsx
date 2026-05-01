@@ -543,7 +543,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   };
 
   return (
-    <div className=" dark:bg-[#080b14] bg-white container mx-auto">
+    <div className=" dark:bg-[#080b14] bg-white container mx-auto ">
       {!room && (
         <div className="max-w-2xl mx-auto  min-h-screen flex items-center justify-center px-4 mt-8 bg-white dark:bg-[#080b14]">
           <div className="relative w-full max-w-md">
@@ -649,21 +649,21 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
       {room && (
         <div
-          className={`space-y-4 mt-20 mx-auto ${
+          className={`space-y-4 mt-20 mx-auto  ${
             !room.started ? "max-w-2xl" : ""
           }`}
         >
           <div>
             {!room.started && (
-              <div className="relative group rounded-3xl p-6 bg-white/5 border border-sky-500/20 shadow-lg transition-all duration-300 hover:scale-[1.01]">
-                <div className="relative grid md:grid-cols-2 gap-8 items-center">
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-mono mb-1">
+              <div className="relative group rounded-3xl p-6  bg-white/5 border border-sky-500/20 shadow-lg transition-all duration-300 hover:scale-[1.01]">
+                <div className="relative grid md:grid-cols-2 gap-8 items-center justify-center">
+                  <div className="space-y-4 flex flex-col justify-center">
+                    <div className="justify-center flex flex-col ">
+                      <p className="text-[10px] text-center md:text-start text-slate-500 uppercase tracking-widest font-mono mb-1">
                         room code
                       </p>
 
-                      <p className="text-4xl font-black font-mono text-sky-400 tracking-[0.25em]">
+                      <p className="text-4xl text-center md:text-start font-black font-mono text-sky-400 tracking-[0.25em]">
                         {room.roomCode}
                       </p>
 
@@ -671,13 +671,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                         Share this code or scan QR to join the room
                       </p>
                     </div>
-                    <div className="text-[11px] text-slate-500 font-mono uppercase tracking-widest">
-                      {room.started
-                        ? "game in progress"
-                        : "waiting for players"}
-                    </div>
                   </div>
-                  <div className="flex md:justify-end">
+                  <div className="flex justify-center md:justify-end">
                     <div className="space-y-2">
                       <p className="text-xs text-slate-400 font-mono tracking-widest uppercase">
                         scan to join
@@ -694,7 +689,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
           </div>
           <div
             className="
-    relative flex items-center justify-between
+    relative flex items-center gap-10  justify-center flex-wrap md:flex-nowrap md:items-center md:justify-between
     px-4 py-3 rounded-xl
     bg-sky-50 dark:bg-[#0a1628]
     border border-sky-200 dark:border-[#1e3a5f]
@@ -717,8 +712,8 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                 ? "● playing"
                 : "◌ waiting"}
             </span>
-            <div className="flex items-center gap-2 text-2xl font-mono">
-              <span className="text-slate-500 dark:text-slate-600 uppercase tracking-widest">
+            <div className="flex items-center flex-wrap gap-2 text-2xl font-mono">
+              <span className="text-slate-500 font-bold dark:text-slate-600 uppercase tracking-widest">
                 quiz
               </span>
 
@@ -803,7 +798,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               )}
             </div>
           )}
-          <div className="grid grid-cols-4 gap-5 container mx-auto">
+          <div className="flex justify-center flex-wrap md:grid md:grid-cols-4 gap-5 container mx-auto">
             <div className="col-span-1">
               {/* Players panel */}
               {room.started && (
