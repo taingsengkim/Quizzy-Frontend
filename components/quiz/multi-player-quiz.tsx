@@ -9,6 +9,7 @@ import CodeBlock from "./code-display";
 import { toast } from "sonner";
 import NotFoundQuiz from "../share-component/not-found-quiz";
 import { useSearchParams } from "next/navigation";
+import RoomQR from "./qr-room";
 
 type CurrentQuestion = {
   id: number;
@@ -656,6 +657,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
               <p className="text-3xl font-mono font-bold text-sky-400 tracking-[0.18em]">
                 {room.roomCode}
               </p>
+              <RoomQR roomId={room.roomCode} />
             </div>
 
             <span
@@ -755,9 +757,11 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
 
           {/* Waiting message — non-owner */}
           {!room.started && !isOwner && (
-            <p className="text-center text-sm text-slate-500 font-mono italic py-2">
-              ◌ waiting for host to start...
-            </p>
+            <>
+              <p className="text-center text-sm text-slate-500 font-mono italic py-2">
+                ◌ waiting for host to start...
+              </p>
+            </>
           )}
 
           {/* Waiting for others after finishing */}
