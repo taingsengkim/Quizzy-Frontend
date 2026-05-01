@@ -13,7 +13,6 @@ export default function JoinRoomComponent() {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const clientRef = useRef<Client | null>(null);
-
   const handleJoin = () => {
     if (!username.trim()) return toast.warning("Please enter a username");
     if (!roomCode.trim()) return toast.warning("Please enter a room code");

@@ -22,7 +22,9 @@ export default async function MultiPlayerPage({
 
   return (
     <Suspense>
-      <MultiplayerQuizPage quizId={quizId} />;
+      <div className="h-auto">
+        <MultiplayerQuizPage quizId={quizId} />;
+      </div>
     </Suspense>
   );
 }
