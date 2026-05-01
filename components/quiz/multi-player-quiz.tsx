@@ -543,7 +543,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
   };
 
   return (
-    <div className=" dark:bg-[#080b14] bg-white container mx-auto ">
+    <div className=" dark:bg-[#080b14]   bg-white container mx-auto ">
       {!room && (
         <div className="max-w-2xl mx-auto  min-h-screen flex items-center justify-center px-4 mt-8 bg-white dark:bg-[#080b14]">
           <div className="relative w-full max-w-md">
@@ -949,7 +949,7 @@ export default function MultiplayerQuizPage({ quizId }: { quizId: string }) {
                         </div>
                       )}
                       <div className="absolute -inset-1 bg-gradient-to-r from-sky-500/20 to-transparent rounded-[2.5rem] blur opacity-30 group-hover:opacity-50 transition-opacity" />
-                      <div className="relative bg-white dark:bg-[#0d121f] border border-gray-200 dark:border-slate-800 p-8 md:p-12 rounded-[2rem] shadow-2xl">
+                      <div className="relative bg-white dark:bg-[#0d121f] border  sm:mx-0 border-gray-200 dark:border-slate-800 p-8 md:p-12 rounded-[2rem] ">
                         <div className="absolute top-0 right-0 p-6 pointer-events-none">
                           <div className="w-14 h-14 border-t-2 border-r-2 border-sky-500/20 rounded-tr-3xl" />
                         </div>
