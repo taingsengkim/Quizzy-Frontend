@@ -111,7 +111,7 @@ export default function QuizzesPage() {
         <button
           onClick={commitSearch}
           disabled={isFetching}
-          className="px-6 py-2.5 bg-sky-600 dark:bg-sky-500 hover:bg-sky-700 dark:hover:bg-sky-400 active:scale-95 disabled:opacity-50 text-white text-sm font-mono font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+          className="px-6 py-2.5 cursor-pointer bg-sky-600 dark:bg-sky-500 hover:bg-sky-700 dark:hover:bg-sky-400 active:scale-95 disabled:opacity-50 text-white text-sm font-mono font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
         >
           {isFetching ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -132,7 +132,7 @@ export default function QuizzesPage() {
                 setStatus(v);
                 setPage(0);
               }}
-              className={`px-4 py-1.5 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider transition-all duration-200 ${
+              className={`cursor-pointer px-4 py-1.5 rounded-lg text-[11px] font-mono font-bold uppercase tracking-wider transition-all duration-200 ${
                 status === v
                   ? "bg-white dark:bg-slate-800 text-sky-600 dark:text-sky-400 shadow-sm"
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-300"

@@ -545,7 +545,7 @@ dark:bg-[#05080f] dark:text-white"
                         : "bg-gray-100 dark:bg-slate-900/40 border-gray-200 dark:border-slate-800 text-gray-600 dark:text-slate-400 hover:border-gray-400 dark:hover:border-slate-600 hover:bg-gray-200 dark:hover:bg-slate-900/60"
                     } ${timeIsUp ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
-                    <div className="flex items-center justify-between relative z-10">
+                    <div className="flex cursor-pointer items-center justify-between relative z-10">
                       <span className="text-base font-semibold tracking-wide">
                         {answer.text}
                       </span>
@@ -591,7 +591,7 @@ dark:bg-[#05080f] dark:text-white"
                 <Button
                   onClick={handleGetHint}
                   disabled={hintDisabled || timeIsUp}
-                  className="bg-amber-500 hover:bg-amber-400 text-black font-bold disabled:opacity-30"
+                  className="bg-amber-500 cursor-pointer hover:bg-amber-400 text-black font-bold disabled:opacity-30"
                 >
                   {hintLoading ? "Loading..." : "💡 Show Hint"}
                 </Button>
@@ -610,7 +610,7 @@ dark:bg-[#05080f] dark:text-white"
           <Button
             onClick={handleNext}
             disabled={!selectedAnswers[question.id]?.length || timeIsUp}
-            className="group min-w-[220px] h-10 bg-sky-600 hover:bg-sky-500 text-white rounded-md font-black uppercase tracking-[0.2em] shadow-xl shadow-sky-900/20 transition-all disabled:opacity-20 active:scale-95"
+            className="cursor-pointer group min-w-[220px] h-10 bg-sky-600 hover:bg-sky-500 text-white rounded-md font-black uppercase tracking-[0.2em] shadow-xl shadow-sky-900/20 transition-all disabled:opacity-20 active:scale-95"
           >
             {currentIdx === quiz.questions.length - 1
               ? "Finalize Sequence"

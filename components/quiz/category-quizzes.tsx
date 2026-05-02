@@ -220,7 +220,7 @@ export default function CategoryQuizzesClient({ categoryId }: Props) {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={handleSinglePlayer}
-                className="group flex flex-col items-start text-left p-5 rounded-xl
+                className="cursor-pointer group flex flex-col items-start text-left p-5 rounded-xl
                    border transition-all duration-200
                    bg-white dark:bg-[#0f172a]
                    border-slate-200 dark:border-slate-800
@@ -249,7 +249,7 @@ export default function CategoryQuizzesClient({ categoryId }: Props) {
               </button>
               <button
                 onClick={handleMultiplayer}
-                className="group relative flex flex-col items-start text-left p-5 rounded-xl
+                className="group cursor-pointer relative flex flex-col items-start text-left p-5 rounded-xl
                    border transition-all duration-200
                    bg-white dark:bg-[#0f172a]
                    border-sky-200 dark:border-sky-500/30
