@@ -46,9 +46,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+
+  const token = req.cookies.get("access_token")?.value;
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/quizzes/${id}`,
-    { method: "DELETE" }
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
   );
 
   if (!res.ok) {
@@ -58,5 +66,8 @@ export async function DELETE(
     );
   }
 
-  return NextResponse.json({ message: "Quiz deleted successfully" }, { status: 200 });
+  return NextResponse.json(
+    { message: "Quiz deleted successfully" },
+    { status: 200 }
+  );
 }
